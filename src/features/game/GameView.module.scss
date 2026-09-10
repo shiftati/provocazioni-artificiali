@@ -1,0 +1,162 @@
+.gameWrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.statusBar {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-6);
+  z-index: var(--z-chrome);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  user-select: none;
+}
+
+/* IDLE Step */
+.idleContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-12);
+  background: radial-gradient(circle at center, var(--color-surface-raised) 0%, var(--color-brand-navy) 80%);
+  position: relative;
+  overflow: hidden;
+}
+
+.sawMaskContainer {
+  margin-bottom: var(--space-8);
+  filter: drop-shadow(0 0 30px rgba(255, 92, 0, 0.35));
+}
+
+.idleTitle {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 5.5vw, 6rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--color-brand-white);
+  margin-bottom: var(--space-4);
+  text-transform: uppercase;
+}
+
+.idleSubtitle {
+  font-size: 1.75rem;
+  color: var(--color-text-muted);
+  max-width: 800px;
+  margin-bottom: var(--space-12);
+}
+
+/* CHALLENGE Step */
+.challengeContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-12);
+  background: radial-gradient(circle at center, color-mix(in srgb, var(--color-accent) 15%, var(--color-brand-navy)) 0%, var(--color-brand-navy) 80%);
+}
+
+.challengeHeading {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--space-4);
+}
+
+.challengeCountdown {
+  margin: var(--space-6) 0 var(--space-10) 0;
+}
+
+/* PROVOCATION Step */
+.provocationWrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.provocationControls {
+  position: absolute;
+  bottom: var(--space-6);
+  right: var(--space-8);
+  z-index: var(--z-chrome);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.exhaustedMessage {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  color: var(--color-danger);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-danger);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+}
+
+/* DISCUSSION Step */
+.discussionContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-12) var(--space-16);
+  background: radial-gradient(circle at 50% 40%, var(--color-surface-raised) 0%, var(--color-brand-navy) 85%);
+  text-align: center;
+}
+
+.discussionHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.discussionEyebrow {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+}
+
+.discussionTitle {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  color: var(--color-text-muted);
+  max-width: 1200px;
+}
+
+.discussionCountdownWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.discussionControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}

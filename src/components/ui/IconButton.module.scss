@@ -1,0 +1,49 @@
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--duration-base) var(--ease),
+              border-color var(--duration-base) var(--ease),
+              color var(--duration-base) var(--ease),
+              transform var(--duration-fast) var(--ease);
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-surface-raised);
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+.sizeMd {
+  width: 44px;
+  height: 44px;
+  font-size: 1.25rem;
+}
+
+.sizeLg {
+  width: 56px;
+  height: 56px;
+  font-size: 1.5rem;
+}
+
+.sizeXl {
+  width: 72px;
+  height: 72px;
+  font-size: 2rem;
+}

@@ -1,0 +1,44 @@
+.wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.navControls {
+  position: absolute;
+  bottom: var(--space-4);
+  right: var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  z-index: var(--z-chrome);
+  user-select: none;
+}
+
+.slideCounter {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: var(--space-1) var(--space-4);
+  border-radius: var(--radius-pill);
+}
+
+.keyboardHint {
+  position: absolute;
+  bottom: var(--space-4);
+  left: var(--space-6);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--color-text-subtle);
+  background-color: color-mix(in srgb, var(--color-surface) 60%, transparent);
+  border: 1px solid var(--color-border);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  user-select: none;
+  pointer-events: none;
+}

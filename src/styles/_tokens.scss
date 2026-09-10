@@ -1,0 +1,71 @@
+@layer tokens {
+  :root {
+    /* Brand ufficiale Codemotion — UNICO PUNTO DI DEFINIZIONE DEI COLORI BASE */
+    --color-brand-orange: #ff5c00;
+    --color-brand-navy: #0e1e30;
+    --color-brand-white: #ffffff;
+
+    /* Semantici — derivati dai tre colori di brand */
+    --color-bg: var(--color-brand-navy);
+    --color-surface: color-mix(in srgb, var(--color-brand-navy) 90%, var(--color-brand-white));
+    --color-surface-raised: color-mix(in srgb, var(--color-brand-navy) 82%, var(--color-brand-white));
+    --color-surface-active: color-mix(in srgb, var(--color-brand-navy) 74%, var(--color-brand-white));
+    --color-text: var(--color-brand-white);
+    --color-text-muted: color-mix(in srgb, var(--color-brand-white) 62%, var(--color-brand-navy));
+    --color-text-subtle: color-mix(in srgb, var(--color-brand-white) 40%, var(--color-brand-navy));
+    --color-accent: var(--color-brand-orange);
+    --color-accent-hover: color-mix(in srgb, var(--color-brand-orange) 85%, var(--color-brand-white));
+    --color-accent-active: color-mix(in srgb, var(--color-brand-orange) 80%, var(--color-brand-navy));
+    --color-accent-subtle: color-mix(in srgb, var(--color-brand-orange) 15%, transparent);
+    --color-accent-contrast: var(--color-brand-navy); /* testo su arancione: il navy supera contrasto AA */
+    --color-success: #27c093;
+    --color-warning: var(--color-brand-orange);       /* countdown < 5 min */
+    --color-danger: #e5352b;                          /* countdown < 1 min e allarme scadenza */
+    --color-border: color-mix(in srgb, var(--color-brand-white) 14%, transparent);
+    --color-border-focus: var(--color-brand-orange);
+    --color-backdrop: color-mix(in srgb, var(--color-brand-navy) 94%, transparent);
+
+    /* Tipografia */
+    --font-display: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+    --font-body: "Roboto", system-ui, -apple-system, sans-serif;
+
+    /* Spaziatura — scala 4px */
+    --space-1: 0.25rem;  /* 4px */
+    --space-2: 0.5rem;   /* 8px */
+    --space-3: 0.75rem;  /* 12px */
+    --space-4: 1rem;     /* 16px */
+    --space-5: 1.25rem;  /* 20px */
+    --space-6: 1.5rem;   /* 24px */
+    --space-8: 2rem;     /* 32px */
+    --space-10: 2.5rem;  /* 40px */
+    --space-12: 3rem;    /* 48px */
+    --space-16: 4rem;    /* 64px */
+    --space-20: 5rem;    /* 80px */
+    --space-24: 6rem;    /* 96px */
+
+    /* Raggi di curvatura */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-pill: 999px;
+
+    /* Transizioni e animazioni */
+    --duration-fast: 120ms;
+    --duration-base: 240ms;
+    --duration-slow: 400ms;
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+
+    /* Z-Index layer */
+    --z-stage: 10;
+    --z-chrome: 100;
+    --z-modal: 500;
+    --z-overlay: 1000;
+
+    /* Parametri Stage 16:9 */
+    --stage-width: 1920px;
+    --stage-height: 1080px;
+    --stage-scale: 1;
+  }
+}

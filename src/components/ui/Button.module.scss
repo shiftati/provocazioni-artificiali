@@ -1,0 +1,120 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: 1px solid transparent;
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  border-radius: var(--radius-pill);
+  transition: background-color var(--duration-base) var(--ease),
+              border-color var(--duration-base) var(--ease),
+              transform var(--duration-fast) var(--ease),
+              opacity var(--duration-fast) var(--ease);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+/* Sizes */
+.sizeMd {
+  padding: var(--space-2) var(--space-5);
+  font-size: 1rem;
+  min-height: 44px;
+}
+
+.sizeLg {
+  padding: var(--space-3) var(--space-8);
+  font-size: 1.25rem;
+  min-height: 56px;
+}
+
+.sizeXl {
+  padding: var(--space-4) var(--space-12);
+  font-size: 1.5rem;
+  min-height: 68px;
+  letter-spacing: -0.01em;
+}
+
+/* Variants */
+.variantPrimary {
+  background-color: var(--color-accent);
+  color: var(--color-accent-contrast);
+  border-color: var(--color-accent);
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    background-color: var(--color-accent-active);
+  }
+}
+
+.variantSecondary {
+  background-color: var(--color-surface-raised);
+  color: var(--color-text);
+  border-color: var(--color-border);
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-surface-active);
+    border-color: var(--color-accent);
+  }
+}
+
+.variantGhost {
+  background-color: transparent;
+  color: var(--color-text-muted);
+  border-color: transparent;
+
+  &:hover:not(:disabled) {
+    color: var(--color-text);
+    background-color: var(--color-surface);
+  }
+}
+
+.variantDanger {
+  background-color: var(--color-danger);
+  color: var(--color-brand-white);
+  border-color: var(--color-danger);
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.1);
+  }
+}
+
+.loading {
+  position: relative;
+  color: transparent !important;
+}
+
+.spinner {
+  position: absolute;
+  width: 1.2em;
+  height: 1.2em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
