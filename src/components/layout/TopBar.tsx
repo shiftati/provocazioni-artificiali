@@ -9,12 +9,17 @@ import {
   ExitFullscreenIcon,
   SettingsIcon,
   ClockIcon,
+  ChevronUpIcon,
 } from "../icons";
 import { useAppState } from "../../state/AppStateContext";
 import { useFullscreen } from "../../hooks/useFullscreen";
 import styles from "./TopBar.module.scss";
 
-export const TopBar: FC = () => {
+export interface TopBarProps {
+  onCollapse?: () => void;
+}
+
+export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { globalRemainingSeconds, setMode } = useAppState();
@@ -74,6 +79,16 @@ export const TopBar: FC = () => {
         >
           <SettingsIcon size={20} />
         </IconButton>
+
+        {onCollapse && (
+          <IconButton
+            aria-label="Nascondi intestazione"
+            onClick={onCollapse}
+            title="Nascondi intestazione (H)"
+          >
+            <ChevronUpIcon size={20} />
+          </IconButton>
+        )}
       </div>
     </header>
   );

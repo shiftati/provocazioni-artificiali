@@ -9,18 +9,82 @@
   position: relative;
 }
 
+.topBarWrapper {
+  width: 100%;
+  overflow: hidden;
+  flex-shrink: 0;
+  z-index: var(--z-chrome);
+  transition: max-height var(--duration-base) var(--ease),
+              opacity var(--duration-base) var(--ease),
+              transform var(--duration-base) var(--ease);
+}
+
+.topBarCollapsed {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-100%);
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.topBarExpanded {
+  max-height: 68px;
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.expandHeaderButton {
+  position: fixed;
+  top: var(--space-3);
+  right: var(--space-4);
+  z-index: var(--z-chrome);
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background-color: color-mix(in srgb, var(--color-surface-raised) 85%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  transition: all var(--duration-fast) var(--ease);
+
+  &:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background-color: var(--color-surface-active);
+    box-shadow: 0 4px 16px rgba(255, 92, 0, 0.3);
+    transform: translateY(1px);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
 .mainContent {
   flex: 1;
   width: 100%;
-  height: calc(100% - 68px);
+  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  transition: height var(--duration-base) var(--ease);
 }
 
 .mainContentFull {
   height: 100%;
+}
+
+.mainContentWithHeader {
+  height: calc(100% - 68px);
 }
 
 .updateBanner {

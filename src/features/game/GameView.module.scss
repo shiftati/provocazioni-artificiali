@@ -9,8 +9,8 @@
 
 .statusBar {
   position: absolute;
-  top: var(--space-4);
-  right: var(--space-6);
+  top: var(--space-3);
+  right: calc(var(--space-4) + 44px);
   z-index: var(--z-chrome);
   display: flex;
   align-items: center;

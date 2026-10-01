@@ -1,8 +1,25 @@
 import type { FC } from "react";
 
-export const LogoPlaceholder: FC = () => {
+export interface LogoPlaceholderProps {
+  className?: string;
+  size?: "sm" | "md" | "lg";
+}
+
+const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+
+export const LogoPlaceholder: FC<LogoPlaceholderProps> = ({
+  className,
+  size = "md",
+}) => {
+  const codemotionHeight = size === "sm" ? 22 : size === "lg" ? 40 : 28;
+  const shiftatiHeight = size === "sm" ? 26 : size === "lg" ? 46 : 32;
+  const dividerHeight = size === "sm" ? 18 : size === "lg" ? 34 : 24;
+
   return (
     <div
+      className={className}
       style={{
         display: "flex",
         alignItems: "center",
@@ -10,62 +27,41 @@ export const LogoPlaceholder: FC = () => {
         userSelect: "none",
       }}
     >
-      {/* Codemotion Monogram SVG */}
-      <svg
-        width="34"
-        height="34"
-        viewBox="0 0 40 40"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-label="Logo Codemotion"
-      >
-        <rect width="40" height="40" rx="8" fill="var(--color-surface)" />
-        <path
-          d="M26 12H17C14.2386 12 12 14.2386 12 17V23C12 25.7614 14.2386 28 17 28H26"
-          stroke="var(--color-accent)"
-          strokeWidth="4"
-          strokeLinecap="round"
-        />
-        <circle cx="26" cy="20" r="3" fill="var(--color-brand-white)" />
-      </svg>
+      {/* Codemotion Logo */}
+      <img
+        src={`${BASE_URL}logo/codemotion-logo-white.svg`}
+        alt="Codemotion"
+        height={codemotionHeight}
+        style={{
+          height: `${codemotionHeight}px`,
+          width: "auto",
+          display: "block",
+          objectFit: "contain",
+        }}
+      />
 
       {/* Divider */}
       <span
         style={{
           width: "1px",
-          height: "24px",
+          height: `${dividerHeight}px`,
           backgroundColor: "var(--color-border)",
         }}
         aria-hidden="true"
       />
 
-      {/* "Shiftati di Testa" Badge Logo */}
-      <div style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
-        <span
-          style={{
-            fontFamily: "var(--font-display)",
-            fontWeight: 800,
-            fontSize: "1rem",
-            letterSpacing: "-0.02em",
-            color: "var(--color-brand-white)",
-            textTransform: "uppercase",
-          }}
-        >
-          Shiftati <span style={{ color: "var(--color-accent)" }}>di Testa</span>
-        </span>
-        <span
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: "0.65rem",
-            letterSpacing: "0.15em",
-            color: "var(--color-text-muted)",
-            textTransform: "uppercase",
-            marginTop: "2px",
-          }}
-        >
-          Codemotion Talk
-        </span>
-      </div>
+      {/* Shiftati di Testa Logo */}
+      <img
+        src={`${BASE_URL}logo/shiftati-logo-wide-bianco.png`}
+        alt="Shiftati di Testa"
+        height={shiftatiHeight}
+        style={{
+          height: `${shiftatiHeight}px`,
+          width: "auto",
+          display: "block",
+          objectFit: "contain",
+        }}
+      />
     </div>
   );
 };

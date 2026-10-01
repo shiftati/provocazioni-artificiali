@@ -12,3 +12,5 @@ export * from "./ShuffleIcon";
 export * from "./CloseIcon";
 export * from "./PhoneOffIcon";
 export * from "./RefreshIcon";
+export * from "./ChevronDownIcon";
+export * from "./ChevronUpIcon";

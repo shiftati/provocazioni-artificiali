@@ -69,9 +69,6 @@ export const PresentationView: FC = () => {
         </IconButton>
       </nav>
 
-      <div className={styles.keyboardHint} aria-hidden="true">
-        Telecomando: Spazio / PageUp / PageDown / Frecce
-      </div>
     </div>
   );
 };
