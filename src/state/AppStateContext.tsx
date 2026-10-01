@@ -148,14 +148,14 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         appStorage.saveGame(next);
 
         // Update stats if needed (discussions count / skipped)
-        if (action.type === "ACCEPT_PROVOCATION" && next.currentProvocationId) {
+        if (action.type === "ACCEPT_PROVOCATION") {
           setStatsState((prevStats) => {
             const updatedStats: AppStats = {
               ...prevStats,
               discussions: [
                 ...prevStats.discussions,
                 {
-                  provocationId: next.currentProvocationId ?? "",
+                  provocationId: next.currentProvocationId ?? "untitled",
                   startedAt: Date.now(),
                   endedAt: Date.now() + APP_CONFIG.GAME_DISCUSSION_SECONDS * 1000,
                   durationSeconds: APP_CONFIG.GAME_DISCUSSION_SECONDS,

@@ -51,12 +51,12 @@ export const GameView: FC = () => {
   return (
     <div className={styles.gameWrapper}>
       {/* Top right game status: discussed counter */}
-      <div className={styles.statusBar}>
+      {/* <div className={styles.statusBar}>
         <Badge variant="accent">
           <span>Provocazioni discusse:</span>
           <strong>{game.discussedCount}</strong>
         </Badge>
-      </div>
+      </div> */}
 
       <Stage>
         {/* STEP 1: IDLE */}
@@ -136,6 +136,7 @@ export const GameView: FC = () => {
                 </h2>
                 <p className={styles.idleSubtitle}>
                   Tutte le provocazioni disponibili per questa sessione sono state discusse o scartate.
+                  Puoi comunque accettare e avviare una discussione (senza titolo).
                 </p>
               </div>
             )}
@@ -162,7 +163,6 @@ export const GameView: FC = () => {
                 variant="primary"
                 size="lg"
                 onClick={() => dispatchGame({ type: "ACCEPT_PROVOCATION", allProvocationIds })}
-                disabled={!currentProvocation}
                 leftIcon={<CheckIcon size={24} />}
               >
                 Accetta provocazione
@@ -176,9 +176,11 @@ export const GameView: FC = () => {
           <div className={styles.discussionContainer}>
             <div className={styles.discussionHeader}>
               <span className={styles.discussionEyebrow}>Tempo di Discussione</span>
-              <p className={styles.discussionTitle}>
-                {currentProvocation?.title ?? "Discussione Aperta"}
-              </p>
+              {currentProvocation?.title && (
+                <p className={styles.discussionTitle}>
+                  {currentProvocation.title}
+                </p>
+              )}
             </div>
 
             <div className={styles.discussionCountdownWrapper}>

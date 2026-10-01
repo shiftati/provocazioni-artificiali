@@ -29,7 +29,7 @@
   box-shadow: var(--shadow-box-offset-lg);
   padding: var(--space-4) var(--space-10);
   font-family: var(--font-display);
-  font-size: clamp(3rem, 6.5vw, 6rem);
+  font-size: clamp(3rem, 6rem, 6rem);
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: -0.02em;
@@ -48,7 +48,7 @@
   border-radius: 0;
   box-shadow: var(--shadow-box-offset-mint);
   padding: var(--space-5) var(--space-8);
-  font-size: clamp(1.3rem, 2.2vw, 2rem);
+  font-size: clamp(1.3rem, 2rem, 2rem);
   color: var(--color-text-muted);
   max-width: 900px;
   line-height: 1.4;
