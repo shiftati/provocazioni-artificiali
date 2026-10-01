@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { TopBar } from "./TopBar";
 import { StopCallsOverlay } from "../../features/stopCalls/StopCallsOverlay";
 import { useWakeLock } from "../../hooks/useWakeLock";
+import { appStorage } from "../../state/storage";
 import { Button } from "../ui/Button";
 import { RefreshIcon, ChevronDownIcon } from "../icons";
 import styles from "./AppShell.module.scss";
@@ -15,7 +16,14 @@ export const AppShell: FC<AppShellProps> = ({ children }) => {
   const location = useLocation();
   const isHome = location.pathname === "/" || location.pathname === "";
   const [swUpdateAvailable, setSwUpdateAvailable] = useState<boolean>(false);
-  const [isHeaderExpanded, setIsHeaderExpanded] = useState<boolean>(false);
+  const [isHeaderExpanded, setIsHeaderExpanded] = useState<boolean>(
+    () => !appStorage.getHeaderCollapsed()
+  );
+
+  // Sync header collapse state to localStorage
+  useEffect(() => {
+    appStorage.saveHeaderCollapsed(!isHeaderExpanded);
+  }, [isHeaderExpanded]);
 
   // Keep screen awake during the presentation
   useWakeLock(true);

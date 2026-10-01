@@ -10,6 +10,7 @@ const STORAGE_KEYS = {
   SESSION: "codemotion-app:session",
   GAME: "codemotion-app:game",
   STATS: "codemotion-app:stats",
+  HEADER_COLLAPSED: "codemotion-app:header-collapsed",
 } as const;
 
 const CURRENT_VERSION = 1;
@@ -51,10 +52,13 @@ function readItem<T>(key: string, defaultValue: T): T {
     if (!raw) {
       return defaultValue;
     }
-    const parsed = JSON.parse(raw) as VersionedEnvelope<T>;
+    const parsed = JSON.parse(raw);
     if (parsed && typeof parsed === "object" && "version" in parsed && "data" in parsed) {
       // Future schema migration logic can go here if parsed.version < CURRENT_VERSION
-      return parsed.data;
+      return (parsed as VersionedEnvelope<T>).data;
+    }
+    if (typeof parsed === typeof defaultValue) {
+      return parsed as T;
     }
     return defaultValue;
   } catch {
@@ -109,6 +113,14 @@ export const appStorage = {
   },
   saveStats(stats: AppStats): void {
     writeItem(STORAGE_KEYS.STATS, stats);
+  },
+
+  // Header collapsed state
+  getHeaderCollapsed(): boolean {
+    return readItem<boolean>(STORAGE_KEYS.HEADER_COLLAPSED, true);
+  },
+  saveHeaderCollapsed(collapsed: boolean): void {
+    writeItem(STORAGE_KEYS.HEADER_COLLAPSED, collapsed);
   },
 
   // Reset all
