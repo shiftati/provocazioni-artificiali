@@ -63,6 +63,12 @@
     --shadow-accent-bottom: 0 4px 0 #ff5500;
     --shadow-card: 0 12px 36px rgba(0, 0, 0, 0.5);
 
+    /* Brutalist Decal Shifted Box Shadows (bordo nero + fondo sfalsato con bordo nero) */
+    --shadow-box-offset: 8px 8px 0 -3px var(--color-accent), 8px 8px 0 0 #000000;
+    --shadow-box-offset-lg: 14px 14px 0 -4px var(--color-accent), 14px 14px 0 0 #000000;
+    --shadow-box-offset-mint: 8px 8px 0 -3px var(--color-mint), 8px 8px 0 0 #000000;
+    --shadow-box-offset-mint-lg: 14px 14px 0 -4px var(--color-mint), 14px 14px 0 0 #000000;
+
     /* Transizioni e animazioni */
     --duration-fast: 120ms;
     --duration-base: 240ms;

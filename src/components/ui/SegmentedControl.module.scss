@@ -2,12 +2,12 @@
   display: inline-flex;
   align-items: center;
   background-color: #000000;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border: 2px solid #000000;
+  border-radius: 0;
   padding: 3px;
   position: relative;
   user-select: none;
-  gap: 2px;
+  gap: 4px;
 }
 
 .item {
@@ -20,7 +20,7 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--color-text-muted);
-  border-radius: var(--radius-xs);
+  border-radius: 0;
   border: 2px solid transparent;
   transition: all var(--duration-fast) var(--ease);
   cursor: pointer;
@@ -33,7 +33,7 @@
   &.active {
     background-color: #000000;
     color: var(--color-brand-white);
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 1px var(--color-accent);
+    border: 2px solid #000000;
+    box-shadow: 4px 4px 0 -1px var(--color-accent), 4px 4px 0 0 #000000;
   }
 }
