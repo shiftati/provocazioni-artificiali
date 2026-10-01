@@ -1,12 +1,13 @@
 import type { ButtonHTMLAttributes, ReactNode, FC } from "react";
 import styles from "./Button.module.scss";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "mint";
 export type ButtonSize = "md" | "lg" | "xl";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
+  circular?: boolean;
   loading?: boolean;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
@@ -16,6 +17,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export const Button: FC<ButtonProps> = ({
   variant = "primary",
   size = "md",
+  circular = false,
   loading = false,
   leftIcon,
   rightIcon,
@@ -31,6 +33,8 @@ export const Button: FC<ButtonProps> = ({
       ? styles.variantGhost
       : variant === "danger"
       ? styles.variantDanger
+      : variant === "mint"
+      ? styles.variantMint
       : styles.variantPrimary;
 
   const sizeClass =
@@ -39,7 +43,7 @@ export const Button: FC<ButtonProps> = ({
   return (
     <button
       type="button"
-      className={`${styles.button} ${variantClass} ${sizeClass} ${loading ? styles.loading : ""} ${className}`}
+      className={`${styles.button} ${variantClass} ${sizeClass} ${circular ? styles.circular : ""} ${loading ? styles.loading : ""} ${className}`}
       disabled={disabled || loading}
       {...props}
     >

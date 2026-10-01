@@ -16,10 +16,28 @@
   flex-shrink: 0;
   position: relative;
   background-color: var(--color-bg);
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 80px rgba(0, 0, 0, 0.7);
   transform-origin: center center;
   transition: transform 0.08s ease-out;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.stageBackgroundDecals {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stageContent {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
 }

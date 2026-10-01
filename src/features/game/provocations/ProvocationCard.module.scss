@@ -5,7 +5,7 @@
   flex-direction: column;
   justify-content: space-between;
   padding: var(--space-16) var(--space-20);
-  background: radial-gradient(circle at 80% 20%, var(--color-surface-raised) 0%, var(--color-brand-navy) 80%);
+  background: transparent;
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
@@ -25,15 +25,21 @@
 
 .category {
   font-family: var(--font-mono);
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.12em;
   color: var(--color-accent);
+  background-color: #000000;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-xs);
+  padding: var(--space-2) var(--space-5);
   font-weight: 700;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--space-3);
+  width: fit-content;
   z-index: 2;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .contentWrapper {
@@ -42,11 +48,17 @@
 }
 
 .title {
+  background-color: #000000;
+  border: 2px solid #000000;
+  border-bottom: 5px solid var(--color-accent);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+  padding: var(--space-4) var(--space-8);
+  display: inline-block;
   font-family: var(--font-display);
-  font-size: clamp(3.2rem, 5.2vw, 5.6rem);
-  font-weight: 700;
+  font-size: clamp(3rem, 4.8vw, 5.2rem);
+  font-weight: 800;
   line-height: 1.15;
-  color: var(--color-text);
+  color: var(--color-brand-white);
   margin-bottom: var(--space-6);
   letter-spacing: -0.02em;
 }
@@ -59,11 +71,17 @@
 }
 
 .subtitle {
-  font-size: 2rem;
+  background-color: rgba(11, 23, 38, 0.85);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-mint);
+  border-radius: var(--radius-sm);
+  padding: var(--space-5) var(--space-8);
+  font-size: 1.9rem;
   color: var(--color-text-muted);
   font-weight: 400;
-  line-height: 1.4;
+  line-height: 1.45;
   max-width: 1100px;
+  backdrop-filter: blur(8px);
 }
 
 .footer {
@@ -77,6 +95,10 @@
 
 .tag {
   font-family: var(--font-mono);
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   color: var(--color-text-subtle);
+  background-color: #000000;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+  padding: var(--space-1) var(--space-3);
 }

@@ -3,28 +3,31 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-pill);
-  font-family: var(--font-display);
-  font-weight: 600;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-weight: 700;
   font-size: 0.95rem;
   line-height: 1.2;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   user-select: none;
 }
 
 .variantDefault {
-  background-color: var(--color-surface-raised);
+  background-color: #000000;
   color: var(--color-text-muted);
   border: 1px solid var(--color-border);
 }
 
 .variantAccent {
-  background-color: var(--color-accent-subtle);
+  background-color: #000000;
   color: var(--color-accent);
   border: 1px solid var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
 }
 
 .variantDanger {
-  background-color: color-mix(in srgb, var(--color-danger) 15%, transparent);
+  background-color: #000000;
   color: var(--color-danger);
   border: 1px solid var(--color-danger);
 }

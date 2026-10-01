@@ -8,24 +8,28 @@
 
 .navControls {
   position: absolute;
-  bottom: var(--space-4);
-  right: var(--space-6);
+  bottom: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-4);
+  background-color: #000000;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-sm);
   z-index: var(--z-chrome);
   user-select: none;
 }
 
 .slideCounter {
   font-family: var(--font-mono);
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  padding: var(--space-1) var(--space-4);
-  border-radius: var(--radius-pill);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+  padding: 0 var(--space-2);
+  letter-spacing: 0.05em;
 }
 
 .keyboardHint {

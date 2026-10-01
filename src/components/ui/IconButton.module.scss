@@ -2,21 +2,19 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
-  background-color: var(--color-surface);
+  background-color: #000000;
   color: var(--color-text);
   cursor: pointer;
   user-select: none;
-  transition: background-color var(--duration-base) var(--ease),
-              border-color var(--duration-base) var(--ease),
-              color var(--duration-base) var(--ease),
-              transform var(--duration-fast) var(--ease);
+  transition: all var(--duration-fast) var(--ease);
 
   &:hover:not(:disabled) {
-    background-color: var(--color-surface-raised);
+    background-color: var(--color-surface-active);
     color: var(--color-accent);
     border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
     transform: translateY(-1px);
   }
 

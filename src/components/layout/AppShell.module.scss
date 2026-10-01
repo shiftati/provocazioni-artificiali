@@ -44,22 +44,19 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
-  background-color: color-mix(in srgb, var(--color-surface-raised) 85%, transparent);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background-color: #000000;
   color: var(--color-text-muted);
   cursor: pointer;
   user-select: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   transition: all var(--duration-fast) var(--ease);
 
   &:hover {
     color: var(--color-accent);
     border-color: var(--color-accent);
-    background-color: var(--color-surface-active);
-    box-shadow: 0 4px 16px rgba(255, 92, 0, 0.3);
+    box-shadow: 0 0 0 1px var(--color-accent);
     transform: translateY(1px);
   }
 
