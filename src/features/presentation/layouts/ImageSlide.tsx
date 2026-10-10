@@ -18,7 +18,7 @@ export const ImageSlide: FC<ImageSlideProps> = ({
   children,
   className = "",
 }) => {
-  const imageUrl = `${BASE_URL}images/slides/${encodeURI(imageName)}`;
+  const imageUrl = `${BASE_URL}images/slides/${encodeURI(imageName.normalize("NFC"))}`;
 
   return (
     <div
