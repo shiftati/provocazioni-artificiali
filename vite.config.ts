@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 
 // Change this base URL if deploying to a different repository or custom domain.
 // For local preview or root domains, change to "/" or "./".
-export const REPO_BASE = "/provocazioni-shiftate-codemotion-antigravity/";
+export const REPO_BASE = "/provocazioni-artificiali-antigravity/";
 
 export default defineConfig({
   base: REPO_BASE,
