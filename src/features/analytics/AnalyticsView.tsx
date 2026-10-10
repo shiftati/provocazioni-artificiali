@@ -24,7 +24,6 @@ import {
   TrashIcon,
   EditIcon,
   CopyIcon,
-  ArrowLeftIcon,
   PlayIcon,
   CheckIcon,
 } from "../../components/icons";
@@ -82,7 +81,7 @@ export const AnalyticsView: FC = () => {
   const handleUpdateProvocation = (updatedProv: ProvocationStat) => {
     if (!currentViewSession) return;
     const updatedProvocations = currentViewSession.provocations.map((p) =>
-      p.id === updatedProv.id ? updatedProv : p
+      p.id === updatedProv.id ? updatedProv : p,
     );
     const updatedSession: TalkSessionRecord = {
       ...currentViewSession,
@@ -95,7 +94,7 @@ export const AnalyticsView: FC = () => {
   const handleDeleteProvocation = (id: string) => {
     if (!currentViewSession) return;
     const updatedProvocations = currentViewSession.provocations.filter(
-      (p) => p.id !== id
+      (p) => p.id !== id,
     );
     const updatedSession: TalkSessionRecord = {
       ...currentViewSession,
@@ -176,35 +175,24 @@ export const AnalyticsView: FC = () => {
   return (
     <div className={styles.container}>
       {/* Top Header */}
-      <header className={styles.topBarRow}>
-        <div className={styles.topActions}>
+      <div className={styles.topActions}>
+        {isTalkRunning && (
           <Button
-            variant="ghost"
+            variant="primary"
             size="md"
-            onClick={() => navigate("/")}
-            leftIcon={<ArrowLeftIcon size={18} />}
+            onClick={() => {
+              if (liveSessionState.mode === "game") {
+                navigate("/game");
+              } else {
+                navigate("/presentation");
+              }
+            }}
+            rightIcon={<PlayIcon size={18} />}
           >
-            Pannello Configurazione
+            Riprendi Talk dal Vivo
           </Button>
-
-          {isTalkRunning && (
-            <Button
-              variant="primary"
-              size="md"
-              onClick={() => {
-                if (liveSessionState.mode === "game") {
-                  navigate("/game");
-                } else {
-                  navigate("/presentation");
-                }
-              }}
-              rightIcon={<PlayIcon size={18} />}
-            >
-              Riprendi Talk dal Vivo
-            </Button>
-          )}
-        </div>
-      </header>
+        )}
+      </div>
 
       {/* If No Sessions */}
       {sessions.length === 0 ? (
@@ -458,7 +446,8 @@ export const AnalyticsView: FC = () => {
                         config.introEndSlide ??
                         11;
                       const isIntroEnd = idx === introEndNum - 1;
-                      const gameDuration = getSessionGameDuration(currentViewSession);
+                      const gameDuration =
+                        getSessionGameDuration(currentViewSession);
                       const gamePct =
                         currentViewSession.totalDurationSeconds > 0
                           ? Math.round(
@@ -484,24 +473,36 @@ export const AnalyticsView: FC = () => {
                             <td>{pct}%</td>
                           </tr>
                           {isIntroEnd && (
-                            <tr key="game-session-row" className={styles.gameTableRow}>
+                            <tr
+                              key="game-session-row"
+                              className={styles.gameTableRow}
+                            >
                               <td>
-                                <span className={styles.gameTableBadge}>🎮 GIOCO</span>
+                                <span className={styles.gameTableBadge}>
+                                  🎮 GIOCO
+                                </span>
                               </td>
                               <td>
-                                <strong style={{ color: "var(--color-brand-blue)" }}>
+                                <strong
+                                  style={{ color: "var(--color-brand-blue)" }}
+                                >
                                   Fase di Gioco (Provocazioni)
                                 </strong>
                                 <div className={styles.gameTableSub}>
-                                  Sessione interattiva tra Slide {introEndNum} e Slide {introEndNum + 1}
+                                  Sessione interattiva tra Slide {introEndNum} e
+                                  Slide {introEndNum + 1}
                                 </div>
                               </td>
                               <td>
-                                <strong style={{ color: "var(--color-brand-blue)" }}>
+                                <strong
+                                  style={{ color: "var(--color-brand-blue)" }}
+                                >
                                   {formatDurationSeconds(gameDuration)}
                                 </strong>
                               </td>
-                              <td>{currentViewSession.provocationsCount} prov.</td>
+                              <td>
+                                {currentViewSession.provocationsCount} prov.
+                              </td>
                               <td>{gamePct}%</td>
                             </tr>
                           )}
@@ -518,7 +519,8 @@ export const AnalyticsView: FC = () => {
               >
                 Tabella Dettaglio Provocazioni
               </h3>
-              {deduplicateProvocations(currentViewSession.provocations).length === 0 ? (
+              {deduplicateProvocations(currentViewSession.provocations)
+                .length === 0 ? (
                 <p
                   style={{
                     color: "var(--color-text-muted)",
@@ -541,13 +543,17 @@ export const AnalyticsView: FC = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {deduplicateProvocations(currentViewSession.provocations).map((p, idx) => (
+                      {deduplicateProvocations(
+                        currentViewSession.provocations,
+                      ).map((p, idx) => (
                         <tr key={p.id}>
                           <td>
                             <strong>#{idx + 1}</strong>
                           </td>
                           <td>
-                            <strong>{p.provocationTitle || "(Senza titolo)"}</strong>
+                            <strong>
+                              {p.provocationTitle || "(Senza titolo)"}
+                            </strong>
                             {p.provocationSubtitle && (
                               <div
                                 style={{
@@ -584,7 +590,9 @@ export const AnalyticsView: FC = () => {
                             <Button
                               variant="ghost"
                               size="md"
-                              onClick={() => setEditingTableProv({ prov: p, index: idx })}
+                              onClick={() =>
+                                setEditingTableProv({ prov: p, index: idx })
+                              }
                               leftIcon={<EditIcon size={14} />}
                               title="Modifica o assegna titolo alla provocazione"
                             >

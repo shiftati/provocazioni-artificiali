@@ -2,7 +2,11 @@ import { useState, useMemo, type FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppState } from "../../state/AppStateContext";
 import { useFullscreen } from "../../hooks/useFullscreen";
-import { parseEndTimeToday, getDurationPreview, getDefaultEndTime } from "../../utils/time";
+import {
+  parseEndTimeToday,
+  getDurationPreview,
+  getDefaultEndTime,
+} from "../../utils/time";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { TimeInput } from "../../components/ui/TimeInput";
@@ -26,12 +30,21 @@ import styles from "./ConfigView.module.scss";
 
 export const ConfigView: FC = () => {
   const navigate = useNavigate();
-  const { config, session, game, theme, setTheme, updateConfig, startTalk, resetAll } = useAppState();
+  const {
+    config,
+    session,
+    game,
+    theme,
+    setTheme,
+    updateConfig,
+    startTalk,
+    resetAll,
+  } = useAppState();
   const { requestFullscreen } = useFullscreen();
 
   // Initialize selected theme
   const [selectedTheme, setSelectedTheme] = useState<AppTheme>(
-    () => config.theme || theme || "dark"
+    () => config.theme || theme || "dark",
   );
 
   // Initialize input with stored config endTime or a default calculated time
@@ -41,7 +54,9 @@ export const ConfigView: FC = () => {
   });
 
   const [conclusionMinutes, setConclusionMinutes] = useState<number>(() => {
-    return typeof config.conclusionMinutes === "number" ? config.conclusionMinutes : 5;
+    return typeof config.conclusionMinutes === "number"
+      ? config.conclusionMinutes
+      : 5;
   });
 
   const [introEndSlide, setIntroEndSlide] = useState<number>(() => {
@@ -157,7 +172,8 @@ export const ConfigView: FC = () => {
           Pannello <span className={styles.highlight}>Talk dal Vivo</span>
         </h1>
         <p className={styles.subtitle}>
-          Configura l'orario di fine del tuo talk, avvia lo stage a 16:9 ed entra nella presentazione.
+          Configura l'orario di fine del tuo talk, avvia lo stage a 16:9 ed
+          entra nella presentazione.
         </p>
         <div className={styles.headerLinks}>
           <Button
@@ -177,7 +193,13 @@ export const ConfigView: FC = () => {
           <Card raised className={styles.sessionCard}>
             <div className={styles.cardHeading}>
               <span>Sessione in corso</span>
-              <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "center" }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "var(--space-2)",
+                  alignItems: "center",
+                }}
+              >
                 <Button
                   variant="ghost"
                   size="md"
@@ -192,7 +214,9 @@ export const ConfigView: FC = () => {
 
             <div className={styles.sessionStats}>
               <div className={styles.statItem}>
-                <span className={styles.statValue}>{session.currentSlideIndex + 1}</span>
+                <span className={styles.statValue}>
+                  {session.currentSlideIndex + 1}
+                </span>
                 <span className={styles.statLabel}>Slide attuale</span>
               </div>
               <div className={styles.statItem}>
@@ -200,7 +224,10 @@ export const ConfigView: FC = () => {
                 <span className={styles.statLabel}>Provocazioni</span>
               </div>
               <div className={styles.statItem}>
-                <span className={styles.statValue} style={{ textTransform: "capitalize" }}>
+                <span
+                  className={styles.statValue}
+                  style={{ textTransform: "capitalize" }}
+                >
                   {session.mode === "game" ? "Gioco" : "Slide"}
                 </span>
                 <span className={styles.statLabel}>Modalità</span>
@@ -265,7 +292,9 @@ export const ConfigView: FC = () => {
             value={timeValue}
             onChange={(e) => setTimeValue(e.target.value)}
             hint="Inserisci l'ora di fine (formato HH:mm). Il countdown calcolerà la durata residua esatta senza drift."
-            error={parsedTarget?.isPast ? "Orario nel passato per oggi" : undefined}
+            error={
+              parsedTarget?.isPast ? "Orario nel passato per oggi" : undefined
+            }
           />
 
           <NumberInput
@@ -273,7 +302,9 @@ export const ConfigView: FC = () => {
             label="Minuti dedicati alla conclusione"
             value={conclusionMinutes}
             onChange={(e) =>
-              setConclusionMinutes(Math.max(0, parseInt(e.target.value, 10) || 0))
+              setConclusionMinutes(
+                Math.max(0, parseInt(e.target.value, 10) || 0),
+              )
             }
             min={0}
             max={180}
@@ -291,7 +322,7 @@ export const ConfigView: FC = () => {
             }
             options={SLIDES.map((s, idx) => ({
               value: idx + 1,
-              label: `Slide #${idx + 1}: ${s.title}`,
+              label: `${idx + 1}: ${s.title}`,
             }))}
             hint={`La slide selezionata è l'ultima slide dell'introduzione (default #11). Lo 'Stop alle telefonate' passerà alla slide successiva (#${introEndSlide + 1}${SLIDES[introEndSlide] ? `: ${SLIDES[introEndSlide].title}` : ""}).`}
           />
@@ -329,14 +360,38 @@ export const ConfigView: FC = () => {
         onClose={() => setConfirmResetOpen(false)}
         ariaLabel="Conferma azzeramento sessione"
       >
-        <h2 style={{ fontSize: "1.8rem", marginBottom: "var(--space-4)", color: "var(--color-text)" }}>
+        <h2
+          style={{
+            fontSize: "1.8rem",
+            marginBottom: "var(--space-4)",
+            color: "var(--color-text)",
+          }}
+        >
           Ricominciare da capo?
         </h2>
-        <p style={{ color: "var(--color-text-muted)", marginBottom: "var(--space-8)", fontSize: "1.1rem" }}>
-          Questa operazione azzererà la configurazione del talk, riporterà la presentazione alla prima slide e resetterà il contatore e la cronologia delle provocazioni discusse nel gioco.
+        <p
+          style={{
+            color: "var(--color-text-muted)",
+            marginBottom: "var(--space-8)",
+            fontSize: "1.1rem",
+          }}
+        >
+          Questa operazione azzererà la configurazione del talk, riporterà la
+          presentazione alla prima slide e resetterà il contatore e la
+          cronologia delle provocazioni discusse nel gioco.
         </p>
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--space-4)" }}>
-          <Button variant="ghost" size="md" onClick={() => setConfirmResetOpen(false)}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: "var(--space-4)",
+          }}
+        >
+          <Button
+            variant="ghost"
+            size="md"
+            onClick={() => setConfirmResetOpen(false)}
+          >
             Annulla
           </Button>
           <Button variant="danger" size="md" onClick={handleResetConfirm}>
@@ -351,14 +406,38 @@ export const ConfigView: FC = () => {
         onClose={() => setConfirmPastOpen(false)}
         ariaLabel="Conferma orario nel passato"
       >
-        <h2 style={{ fontSize: "1.8rem", marginBottom: "var(--space-4)", color: "var(--color-warning)" }}>
+        <h2
+          style={{
+            fontSize: "1.8rem",
+            marginBottom: "var(--space-4)",
+            color: "var(--color-warning)",
+          }}
+        >
           Orario già trascorso
         </h2>
-        <p style={{ color: "var(--color-text-muted)", marginBottom: "var(--space-8)", fontSize: "1.1rem" }}>
-          L'orario <strong>{timeValue}</strong> risulta precedente all'ora attuale di oggi. Vuoi confermarlo comunque?
+        <p
+          style={{
+            color: "var(--color-text-muted)",
+            marginBottom: "var(--space-8)",
+            fontSize: "1.1rem",
+          }}
+        >
+          L'orario <strong>{timeValue}</strong> risulta precedente all'ora
+          attuale di oggi. Vuoi confermarlo comunque?
         </p>
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--space-4)" }}>
-          <Button variant="ghost" size="md" onClick={() => setConfirmPastOpen(false)} leftIcon={<CloseIcon size={18} />}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: "var(--space-4)",
+          }}
+        >
+          <Button
+            variant="ghost"
+            size="md"
+            onClick={() => setConfirmPastOpen(false)}
+            leftIcon={<CloseIcon size={18} />}
+          >
             Correggi orario
           </Button>
           <Button
