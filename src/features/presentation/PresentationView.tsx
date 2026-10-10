@@ -5,29 +5,54 @@ import { SLIDES } from "./slides.registry";
 import { useAppState } from "../../state/AppStateContext";
 import { useKeyboardNavigation } from "../../hooks/useKeyboardNavigation";
 import { IconButton } from "../../components/ui/IconButton";
-import { ArrowLeftIcon, ArrowRightIcon } from "../../components/icons";
+import { ArrowLeftIcon, ArrowRightIcon, FinishIcon } from "../../components/icons";
 import styles from "./PresentationView.module.scss";
 
 export const PresentationView: FC = () => {
   const navigate = useNavigate();
-  const { session, setSlideIndex, setMode, stopCallsOverlayOpen } = useAppState();
+  const { session, setSlideIndex, setMode, endTalk, stopCallsOverlayOpen } = useAppState();
 
   const totalSlides = SLIDES.length;
   // Ensure index is within range
   const currentIndex = Math.min(Math.max(0, session.currentSlideIndex), totalSlides - 1);
   const isSlide11 = currentIndex === 10 || SLIDES[currentIndex]?.id === "klippy-matrix";
+  const isLastSlide = currentIndex === totalSlides - 1;
 
-  const handleNext = useCallback(() => {
-    if (isSlide11) {
-      setMode("game");
-      navigate("/game");
+  // Finalize session and navigate to analytics
+  const handleEndSession = useCallback(() => {
+    endTalk();
+    navigate("/analytics");
+  }, [endTalk, navigate]);
+
+  // On-screen "Avanti" button: on slide 11 advances to slide 12; on last slide finishes session
+  const handleOnScreenNext = useCallback(() => {
+    if (isLastSlide) {
+      handleEndSession();
       return;
     }
 
     if (currentIndex < totalSlides - 1) {
       setSlideIndex(currentIndex + 1);
     }
-  }, [isSlide11, currentIndex, totalSlides, setSlideIndex, setMode, navigate]);
+  }, [isLastSlide, handleEndSession, currentIndex, totalSlides, setSlideIndex]);
+
+  // Keyboard "Next" (Right arrow / Space / PageDown): on slide 11 enters GAME mode; on other slides advances
+  const handleKeyboardNext = useCallback(() => {
+    if (isSlide11) {
+      setMode("game");
+      navigate("/game");
+      return;
+    }
+
+    if (isLastSlide) {
+      handleEndSession();
+      return;
+    }
+
+    if (currentIndex < totalSlides - 1) {
+      setSlideIndex(currentIndex + 1);
+    }
+  }, [isSlide11, isLastSlide, handleEndSession, currentIndex, totalSlides, setSlideIndex, setMode, navigate]);
 
   const handlePrev = useCallback(() => {
     if (currentIndex > 0) {
@@ -35,9 +60,9 @@ export const PresentationView: FC = () => {
     }
   }, [currentIndex, setSlideIndex]);
 
-  // Disable keyboard navigation if Stop Calls overlay is active
+  // Keyboard navigation
   useKeyboardNavigation({
-    onNext: handleNext,
+    onNext: handleKeyboardNext,
     onPrev: handlePrev,
     enabled: !stopCallsOverlayOpen,
   });
@@ -67,21 +92,27 @@ export const PresentationView: FC = () => {
           {currentIndex + 1} / {totalSlides}
         </span>
 
-        <IconButton
-          aria-label={isSlide11 ? "Passa al Gioco" : "Slide successiva"}
-          size="md"
-          onClick={handleNext}
-          disabled={currentIndex === totalSlides - 1}
-          title={
-            isSlide11
-              ? "Passa alla modalità Gioco (Freccia Destra / Spazio / PageDown)"
-              : "Slide successiva (Freccia Destra / Spazio / PageDown)"
-          }
-        >
-          <ArrowRightIcon size={20} />
-        </IconButton>
+        {isLastSlide ? (
+          <IconButton
+            aria-label="Concludi talk e sessione"
+            size="md"
+            onClick={handleEndSession}
+            title="Concludi sessione talk"
+            style={{ color: "var(--color-mint)" }}
+          >
+            <FinishIcon size={22} />
+          </IconButton>
+        ) : (
+          <IconButton
+            aria-label="Slide successiva"
+            size="md"
+            onClick={handleOnScreenNext}
+            title="Slide successiva (Pulsante a video avanza alla slide successiva)"
+          >
+            <ArrowRightIcon size={20} />
+          </IconButton>
+        )}
       </nav>
-
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import { type FC } from "react";
+import { useNavigate } from "react-router-dom";
 import { Stage } from "../../components/layout/Stage";
 import { useAppState } from "../../state/AppStateContext";
 import { PROVOCATIONS, PROVOCATION_MAP } from "./provocations.registry";
@@ -24,17 +25,24 @@ const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
 const KLIPPY_SAW_IMAGE = `${BASE_URL}images/slides/${encodeURI("8. Klippy saw.jpg")}`;
 
 export const GameView: FC = () => {
-  const { game, dispatchGame } = useAppState();
+  const navigate = useNavigate();
+  const { game, dispatchGame, setMode } = useAppState();
   const allProvocationIds = PROVOCATIONS.map((p) => p.id);
 
-  // Keyboard navigation to start game when in IDLE
+  // Keyboard navigation:
+  // - onNext in IDLE starts game
+  // - onPrev (Left arrow / PageUp) returns to presentation slides
   useKeyboardNavigation({
     onNext: () => {
       if (game.step === "IDLE") {
         dispatchGame({ type: "PLAY", allProvocationIds });
       }
     },
-    enabled: game.step === "IDLE",
+    onPrev: () => {
+      setMode("presentation");
+      navigate("/presentation");
+    },
+    enabled: true,
   });
 
   // Challenge timer (30s)

@@ -6,6 +6,7 @@ import { AppShell } from "./components/layout/AppShell";
 import { ConfigView } from "./features/config/ConfigView";
 import { PresentationView } from "./features/presentation/PresentationView";
 import { GameView } from "./features/game/GameView";
+import { AnalyticsView } from "./features/analytics/AnalyticsView";
 
 export const App: FC = () => {
   return (
@@ -17,6 +18,7 @@ export const App: FC = () => {
               <Route path="/" element={<ConfigView />} />
               <Route path="/presentation" element={<PresentationView />} />
               <Route path="/game" element={<GameView />} />
+              <Route path="/analytics" element={<AnalyticsView />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AppShell>

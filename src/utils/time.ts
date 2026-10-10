@@ -62,3 +62,36 @@ export function formatSecondsToMMSS(secondsTotal: number): string {
   const ss = String(seconds).padStart(2, "0");
   return `${mm}:${ss}`;
 }
+
+/**
+ * Formats seconds into human readable short format: e.g. "25s", "3m 12s", "1h 05m"
+ */
+export function formatDurationSeconds(secondsTotal: number): string {
+  const clamped = Math.max(0, Math.round(secondsTotal));
+  if (clamped < 60) {
+    return `${clamped}s`;
+  }
+  const minutes = Math.floor(clamped / 60);
+  const seconds = clamped % 60;
+  if (minutes < 60) {
+    return seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
+  }
+  const hours = Math.floor(minutes / 60);
+  const remMinutes = minutes % 60;
+  return `${hours}h ${String(remMinutes).padStart(2, "0")}m`;
+}
+
+/**
+ * Formats timestamp into localized Italian date and time string.
+ */
+export function formatDateTime(timestamp: number): string {
+  if (!timestamp) return "-";
+  const date = new Date(timestamp);
+  return date.toLocaleString("it-IT", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}

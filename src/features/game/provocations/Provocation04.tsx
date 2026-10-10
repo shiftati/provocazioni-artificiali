@@ -8,20 +8,20 @@ export const Provocation04: FC = () => {
       <div className={styles.category}>
         <span>⚡ Provocazione #04</span>
         <span>—</span>
-        <span>Testing & QA</span>
+        <span>Hiring & Valutazione</span>
       </div>
 
       <div className={styles.contentWrapper}>
         <h2 className={styles.title}>
-          Scrivere unit test che testano i mock dei mock <span className={styles.highlight}>non è ingegneria</span>.
+          Il colloquio tecnico sul codice <span className={styles.highlight}>non ha più senso</span>.
         </h2>
         <p className={styles.subtitle}>
-          È pura performance artistica d'avanguardia per far diventare verde la barra di SonarQube prima del rilascio.
+          Chiedere di invertire alberi binari alla lavagna o risolvere puzzle su LeetCode mentre l'AI risolve qualsiasi challenge in 2 secondi è puro anacronismo selettivo.
         </p>
       </div>
 
       <div className={styles.footer}>
-        <span className={styles.tag}>#coverage-illusions #mock-inception</span>
+        <span className={styles.tag}>#hiring-revolution #leetcode-is-dead #practical-skills</span>
         <span className={styles.tag}>Shiftati di Testa @ Codemotion</span>
       </div>
     </div>

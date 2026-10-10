@@ -8,20 +8,20 @@ export const Provocation05: FC = () => {
       <div className={styles.category}>
         <span>⚡ Provocazione #05</span>
         <span>—</span>
-        <span>CI/CD & DevOps</span>
+        <span>Competenze & Specializzazione</span>
       </div>
 
       <div className={styles.contentWrapper}>
         <h2 className={styles.title}>
-          Se non fai push su main direttamente dal palco, <span className={styles.highlight}>ti manca il brivido</span>.
+          Non ha più senso diventare esperti in <span className={styles.highlight}>una tecnologia specifica</span>.
         </h2>
         <p className={styles.subtitle}>
-          Lo staging environment è solo un'invenzione dei deboli di cuore che non hanno fede nei propri console.log.
+          I dettagli sintattici e i singoli framework sono diventati commodity usa e getta: ciò che conta è l'architettura, la capacità critica e il problem-solving sistemico.
         </p>
       </div>
 
       <div className={styles.footer}>
-        <span className={styles.tag}>#cowboy-deploy #yolo-engineering</span>
+        <span className={styles.tag}>#framework-agnostic #polyglot-mindset #systems-thinking</span>
         <span className={styles.tag}>Shiftati di Testa @ Codemotion</span>
       </div>
     </div>

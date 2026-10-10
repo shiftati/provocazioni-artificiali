@@ -56,3 +56,37 @@ export interface ProvocationDefinition {
   subtitle?: string;
   component: ComponentType;
 }
+
+export interface SlideStat {
+  slideIndex: number;
+  slideId: string;
+  slideTitle: string;
+  durationSeconds: number; // cumulative duration in seconds
+  visits: number;
+}
+
+export interface ProvocationStat {
+  id: string; // unique record id
+  provocationId: string;
+  provocationTitle: string;
+  provocationSubtitle?: string;
+  acceptanceTimeSeconds: number; // e.g. 16, 25, 32
+  discussionDurationSeconds: number; // actual time spent in discussion (up to 300s)
+  completedAt: number; // epoch ms
+  wasSkippedFirst?: boolean;
+}
+
+export interface TalkSessionRecord {
+  id: string;
+  name: string;
+  createdAt: number;
+  startedAt: number;
+  endedAt: number | null;
+  totalDurationSeconds: number;
+  plannedEndTime: string;
+  plannedEndTimestamp: number;
+  slides: SlideStat[];
+  provocations: ProvocationStat[];
+  provocationsCount: number;
+  notes?: string;
+}

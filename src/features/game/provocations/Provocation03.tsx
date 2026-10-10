@@ -8,20 +8,20 @@ export const Provocation03: FC = () => {
       <div className={styles.category}>
         <span>⚡ Provocazione #03</span>
         <span>—</span>
-        <span>Cultura Aziendale</span>
+        <span>Futuro dei Developer</span>
       </div>
 
       <div className={styles.contentWrapper}>
         <h2 className={styles.title}>
-          I meeting tecnici del venerdì pomeriggio sono una <span className={styles.highlight}>violazione dei diritti umani</span>.
+          Il mondo dello sviluppo software è morto: <span className={styles.highlight}>i dev lavoreranno a contatto col “mondo reale”</span>.
         </h2>
         <p className={styles.subtitle}>
-          "Facciamo solo un rapido allineamento di 10 minuti" è la bugia più crudele mai pronunciata su Google Meet prima di un weekend di deployment.
+          Il valore non è più scrivere codice isolati dal business: la vera abilità sarà comprendere a fondo le persone, i processi operativi e i problemi reali.
         </p>
       </div>
 
       <div className={styles.footer}>
-        <span className={styles.tag}>#friday-deploy-syndrome #burnout</span>
+        <span className={styles.tag}>#real-world-dev #business-empathy #beyond-code</span>
         <span className={styles.tag}>Shiftati di Testa @ Codemotion</span>
       </div>
     </div>

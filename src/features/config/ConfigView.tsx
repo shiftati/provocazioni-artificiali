@@ -17,6 +17,7 @@ import {
   RefreshIcon,
   ArrowRightIcon,
   CloseIcon,
+  AnalyticsIcon,
 } from "../../components/icons";
 import styles from "./ConfigView.module.scss";
 
@@ -132,6 +133,16 @@ export const ConfigView: FC = () => {
         <p className={styles.subtitle}>
           Configura l'orario di fine del tuo talk, avvia lo stage a 16:9 ed entra nella presentazione.
         </p>
+        <div className={styles.headerLinks}>
+          <Button
+            variant="secondary"
+            size="md"
+            onClick={() => navigate("/analytics")}
+            leftIcon={<AnalyticsIcon size={18} />}
+          >
+            Statistiche & Analytics Talk
+          </Button>
+        </div>
       </header>
 
       <div className={styles.cardGrid}>
@@ -140,7 +151,17 @@ export const ConfigView: FC = () => {
           <Card raised className={styles.sessionCard}>
             <div className={styles.cardHeading}>
               <span>Sessione in corso</span>
-              <Badge variant="accent">Attiva</Badge>
+              <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "center" }}>
+                <Button
+                  variant="ghost"
+                  size="md"
+                  onClick={() => navigate("/analytics")}
+                  leftIcon={<AnalyticsIcon size={16} />}
+                >
+                  Analytics
+                </Button>
+                <Badge variant="accent">Attiva</Badge>
+              </div>
             </div>
 
             <div className={styles.sessionStats}>

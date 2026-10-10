@@ -1,4 +1,4 @@
-import type { TalkConfig, AppSessionState, GameState, AppStats } from "../types";
+import type { TalkConfig, AppSessionState, GameState, AppStats, TalkSessionRecord } from "../types";
 
 interface VersionedEnvelope<T> {
   version: number;
@@ -11,6 +11,8 @@ const STORAGE_KEYS = {
   GAME: "codemotion-app:game",
   STATS: "codemotion-app:stats",
   HEADER_COLLAPSED: "codemotion-app:header-collapsed",
+  SESSIONS: "codemotion-app:sessions-history",
+  CURRENT_SESSION_ID: "codemotion-app:current-session-id",
 } as const;
 
 const CURRENT_VERSION = 1;
@@ -130,6 +132,45 @@ export const appStorage = {
   },
   saveHeaderCollapsed(collapsed: boolean): void {
     writeItem(STORAGE_KEYS.HEADER_COLLAPSED, collapsed);
+  },
+
+  // Sessions History (Analytics)
+  getSessions(): TalkSessionRecord[] {
+    return readItem<TalkSessionRecord[]>(STORAGE_KEYS.SESSIONS, []);
+  },
+  saveSessions(sessions: TalkSessionRecord[]): void {
+    writeItem(STORAGE_KEYS.SESSIONS, sessions);
+  },
+  getCurrentSessionId(): string | null {
+    return readItem<string | null>(STORAGE_KEYS.CURRENT_SESSION_ID, null);
+  },
+  saveCurrentSessionId(id: string | null): void {
+    writeItem(STORAGE_KEYS.CURRENT_SESSION_ID, id);
+  },
+  getSessionById(id: string): TalkSessionRecord | undefined {
+    const list = this.getSessions();
+    return list.find((s) => s.id === id);
+  },
+  upsertSession(session: TalkSessionRecord): void {
+    const list = this.getSessions();
+    const index = list.findIndex((s) => s.id === session.id);
+    if (index >= 0) {
+      list[index] = session;
+    } else {
+      list.unshift(session); // Latest on top
+    }
+    this.saveSessions(list);
+  },
+  deleteSession(id: string): void {
+    const list = this.getSessions().filter((s) => s.id !== id);
+    this.saveSessions(list);
+    if (this.getCurrentSessionId() === id) {
+      this.saveCurrentSessionId(null);
+    }
+  },
+  clearAllSessions(): void {
+    this.saveSessions([]);
+    this.saveCurrentSessionId(null);
   },
 
   // Reset methods

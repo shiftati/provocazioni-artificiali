@@ -45,6 +45,12 @@
   margin-top: var(--space-4);
 }
 
+.headerLinks {
+  margin-top: var(--space-4);
+  display: flex;
+  justify-content: center;
+}
+
 .cardGrid {
   display: flex;
   flex-direction: column;

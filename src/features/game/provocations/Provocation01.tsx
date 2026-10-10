@@ -8,20 +8,20 @@ export const Provocation01: FC = () => {
       <div className={styles.category}>
         <span>⚡ Provocazione #01</span>
         <span>—</span>
-        <span>AI Coding</span>
+        <span>SaaS & Modelli di Business</span>
       </div>
 
       <div className={styles.contentWrapper}>
         <h2 className={styles.title}>
-          Il codice migliore è quello che <span className={styles.highlight}>non devi scrivere</span>.
+          Il SaaS è morto: <span className={styles.highlight}>è meglio un software generato su misura per la propria azienda</span>.
         </h2>
         <p className={styles.subtitle}>
-          Perché l'ha generato l'AI in 4 secondi... e adesso tocca a te passare le prossime tre settimane a capirne il motivo dei memory leak.
+          Perché continuare a pagare licenze mensili per tool generici quando l'AI può creare e mantenere un software cucito esattamente sui processi aziendali?
         </p>
       </div>
 
       <div className={styles.footer}>
-        <span className={styles.tag}>#vibe-coding #generative-debt</span>
+        <span className={styles.tag}>#death-of-saas #custom-software #bespoke-systems</span>
         <span className={styles.tag}>Shiftati di Testa @ Codemotion</span>
       </div>
     </div>

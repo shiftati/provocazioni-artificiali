@@ -10,6 +10,7 @@ import {
   SettingsIcon,
   ClockIcon,
   ChevronUpIcon,
+  AnalyticsIcon,
 } from "../icons";
 import { useAppState } from "../../state/AppStateContext";
 import { useFullscreen } from "../../hooks/useFullscreen";
@@ -70,6 +71,14 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
           title={isFullscreen ? "Esci da schermo intero" : "Schermo intero"}
         >
           {isFullscreen ? <ExitFullscreenIcon size={20} /> : <FullscreenIcon size={20} />}
+        </IconButton>
+
+        <IconButton
+          aria-label="Statistiche e Analytics talk"
+          onClick={() => navigate("/analytics")}
+          title="Statistiche & Analytics (A)"
+        >
+          <AnalyticsIcon size={20} />
         </IconButton>
 
         <IconButton

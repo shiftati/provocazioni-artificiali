@@ -8,20 +8,20 @@ export const Provocation02: FC = () => {
       <div className={styles.category}>
         <span>⚡ Provocazione #02</span>
         <span>—</span>
-        <span>Architettura</span>
+        <span>Mercato & Consulenza</span>
       </div>
 
       <div className={styles.contentWrapper}>
         <h2 className={styles.title}>
-          I microservizi erano una scusa per non ammettere che <span className={styles.highlight}>non sapevamo organizzare le cartelle</span>.
+          Le società di consulenza <span className={styles.highlight}>falliranno</span>.
         </h2>
         <p className={styles.subtitle}>
-          Nel 2026 abbiamo riscoperto il maestoso monolite modulare, e improvvisamente i cluster Kubernetes non servono più per servire un form contatti.
+          Il modello basato sul body rental e sulla vendita di ore/uomo non regge più se un singolo sviluppatore supportato da agenti AI produce quanto un intero team tradizionale.
         </p>
       </div>
 
       <div className={styles.footer}>
-        <span className={styles.tag}>#monolith-renaissance #overengineering</span>
+        <span className={styles.tag}>#consulting-apocalypse #death-of-body-leasing #productivity-leap</span>
         <span className={styles.tag}>Shiftati di Testa @ Codemotion</span>
       </div>
     </div>
