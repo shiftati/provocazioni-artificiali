@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Stage } from "../../components/layout/Stage";
 import { useAppState } from "../../state/AppStateContext";
 import { PROVOCATIONS, PROVOCATION_MAP } from "./provocations.registry";
-import { getAvailableProvocations } from "./game.machine";
 import { useCountdown } from "../../hooks/useCountdown";
 import { useKeyboardNavigation } from "../../hooks/useKeyboardNavigation";
 import { Button } from "../../components/ui/Button";
@@ -59,13 +58,6 @@ export const GameView: FC = () => {
     isPaused: game.isTimerPaused,
     remainingWhenPaused: game.remainingWhenPaused,
   });
-
-  // Available unused provocations
-  const availableCount = getAvailableProvocations(
-    allProvocationIds,
-    game.usedProvocationIds,
-    game.skippedProvocationIds,
-  ).length;
 
   const currentProvocation = game.currentProvocationId
     ? PROVOCATION_MAP.get(game.currentProvocationId)
@@ -125,16 +117,28 @@ export const GameView: FC = () => {
               />
             </div>
 
-            <Button
-              variant="primary"
-              size="xl"
-              onClick={() =>
-                dispatchGame({ type: "ACCEPT_PROVOCATION", allProvocationIds })
-              }
-              leftIcon={<CheckIcon size={28} />}
-            >
-              Accetta Provocazione
-            </Button>
+            <div className={styles.challengeControls}>
+              <Button
+                variant="secondary"
+                size="xl"
+                onClick={() =>
+                  dispatchGame({ type: "CHALLENGE_TIMEOUT", allProvocationIds })
+                }
+              >
+                Salta
+              </Button>
+
+              <Button
+                variant="primary"
+                size="xl"
+                onClick={() =>
+                  dispatchGame({ type: "ACCEPT_PROVOCATION", allProvocationIds })
+                }
+                leftIcon={<CheckIcon size={28} />}
+              >
+                Accetta Provocazione
+              </Button>
+            </div>
           </div>
         )}
 
@@ -161,21 +165,13 @@ export const GameView: FC = () => {
 
             {/* Bottom-right action controls */}
             <div className={styles.provocationControls}>
-              {availableCount <= 1 && (
-                <span className={styles.exhaustedMessage}>
-                  {availableCount === 0
-                    ? "Nessuna altra provocazione"
-                    : "Ultima provocazione rimasta"}
-                </span>
-              )}
-
               <Button
                 variant="secondary"
                 size="lg"
                 onClick={() =>
                   dispatchGame({ type: "SKIP_PROVOCATION", allProvocationIds })
                 }
-                disabled={availableCount <= 1}
+                disabled={allProvocationIds.length <= 1}
                 leftIcon={<ShuffleIcon size={22} />}
               >
                 Cambia provocazione

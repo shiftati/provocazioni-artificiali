@@ -8,6 +8,7 @@ export interface TalkConfig {
   endTimestamp: number;   // epoch millis
   createdAt: number;
   theme?: AppTheme;
+  conclusionMinutes?: number; // minuti dedicati alla conclusione
 }
 
 export interface AppSessionState {
@@ -89,4 +90,5 @@ export interface TalkSessionRecord {
   provocations: ProvocationStat[];
   provocationsCount: number;
   notes?: string;
+  conclusionMinutes?: number;
 }

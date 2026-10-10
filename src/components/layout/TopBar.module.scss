@@ -42,3 +42,14 @@
   padding: var(--space-1) var(--space-4);
   color: var(--color-decal-text);
 }
+
+.countdownPhase {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  user-select: none;
+  padding-right: var(--space-1);
+}

@@ -75,6 +75,13 @@
   margin: var(--space-6) 0 var(--space-10) 0;
 }
 
+.challengeControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+}
+
 /* PROVOCATION Step */
 .provocationWrapper {
   width: 100%;

@@ -23,7 +23,7 @@ export interface TopBarProps {
 export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { globalRemainingSeconds, setMode } = useAppState();
+  const { globalRemainingSeconds, session, setMode } = useAppState();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
 
   const currentMode = location.pathname.includes("/game") ? "game" : "presentation";
@@ -36,6 +36,12 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
       navigate("/presentation");
     }
   };
+
+  const isPostStopCalls = session.stopCallsShown;
+  const countdownTitle = isPostStopCalls ? "Countdown fine talk" : "Countdown fine gioco";
+  const countdownAriaLabel = isPostStopCalls
+    ? "Tempo rimanente per la fine del talk"
+    : "Tempo rimanente per la fine del gioco";
 
   return (
     <header className={styles.topBar}>
@@ -56,12 +62,15 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
       </div>
 
       <div className={styles.rightSection}>
-        <div className={styles.countdownWrapper} title="Countdown fine talk">
+        <div className={styles.countdownWrapper} title={countdownTitle}>
           <ClockIcon size={20} style={{ color: "var(--color-accent)" }} />
+          <span className={styles.countdownPhase}>
+            {isPostStopCalls ? "Talk" : "Gioco"}
+          </span>
           <CountdownDisplay
             remainingSeconds={globalRemainingSeconds}
             size="sm"
-            ariaLabel="Tempo totale rimanente per il talk"
+            ariaLabel={countdownAriaLabel}
           />
         </div>
 

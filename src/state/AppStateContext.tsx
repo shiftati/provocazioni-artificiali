@@ -63,8 +63,10 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [session, setSessionState] = useState<AppSessionState>(() => {
     const saved = appStorage.getSession();
     const currentConfig = appStorage.getConfig();
-    // If countdown is in the future, stopCalls cannot have been shown yet
-    if (currentConfig.endTimestamp > Date.now() && saved.stopCallsShown) {
+    const conclusionMs = Math.max(0, currentConfig.conclusionMinutes ?? 0) * 60 * 1000;
+    const gameEndTimestamp = currentConfig.endTimestamp - conclusionMs;
+    // If game countdown is in the future, stopCalls cannot have been shown yet
+    if (gameEndTimestamp > Date.now() && saved.stopCallsShown) {
       const reset = { ...saved, stopCallsShown: false };
       appStorage.saveSession(reset);
       return reset;
@@ -122,17 +124,30 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
   }, [theme]);
 
-  // Global Countdown calculation without drift
-  const calculateGlobalRemaining = useCallback((): number => {
-    if (!config.endTimestamp || config.endTimestamp <= 0) return 0;
-    const diffMs = config.endTimestamp - Date.now();
-    return Math.max(0, Math.ceil(diffMs / 1000));
-  }, [config.endTimestamp]);
-
-  const [globalRemainingSeconds, setGlobalRemainingSeconds] = useState<number>(calculateGlobalRemaining);
-
   const sessionRef = useRef(session);
   sessionRef.current = session;
+
+  // Global Countdown calculation:
+  // - Prima di "Stop alle telefonate", conta alla rovescia fino alla fine del gioco
+  // - Dopo la comparsa di "Stop alle telefonate", conta alla rovescia fino alla fine del talk
+  const calculateGlobalRemaining = useCallback((): number => {
+    if (!config.endTimestamp || config.endTimestamp <= 0) return 0;
+    const now = Date.now();
+    const conclusionMs = Math.max(0, config.conclusionMinutes ?? 0) * 60 * 1000;
+    const gameEndTimestamp = config.endTimestamp - conclusionMs;
+
+    // Se "Stop alle telefonate" è già comparso, countdown sulla fine del talk
+    if (sessionRef.current.stopCallsShown || stopCallsOverlayOpen) {
+      const diffMs = config.endTimestamp - now;
+      return Math.max(0, Math.ceil(diffMs / 1000));
+    }
+
+    // Altrimenti countdown sulla fine del gioco
+    const diffMs = gameEndTimestamp - now;
+    return Math.max(0, Math.ceil(diffMs / 1000));
+  }, [config.endTimestamp, config.conclusionMinutes, stopCallsOverlayOpen]);
+
+  const [globalRemainingSeconds, setGlobalRemainingSeconds] = useState<number>(calculateGlobalRemaining);
 
   // Helper to update active session in sessions array & local storage
   const updateActiveSession = useCallback(
@@ -160,24 +175,33 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
 
     const checkTimer = () => {
-      const remaining = calculateGlobalRemaining();
-      setGlobalRemainingSeconds(remaining);
+      const now = Date.now();
+      const conclusionMs = Math.max(0, config.conclusionMinutes ?? 0) * 60 * 1000;
+      const gameEndTimestamp = config.endTimestamp - conclusionMs;
 
-      // Trigger "Stop alle telefonate" if expired and not shown yet AND session is currently active
-      if (remaining <= 0) {
+      // Trigger "Stop alle telefonate" if game countdown expired and not shown yet AND session is currently active
+      if (now >= gameEndTimestamp) {
         if (sessionRef.current.startedAt !== null && !sessionRef.current.stopCallsShown) {
           setStopCallsOverlayOpen(true);
           const updatedSession = { ...sessionRef.current, stopCallsShown: true };
+          sessionRef.current = updatedSession;
           setSessionState(updatedSession);
           appStorage.saveSession(updatedSession);
         }
       }
+
+      // Se "Stop alle telefonate" è comparso, il countdown si calcola sulla fine del talk;
+      // prima di tale momento, si calcola sulla fine del gioco.
+      const isPostStopCalls = sessionRef.current.stopCallsShown || stopCallsOverlayOpen;
+      const targetTimestamp = isPostStopCalls ? config.endTimestamp : gameEndTimestamp;
+      const diffMs = targetTimestamp - now;
+      setGlobalRemainingSeconds(Math.max(0, Math.ceil(diffMs / 1000)));
     };
 
     checkTimer();
     const interval = setInterval(checkTimer, 250);
     return () => clearInterval(interval);
-  }, [config.endTimestamp, calculateGlobalRemaining]);
+  }, [config.endTimestamp, config.conclusionMinutes, stopCallsOverlayOpen]);
 
   // Periodic heartbeat (every 2.5s) to flush live duration into active session record
   useEffect(() => {
@@ -292,6 +316,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       totalDurationSeconds: 0,
       plannedEndTime: config.endTime,
       plannedEndTimestamp: config.endTimestamp,
+      conclusionMinutes: config.conclusionMinutes,
       slides: SLIDES.map((s, idx) => ({
         slideIndex: idx,
         slideId: s.id,
@@ -622,6 +647,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       endTimestamp: 0,
       createdAt: 0,
       theme,
+      conclusionMinutes: 5,
     };
     appStorage.saveConfig(resetConfig);
     setConfigState(resetConfig);
@@ -685,7 +711,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const activeSessionRecord =
     sessions.find((s) => s.id === currentSessionId) ?? null;
 
-  const isGlobalExpired = config.endTimestamp > 0 && globalRemainingSeconds <= 0;
+  const isGlobalExpired = config.endTimestamp > 0 && Date.now() >= config.endTimestamp;
 
   return (
     <AppStateContext.Provider

@@ -6,6 +6,7 @@ import { parseEndTimeToday, getDurationPreview, getDefaultEndTime } from "../../
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { TimeInput } from "../../components/ui/TimeInput";
+import { NumberInput } from "../../components/ui/NumberInput";
 import { SegmentedControl } from "../../components/ui/SegmentedControl";
 import { Modal } from "../../components/ui/Modal";
 import { Badge } from "../../components/ui/Badge";
@@ -37,6 +38,10 @@ export const ConfigView: FC = () => {
     return getDefaultEndTime();
   });
 
+  const [conclusionMinutes, setConclusionMinutes] = useState<number>(() => {
+    return typeof config.conclusionMinutes === "number" ? config.conclusionMinutes : 5;
+  });
+
   const [hasSavedToast, setHasSavedToast] = useState<boolean>(false);
   const [confirmResetOpen, setConfirmResetOpen] = useState<boolean>(false);
   const [confirmPastOpen, setConfirmPastOpen] = useState<boolean>(false);
@@ -57,8 +62,17 @@ export const ConfigView: FC = () => {
     if (parsedTarget.isPast) {
       return "Attenzione: questo orario risulta già trascorso per oggi.";
     }
-    return getDurationPreview(parsedTarget.timestamp);
-  }, [parsedTarget]);
+
+    const talkEndMs = parsedTarget.timestamp;
+    const cleanConclusionMin = Math.max(0, conclusionMinutes || 0);
+    const conclusionMs = cleanConclusionMin * 60 * 1000;
+    const gameEndMs = talkEndMs - conclusionMs;
+
+    const gameEndDate = new Date(gameEndMs);
+    const gameEndTimeStr = `${String(gameEndDate.getHours()).padStart(2, "0")}:${String(gameEndDate.getMinutes()).padStart(2, "0")}`;
+
+    return `Fine gioco: ${gameEndTimeStr} (Stop alle telefonate a -${cleanConclusionMin} min) • Fine talk: ${timeValue} • ${getDurationPreview(talkEndMs)}`;
+  }, [parsedTarget, conclusionMinutes, timeValue]);
 
   const hasActiveSession =
     session.startedAt !== null ||
@@ -78,6 +92,7 @@ export const ConfigView: FC = () => {
       endTimestamp: parsedTarget.timestamp,
       createdAt: Date.now(),
       theme: selectedTheme,
+      conclusionMinutes: Math.max(0, conclusionMinutes || 0),
     });
 
     setHasSavedToast(true);
@@ -98,6 +113,7 @@ export const ConfigView: FC = () => {
       endTimestamp: parsedTarget.timestamp,
       createdAt: Date.now(),
       theme: selectedTheme,
+      conclusionMinutes: Math.max(0, conclusionMinutes || 0),
     });
 
     // Request fullscreen on stage canvas/viewport
@@ -120,6 +136,7 @@ export const ConfigView: FC = () => {
   const handleResetConfirm = () => {
     resetAll();
     setTimeValue(getDefaultEndTime());
+    setConclusionMinutes(5);
     setConfirmResetOpen(false);
   };
 
@@ -240,6 +257,20 @@ export const ConfigView: FC = () => {
             onChange={(e) => setTimeValue(e.target.value)}
             hint="Inserisci l'ora di fine (formato HH:mm). Il countdown calcolerà la durata residua esatta senza drift."
             error={parsedTarget?.isPast ? "Orario nel passato per oggi" : undefined}
+          />
+
+          <NumberInput
+            id="talk-conclusion-minutes"
+            label="Minuti dedicati alla conclusione"
+            value={conclusionMinutes}
+            onChange={(e) =>
+              setConclusionMinutes(Math.max(0, parseInt(e.target.value, 10) || 0))
+            }
+            min={0}
+            max={180}
+            step={1}
+            suffix="min"
+            hint="Numero di minuti dalla fine del gioco alla fine della presentazione. Triggera lo 'Stop alle telefonate'."
           />
 
           <div className={styles.previewText} aria-live="polite">

@@ -66,11 +66,41 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case "CHALLENGE_TIMEOUT": {
       if (state.step !== "CHALLENGE") return state;
 
-      const nextId = getFirstUnusedProvocation(
+      let nextId = getFirstUnusedProvocation(
         action.allProvocationIds,
         state.usedProvocationIds,
         state.skippedProvocationIds
       );
+
+      if (!nextId) {
+        const remainingUnused = action.allProvocationIds.filter(
+          (id) => !state.usedProvocationIds.includes(id)
+        );
+        if (remainingUnused.length > 0) {
+          nextId = remainingUnused[0] ?? null;
+          return {
+            ...state,
+            step: "PROVOCATION",
+            timerDeadline: null,
+            isTimerPaused: false,
+            remainingWhenPaused: null,
+            currentProvocationId: nextId,
+            skippedProvocationIds: [],
+          };
+        } else {
+          nextId = action.allProvocationIds[0] ?? null;
+          return {
+            ...state,
+            step: "PROVOCATION",
+            timerDeadline: null,
+            isTimerPaused: false,
+            remainingWhenPaused: null,
+            currentProvocationId: nextId,
+            usedProvocationIds: [],
+            skippedProvocationIds: [],
+          };
+        }
+      }
 
       return {
         ...state,
@@ -122,11 +152,39 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ? Array.from(new Set([...state.skippedProvocationIds, currentId]))
         : state.skippedProvocationIds;
 
-      const nextId = getFirstUnusedProvocation(
+      let nextId = getFirstUnusedProvocation(
         action.allProvocationIds,
         state.usedProvocationIds,
         nextSkipped
       );
+
+      // Se le provocazioni disponibili sono finite, ricomincia da capo
+      if (!nextId) {
+        const remainingUnused = action.allProvocationIds.filter(
+          (id) => !state.usedProvocationIds.includes(id)
+        );
+
+        if (
+          remainingUnused.length > 1 ||
+          (remainingUnused.length === 1 && remainingUnused[0] !== currentId)
+        ) {
+          nextId = remainingUnused[0] ?? null;
+          return {
+            ...state,
+            currentProvocationId: nextId,
+            skippedProvocationIds: [],
+          };
+        } else {
+          // Tutte le provocazioni sono state discusse o esaurite: ricomincia da capo con tutte
+          nextId = action.allProvocationIds[0] ?? null;
+          return {
+            ...state,
+            currentProvocationId: nextId,
+            usedProvocationIds: [],
+            skippedProvocationIds: [],
+          };
+        }
+      }
 
       return {
         ...state,

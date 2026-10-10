@@ -8,3 +8,4 @@ export * from "./Badge";
 export * from "./Modal";
 export * from "./Stack";
 export * from "./Cluster";
+export * from "./NumberInput";

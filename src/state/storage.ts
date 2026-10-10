@@ -22,6 +22,7 @@ export const DEFAULT_CONFIG: TalkConfig = {
   endTimestamp: 0,
   createdAt: 0,
   theme: "dark",
+  conclusionMinutes: 5,
 };
 
 export const DEFAULT_SESSION: AppSessionState = {
@@ -84,7 +85,13 @@ function writeItem<T>(key: string, data: T): void {
 export const appStorage = {
   // Config
   getConfig(): TalkConfig {
-    return readItem<TalkConfig>(STORAGE_KEYS.CONFIG, DEFAULT_CONFIG);
+    const cfg = readItem<TalkConfig>(STORAGE_KEYS.CONFIG, DEFAULT_CONFIG);
+    return {
+      ...DEFAULT_CONFIG,
+      ...cfg,
+      conclusionMinutes:
+        typeof cfg.conclusionMinutes === "number" ? cfg.conclusionMinutes : 5,
+    };
   },
   saveConfig(config: TalkConfig): void {
     writeItem(STORAGE_KEYS.CONFIG, config);
