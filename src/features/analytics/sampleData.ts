@@ -14,6 +14,7 @@ export function createSampleSessions(): TalkSessionRecord[] {
     startedAt: oneDayAgo,
     endedAt: oneDayAgo + 42 * 60 * 1000, // 42 minutes total
     totalDurationSeconds: 42 * 60,
+    gameDurationSeconds: 794, // 13m 14s spent in game mode between slide 11 and 12
     plannedEndTime: "17:15",
     plannedEndTimestamp: oneDayAgo + 45 * 60 * 1000,
     notes: "Ottimo feedback dalla platea. Dibattito vivace sui microservizi e su AI coding.",
@@ -82,6 +83,7 @@ export function createSampleSessions(): TalkSessionRecord[] {
     startedAt: twoDaysAgo,
     endedAt: twoDaysAgo + 38 * 60 * 1000,
     totalDurationSeconds: 38 * 60,
+    gameDurationSeconds: 556, // 9m 16s spent in game mode between slide 11 and 12
     plannedEndTime: "11:30",
     plannedEndTimestamp: twoDaysAgo + 40 * 60 * 1000,
     notes: "Prima prova complessiva con timer attivo. Ritmo scorrevole.",

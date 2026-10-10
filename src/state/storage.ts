@@ -1,4 +1,5 @@
 import type { TalkConfig, AppSessionState, GameState, AppStats, TalkSessionRecord } from "../types";
+import { deduplicateProvocations } from "../utils/time";
 
 interface VersionedEnvelope<T> {
   version: number;
@@ -143,7 +144,15 @@ export const appStorage = {
 
   // Sessions History (Analytics)
   getSessions(): TalkSessionRecord[] {
-    return readItem<TalkSessionRecord[]>(STORAGE_KEYS.SESSIONS, []);
+    const raw = readItem<TalkSessionRecord[]>(STORAGE_KEYS.SESSIONS, []);
+    return raw.map((session) => {
+      const cleanProvocations = deduplicateProvocations(session.provocations || []);
+      return {
+        ...session,
+        provocations: cleanProvocations,
+        provocationsCount: cleanProvocations.length,
+      };
+    });
   },
   saveSessions(sessions: TalkSessionRecord[]): void {
     writeItem(STORAGE_KEYS.SESSIONS, sessions);

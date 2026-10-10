@@ -1,15 +1,29 @@
-import type { FC } from "react";
+import { useState, type FC } from "react";
 import type { ProvocationStat } from "../../types";
-import { formatDurationSeconds, formatDateTime } from "../../utils/time";
-import { CheckIcon, ClockIcon } from "../../components/icons";
+import { formatDurationSeconds, formatDateTime, deduplicateProvocations } from "../../utils/time";
+import { CheckIcon, ClockIcon, EditIcon } from "../../components/icons";
+import { ProvocationEditorModal } from "./ProvocationEditorModal";
 import styles from "./AnalyticsView.module.scss";
 
 interface ProvocationsChartProps {
   provocations: ProvocationStat[];
+  onUpdateProvocation?: (updated: ProvocationStat) => void;
+  onDeleteProvocation?: (id: string) => void;
 }
 
-export const ProvocationsChart: FC<ProvocationsChartProps> = ({ provocations }) => {
-  if (provocations.length === 0) {
+export const ProvocationsChart: FC<ProvocationsChartProps> = ({
+  provocations,
+  onUpdateProvocation,
+  onDeleteProvocation,
+}) => {
+  const [editingProv, setEditingProv] = useState<{
+    prov: ProvocationStat;
+    index: number;
+  } | null>(null);
+
+  const cleanProvocations = deduplicateProvocations(provocations);
+
+  if (cleanProvocations.length === 0) {
     return (
       <div className={styles.emptyProvocations}>
         <div className={styles.emptyIcon}>🃏</div>
@@ -30,7 +44,7 @@ export const ProvocationsChart: FC<ProvocationsChartProps> = ({ provocations }) 
         <div>
           <h3 className={styles.chartTitle}>Dettaglio Provocazioni</h3>
           <p className={styles.chartSubtitle}>
-            Tempo di accettazione (sfida entro 30s) e durata effettiva della discussione (max 5m)
+            Una card per ogni provocazione (sessione di gioco da "Inizia il gioco" al termine dei 5m o cambio provocazione). Puoi modificare o aggiungere il titolo di ciascuna card.
           </p>
         </div>
         <div className={styles.chartLegend}>
@@ -52,7 +66,7 @@ export const ProvocationsChart: FC<ProvocationsChartProps> = ({ provocations }) 
       </div>
 
       <div className={styles.provocationsList}>
-        {provocations.map((prov, index) => {
+        {cleanProvocations.map((prov, index) => {
           const acceptancePct = Math.min(
             100,
             Math.round((prov.acceptanceTimeSeconds / MAX_ACCEPTANCE_SECONDS) * 100)
@@ -70,6 +84,12 @@ export const ProvocationsChart: FC<ProvocationsChartProps> = ({ provocations }) 
               ? "⏱️ Rapida"
               : "⏳ Riflessiva";
 
+          const hasCustomTitle = Boolean(
+            prov.provocationTitle &&
+              prov.provocationTitle.trim() &&
+              prov.provocationTitle !== "Provocazione"
+          );
+
           return (
             <div key={prov.id || index} className={styles.provocationCard}>
               <div className={styles.provocationTop}>
@@ -81,14 +101,70 @@ export const ProvocationsChart: FC<ProvocationsChartProps> = ({ provocations }) 
                     {speedLabel}
                   </span>
                 </div>
-                <div className={styles.provocationMeta}>
-                  {prov.completedAt ? formatDateTime(prov.completedAt) : ""}
+                <div className={styles.provocationTopRight}>
+                  {prov.completedAt && (
+                    <span className={styles.provocationMeta}>
+                      {formatDateTime(prov.completedAt)}
+                    </span>
+                  )}
+                  {onUpdateProvocation && (
+                    <button
+                      type="button"
+                      className={styles.editCardBtn}
+                      onClick={() => setEditingProv({ prov, index })}
+                      title="Modifica o aggiungi titolo alla provocazione"
+                      aria-label={`Modifica titolo provocazione ${index + 1}`}
+                    >
+                      <EditIcon size={13} />
+                      <span>Modifica</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
-              <h4 className={styles.provocationCardTitle}>
-                {prov.provocationTitle}
-              </h4>
+              {/* Title area (editable) */}
+              <div
+                className={`${styles.provocationTitleWrapper} ${
+                  !hasCustomTitle ? styles.untitledWrapper : ""
+                }`}
+                onClick={() =>
+                  onUpdateProvocation && setEditingProv({ prov, index })
+                }
+                role={onUpdateProvocation ? "button" : undefined}
+                tabIndex={onUpdateProvocation ? 0 : undefined}
+                onKeyDown={(e) => {
+                  if (
+                    onUpdateProvocation &&
+                    (e.key === "Enter" || e.key === " ")
+                  ) {
+                    e.preventDefault();
+                    setEditingProv({ prov, index });
+                  }
+                }}
+                title={
+                  onUpdateProvocation
+                    ? "Clicca per modificare o aggiungere il titolo"
+                    : undefined
+                }
+              >
+                <h4
+                  className={
+                    hasCustomTitle
+                      ? styles.provocationCardTitle
+                      : styles.provocationCardPlaceholder
+                  }
+                >
+                  {hasCustomTitle
+                    ? prov.provocationTitle
+                    : "+ Aggiungi titolo provocazione..."}
+                </h4>
+                {onUpdateProvocation && (
+                  <span className={styles.inlineEditIcon}>
+                    <EditIcon size={14} />
+                  </span>
+                )}
+              </div>
+
               {prov.provocationSubtitle && (
                 <p className={styles.provocationCardSubtitle}>
                   {prov.provocationSubtitle}
@@ -102,9 +178,14 @@ export const ProvocationsChart: FC<ProvocationsChartProps> = ({ provocations }) 
                     <span className={styles.gaugeLabel}>
                       <ClockIcon size={16} /> Tempo Accettazione
                     </span>
-                    <strong className={styles.gaugeValue} style={{ color: "var(--color-brand-yellow)" }}>
+                    <strong
+                      className={styles.gaugeValue}
+                      style={{ color: "var(--color-brand-yellow)" }}
+                    >
                       {prov.acceptanceTimeSeconds}s{" "}
-                      <span className={styles.gaugeMax}>/ {MAX_ACCEPTANCE_SECONDS}s</span>
+                      <span className={styles.gaugeMax}>
+                        / {MAX_ACCEPTANCE_SECONDS}s
+                      </span>
                     </strong>
                   </div>
                   <div className={styles.gaugeTrack}>
@@ -121,7 +202,10 @@ export const ProvocationsChart: FC<ProvocationsChartProps> = ({ provocations }) 
                     <span className={styles.gaugeLabel}>
                       <CheckIcon size={16} /> Durata Discussione
                     </span>
-                    <strong className={styles.gaugeValue} style={{ color: "var(--color-brand-blue)" }}>
+                    <strong
+                      className={styles.gaugeValue}
+                      style={{ color: "var(--color-brand-blue)" }}
+                    >
                       {formatDurationSeconds(prov.discussionDurationSeconds)}{" "}
                       <span className={styles.gaugeMax}>/ 5m 00s</span>
                     </strong>
@@ -138,6 +222,20 @@ export const ProvocationsChart: FC<ProvocationsChartProps> = ({ provocations }) 
           );
         })}
       </div>
+
+      {/* Provocation Editor Modal */}
+      <ProvocationEditorModal
+        provocation={editingProv?.prov ?? null}
+        provocationIndex={editingProv?.index ?? 0}
+        isOpen={editingProv !== null}
+        onClose={() => setEditingProv(null)}
+        onSave={(updated) => {
+          if (onUpdateProvocation) {
+            onUpdateProvocation(updated);
+          }
+        }}
+        onDelete={onDeleteProvocation}
+      />
     </div>
   );
 };

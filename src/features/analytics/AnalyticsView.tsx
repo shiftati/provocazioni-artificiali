@@ -1,7 +1,12 @@
-import { useState, useMemo, type FC } from "react";
+import { useState, useMemo, Fragment, type FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppState } from "../../state/AppStateContext";
-import { formatDateTime, formatDurationSeconds } from "../../utils/time";
+import {
+  formatDateTime,
+  formatDurationSeconds,
+  getSessionGameDuration,
+  deduplicateProvocations,
+} from "../../utils/time";
 import { Button } from "../../components/ui/Button";
 import { Modal } from "../../components/ui/Modal";
 import { KPIStatsCards } from "./KPIStatsCards";
@@ -10,6 +15,7 @@ import { ProvocationsChart } from "./ProvocationsChart";
 import { TalkDistributionChart } from "./TalkDistributionChart";
 import { MultiSessionChart } from "./MultiSessionChart";
 import { SessionEditorModal } from "./SessionEditorModal";
+import { ProvocationEditorModal } from "./ProvocationEditorModal";
 import { JsonImportModal } from "./JsonImportModal";
 import {
   DownloadIcon,
@@ -21,7 +27,7 @@ import {
   PlayIcon,
   CheckIcon,
 } from "../../components/icons";
-import type { TalkSessionRecord } from "../../types";
+import type { TalkSessionRecord, ProvocationStat } from "../../types";
 import styles from "./AnalyticsView.module.scss";
 
 export const AnalyticsView: FC = () => {
@@ -51,6 +57,10 @@ export const AnalyticsView: FC = () => {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [confirmClearAllOpen, setConfirmClearAllOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [editingTableProv, setEditingTableProv] = useState<{
+    prov: ProvocationStat;
+    index: number;
+  } | null>(null);
 
   // Tab for tables / charts view
   const [viewTab, setViewTab] = useState<"charts" | "tables">("charts");
@@ -66,6 +76,33 @@ export const AnalyticsView: FC = () => {
     const found = sessions.find((s) => s.id === selectedSessionId);
     return found ?? sessions[0] ?? null;
   }, [sessions, selectedSessionId]);
+
+  const handleUpdateProvocation = (updatedProv: ProvocationStat) => {
+    if (!currentViewSession) return;
+    const updatedProvocations = currentViewSession.provocations.map((p) =>
+      p.id === updatedProv.id ? updatedProv : p
+    );
+    const updatedSession: TalkSessionRecord = {
+      ...currentViewSession,
+      provocations: updatedProvocations,
+    };
+    updateSessionRecord(updatedSession);
+    showToast("Provocazione aggiornata con successo!");
+  };
+
+  const handleDeleteProvocation = (id: string) => {
+    if (!currentViewSession) return;
+    const updatedProvocations = currentViewSession.provocations.filter(
+      (p) => p.id !== id
+    );
+    const updatedSession: TalkSessionRecord = {
+      ...currentViewSession,
+      provocations: updatedProvocations,
+      provocationsCount: updatedProvocations.length,
+    };
+    updateSessionRecord(updatedSession);
+    showToast("Provocazione eliminata.");
+  };
 
   // Export a single session to JSON file
   const handleExportSingle = (sessionRecord: TalkSessionRecord) => {
@@ -361,11 +398,17 @@ export const AnalyticsView: FC = () => {
           {currentViewSession && viewTab === "charts" && (
             <>
               {/* 1. Slide Duration Chart */}
-              <SlideDurationChart slides={currentViewSession.slides} />
+              <SlideDurationChart
+                slides={currentViewSession.slides}
+                gameDurationSeconds={getSessionGameDuration(currentViewSession)}
+                provocationsCount={currentViewSession.provocationsCount}
+              />
 
               {/* 2. Provocations Acceptance & Discussion Chart */}
               <ProvocationsChart
                 provocations={currentViewSession.provocations}
+                onUpdateProvocation={handleUpdateProvocation}
+                onDeleteProvocation={handleDeleteProvocation}
               />
 
               {/* 3. Time Distribution (Donut) */}
@@ -404,20 +447,55 @@ export const AnalyticsView: FC = () => {
                                 100,
                             )
                           : 0;
+                      const isSlide11 = idx === 10 || s.slideId === "klippy-matrix";
+                      const gameDuration = getSessionGameDuration(currentViewSession);
+                      const gamePct =
+                        currentViewSession.totalDurationSeconds > 0
+                          ? Math.round(
+                              (gameDuration /
+                                currentViewSession.totalDurationSeconds) *
+                                100,
+                            )
+                          : 0;
+
                       return (
-                        <tr key={s.slideId}>
-                          <td>
-                            <strong>#{idx + 1}</strong>
-                          </td>
-                          <td>{s.slideTitle}</td>
-                          <td>
-                            <strong>
-                              {formatDurationSeconds(s.durationSeconds)}
-                            </strong>
-                          </td>
-                          <td>{s.visits}</td>
-                          <td>{pct}%</td>
-                        </tr>
+                        <Fragment key={s.slideId}>
+                          <tr>
+                            <td>
+                              <strong>#{idx + 1}</strong>
+                            </td>
+                            <td>{s.slideTitle}</td>
+                            <td>
+                              <strong>
+                                {formatDurationSeconds(s.durationSeconds)}
+                              </strong>
+                            </td>
+                            <td>{s.visits}</td>
+                            <td>{pct}%</td>
+                          </tr>
+                          {isSlide11 && (
+                            <tr key="game-session-row" className={styles.gameTableRow}>
+                              <td>
+                                <span className={styles.gameTableBadge}>🎮 GIOCO</span>
+                              </td>
+                              <td>
+                                <strong style={{ color: "var(--color-brand-blue)" }}>
+                                  Fase di Gioco (Provocazioni)
+                                </strong>
+                                <div className={styles.gameTableSub}>
+                                  Sessione interattiva tra Slide 11 (Klippy Matrix) e Slide 12 (Io sono eccellenza)
+                                </div>
+                              </td>
+                              <td>
+                                <strong style={{ color: "var(--color-brand-blue)" }}>
+                                  {formatDurationSeconds(gameDuration)}
+                                </strong>
+                              </td>
+                              <td>{currentViewSession.provocationsCount} prov.</td>
+                              <td>{gamePct}%</td>
+                            </tr>
+                          )}
+                        </Fragment>
                       );
                     })}
                   </tbody>
@@ -430,7 +508,7 @@ export const AnalyticsView: FC = () => {
               >
                 Tabella Dettaglio Provocazioni
               </h3>
-              {currentViewSession.provocations.length === 0 ? (
+              {deduplicateProvocations(currentViewSession.provocations).length === 0 ? (
                 <p
                   style={{
                     color: "var(--color-text-muted)",
@@ -449,16 +527,17 @@ export const AnalyticsView: FC = () => {
                         <th>Tempo Accettazione</th>
                         <th>Tempo Discussione</th>
                         <th>Completata alle</th>
+                        <th>Azioni</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {currentViewSession.provocations.map((p, idx) => (
+                      {deduplicateProvocations(currentViewSession.provocations).map((p, idx) => (
                         <tr key={p.id}>
                           <td>
                             <strong>#{idx + 1}</strong>
                           </td>
                           <td>
-                            <strong>{p.provocationTitle}</strong>
+                            <strong>{p.provocationTitle || "(Senza titolo)"}</strong>
                             {p.provocationSubtitle && (
                               <div
                                 style={{
@@ -491,6 +570,17 @@ export const AnalyticsView: FC = () => {
                               ? formatDateTime(p.completedAt)
                               : "-"}
                           </td>
+                          <td>
+                            <Button
+                              variant="ghost"
+                              size="md"
+                              onClick={() => setEditingTableProv({ prov: p, index: idx })}
+                              leftIcon={<EditIcon size={14} />}
+                              title="Modifica o assegna titolo alla provocazione"
+                            >
+                              Modifica
+                            </Button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -501,6 +591,16 @@ export const AnalyticsView: FC = () => {
           )}
         </>
       )}
+
+      {/* Provocation Editor Modal for Table view */}
+      <ProvocationEditorModal
+        provocation={editingTableProv?.prov ?? null}
+        provocationIndex={editingTableProv?.index ?? 0}
+        isOpen={editingTableProv !== null}
+        onClose={() => setEditingTableProv(null)}
+        onSave={handleUpdateProvocation}
+        onDelete={handleDeleteProvocation}
+      />
 
       {/* Editor Modal */}
       <SessionEditorModal

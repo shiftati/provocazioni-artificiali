@@ -95,3 +95,58 @@ export function formatDateTime(timestamp: number): string {
     minute: "2-digit",
   });
 }
+
+/**
+ * Returns total game duration in seconds for a session.
+ * Uses recorded gameDurationSeconds if available, or calculates sum of provocations' time.
+ */
+export function getSessionGameDuration(session: {
+  gameDurationSeconds?: number;
+  provocations?: { acceptanceTimeSeconds?: number; discussionDurationSeconds?: number }[];
+}): number {
+  if (typeof session.gameDurationSeconds === "number" && session.gameDurationSeconds > 0) {
+    return session.gameDurationSeconds;
+  }
+  return (session.provocations || []).reduce(
+    (acc, p) => acc + (p.discussionDurationSeconds || 0) + (p.acceptanceTimeSeconds || 0),
+    0
+  );
+}
+
+/**
+ * Deduplicates provocation records by id or identical adjacent entries.
+ */
+export function deduplicateProvocations<
+  T extends {
+    id?: string;
+    provocationId: string;
+    completedAt?: number;
+    discussionDurationSeconds?: number;
+  }
+>(provocations: T[]): T[] {
+  if (!provocations || provocations.length <= 1) return provocations || [];
+  const seenIds = new Set<string>();
+  const result: T[] = [];
+
+  for (const prov of provocations) {
+    if (prov.id && seenIds.has(prov.id)) {
+      continue;
+    }
+    // Check for strict-mode immediate duplicates (same provocation within 3.5s)
+    const isAdjacentDup = result.some(
+      (r) =>
+        r.provocationId === prov.provocationId &&
+        Math.abs((r.completedAt || 0) - (prov.completedAt || 0)) < 3500 &&
+        r.discussionDurationSeconds === prov.discussionDurationSeconds
+    );
+    if (isAdjacentDup) {
+      continue;
+    }
+
+    if (prov.id) {
+      seenIds.add(prov.id);
+    }
+    result.push(prov);
+  }
+  return result;
+}

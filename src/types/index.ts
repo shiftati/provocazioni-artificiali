@@ -91,4 +91,5 @@ export interface TalkSessionRecord {
   provocationsCount: number;
   notes?: string;
   conclusionMinutes?: number;
+  gameDurationSeconds?: number; // total time spent in game mode (between slide 11 and 12)
 }

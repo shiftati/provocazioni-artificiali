@@ -5,22 +5,67 @@ import styles from "./AnalyticsView.module.scss";
 
 interface SlideDurationChartProps {
   slides: SlideStat[];
+  gameDurationSeconds?: number;
+  provocationsCount?: number;
 }
 
-export const SlideDurationChart: FC<SlideDurationChartProps> = ({ slides }) => {
+interface ChartItem {
+  type: "slide" | "game";
+  id: string;
+  label: string;
+  title: string;
+  durationSeconds: number;
+  slideIndex?: number;
+  visits?: number;
+  provocationsCount?: number;
+}
+
+export const SlideDurationChart: FC<SlideDurationChartProps> = ({
+  slides,
+  gameDurationSeconds = 0,
+  provocationsCount = 0,
+}) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  // Construct chart items, placing the Game session right between Slide 11 and Slide 12
+  const items: ChartItem[] = [];
+  slides.forEach((slide, idx) => {
+    items.push({
+      type: "slide",
+      id: slide.slideId,
+      label: `#${idx + 1}`,
+      title: slide.slideTitle,
+      durationSeconds: slide.durationSeconds,
+      slideIndex: idx,
+      visits: slide.visits,
+    });
+
+    // Between Slide 11 (index 10 or id klippy-matrix) and Slide 12, insert Game session
+    if (idx === 10 || slide.slideId === "klippy-matrix") {
+      items.push({
+        type: "game",
+        id: "game-session",
+        label: "🎮 Gioco",
+        title: "Sessione di Gioco (Provocazioni)",
+        durationSeconds: gameDurationSeconds,
+        provocationsCount,
+      });
+    }
+  });
 
   const maxDuration = Math.max(
     ...slides.map((s) => s.durationSeconds),
+    gameDurationSeconds,
     30 // minimum scale 30s
   );
 
   const totalSlideTime = slides.reduce((acc, s) => acc + s.durationSeconds, 0);
+  const totalSessionTime = totalSlideTime + gameDurationSeconds;
+
+  const activeSlides = slides.filter((s) => s.durationSeconds > 0);
   const avgDuration =
-    slides.filter((s) => s.durationSeconds > 0).length > 0
-      ? Math.round(
-          totalSlideTime / slides.filter((s) => s.durationSeconds > 0).length
-        )
+    activeSlides.length > 0
+      ? Math.round(totalSlideTime / activeSlides.length)
       : 0;
 
   // Chart dimensions
@@ -29,23 +74,38 @@ export const SlideDurationChart: FC<SlideDurationChartProps> = ({ slides }) => {
   const paddingBottom = 40;
   const paddingTop = 25;
   const chartHeight = svgHeight - paddingBottom - paddingTop;
-  const barWidth = 36;
-  const gap = (svgWidth - slides.length * barWidth) / (slides.length + 1);
+  const barWidth = 32;
+  const gap = (svgWidth - items.length * barWidth) / (items.length + 1);
 
   // Y coordinate for average line
   const avgY =
     svgHeight - paddingBottom - (avgDuration / maxDuration) * chartHeight;
 
+  const hoveredItem = hoveredIndex !== null ? items[hoveredIndex] : null;
+
   return (
     <div className={styles.chartContainer}>
       <div className={styles.chartHeader}>
         <div>
-          <h3 className={styles.chartTitle}>Durata di Ogni Slide</h3>
+          <div className={styles.chartTitleRow}>
+            <h3 className={styles.chartTitle}>Durata di Ogni Slide</h3>
+            <span className={styles.gamePhaseBadge}>
+              🎮 Tempo di gioco tra slide 11 e 12:{" "}
+              <strong>{formatDurationSeconds(gameDurationSeconds)}</strong>
+            </span>
+          </div>
           <p className={styles.chartSubtitle}>
-            Tempo totale speso su ciascuna delle 14 slide (passa il cursore per i dettagli)
+            Tempo totale speso su ciascuna delle 14 slide e durante la sessione di gioco tra slide 11 e 12
           </p>
         </div>
         <div className={styles.chartLegend}>
+          <span className={styles.legendItem}>
+            <span
+              className={styles.legendColor}
+              style={{ background: "var(--color-mint)" }}
+            />
+            Slide nei tempi
+          </span>
           <span className={styles.legendItem}>
             <span
               className={styles.legendColor}
@@ -56,9 +116,11 @@ export const SlideDurationChart: FC<SlideDurationChartProps> = ({ slides }) => {
           <span className={styles.legendItem}>
             <span
               className={styles.legendColor}
-              style={{ background: "var(--color-mint)" }}
+              style={{
+                background: "linear-gradient(135deg, #8b5cf6, #3b82f6)",
+              }}
             />
-            Slide nei tempi
+            🎮 Tempo di Gioco (tra #11 e #12)
           </span>
           {avgDuration > 0 && (
             <span className={styles.legendItem}>
@@ -66,7 +128,7 @@ export const SlideDurationChart: FC<SlideDurationChartProps> = ({ slides }) => {
                 className={styles.legendLine}
                 style={{ borderColor: "var(--color-brand-yellow)" }}
               />
-              Media ({formatDurationSeconds(avgDuration)})
+              Media slide ({formatDurationSeconds(avgDuration)})
             </span>
           )}
         </div>
@@ -77,7 +139,7 @@ export const SlideDurationChart: FC<SlideDurationChartProps> = ({ slides }) => {
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
           className={styles.chartSvg}
           role="img"
-          aria-label="Grafico a barre della durata delle slide"
+          aria-label="Grafico a barre della durata delle slide e del tempo di gioco"
         >
           <defs>
             <linearGradient id="barGradientMint" x1="0" y1="0" x2="0" y2="1">
@@ -91,6 +153,14 @@ export const SlideDurationChart: FC<SlideDurationChartProps> = ({ slides }) => {
             <linearGradient id="barGradientHover" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#ffffff" />
               <stop offset="100%" stopColor="var(--color-accent)" />
+            </linearGradient>
+            <linearGradient id="barGradientGame" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#8b5cf6" />
+              <stop offset="100%" stopColor="rgba(59, 130, 246, 0.5)" />
+            </linearGradient>
+            <linearGradient id="barGradientGameHover" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#c084fc" />
+              <stop offset="100%" stopColor="#7c3aed" />
             </linearGradient>
           </defs>
 
@@ -122,7 +192,7 @@ export const SlideDurationChart: FC<SlideDurationChartProps> = ({ slides }) => {
             );
           })}
 
-          {/* Average Line */}
+          {/* Average Line for slides */}
           {avgDuration > 0 && (
             <g>
               <line
@@ -135,43 +205,60 @@ export const SlideDurationChart: FC<SlideDurationChartProps> = ({ slides }) => {
                 strokeWidth="1.5"
               />
               <text
-                x={svgWidth - 85}
+                x={svgWidth - 110}
                 y={avgY - 6}
                 fill="var(--color-brand-yellow)"
                 fontSize="11"
                 fontFamily="var(--font-mono)"
                 fontWeight="bold"
               >
-                Media: {formatDurationSeconds(avgDuration)}
+                Media slide: {formatDurationSeconds(avgDuration)}
               </text>
             </g>
           )}
 
           {/* Bars */}
-          {slides.map((slide, idx) => {
+          {items.map((item, idx) => {
             const x = gap + idx * (barWidth + gap);
+            const isHovered = hoveredIndex === idx;
+            const isGame = item.type === "game";
+
             const height =
               maxDuration > 0
-                ? Math.max(4, (slide.durationSeconds / maxDuration) * chartHeight)
+                ? Math.max(
+                    item.durationSeconds > 0 ? 6 : 4,
+                    (item.durationSeconds / maxDuration) * chartHeight
+                  )
                 : 4;
             const y = svgHeight - paddingBottom - height;
-            const isHovered = hoveredIndex === idx;
-            const isAboveAvg = slide.durationSeconds > avgDuration * 1.35;
-            const fill = isHovered
-              ? "url(#barGradientHover)"
-              : isAboveAvg
-              ? "url(#barGradientAccent)"
-              : "url(#barGradientMint)";
+
+            let fill = "url(#barGradientMint)";
+            if (isGame) {
+              fill = isHovered
+                ? "url(#barGradientGameHover)"
+                : "url(#barGradientGame)";
+            } else {
+              const isAboveAvg = item.durationSeconds > avgDuration * 1.35;
+              fill = isHovered
+                ? "url(#barGradientHover)"
+                : isAboveAvg
+                ? "url(#barGradientAccent)"
+                : "url(#barGradientMint)";
+            }
 
             return (
               <g
-                key={slide.slideId}
+                key={item.id}
                 className={styles.barGroup}
                 onMouseEnter={() => setHoveredIndex(idx)}
                 onMouseLeave={() => setHoveredIndex(null)}
                 tabIndex={0}
                 role="graphics-symbol"
-                aria-label={`Slide ${idx + 1}: ${slide.slideTitle}, durata ${formatDurationSeconds(slide.durationSeconds)}`}
+                aria-label={
+                  isGame
+                    ? `Fase di Gioco tra slide 11 e 12, durata ${formatDurationSeconds(item.durationSeconds)}`
+                    : `Slide ${item.label}: ${item.title}, durata ${formatDurationSeconds(item.durationSeconds)}`
+                }
               >
                 {/* Bar */}
                 <rect
@@ -179,40 +266,65 @@ export const SlideDurationChart: FC<SlideDurationChartProps> = ({ slides }) => {
                   y={y}
                   width={barWidth}
                   height={height}
-                  rx={4}
-                  ry={4}
+                  rx={isGame ? 6 : 4}
+                  ry={isGame ? 6 : 4}
                   fill={fill}
-                  className={styles.barRect}
-                  stroke={isHovered ? "var(--color-brand-white)" : "none"}
-                  strokeWidth={isHovered ? 2 : 0}
+                  className={`${styles.barRect} ${isGame ? styles.gameBarRect : ""}`}
+                  stroke={
+                    isHovered
+                      ? "#ffffff"
+                      : isGame
+                      ? "rgba(139, 92, 246, 0.8)"
+                      : "none"
+                  }
+                  strokeWidth={isHovered ? 2 : isGame ? 1.5 : 0}
+                  strokeDasharray={
+                    isGame && item.durationSeconds === 0 ? "3 3" : undefined
+                  }
                 />
 
                 {/* Duration text above bar */}
-                {slide.durationSeconds > 0 && (
+                {item.durationSeconds > 0 && (
                   <text
                     x={x + barWidth / 2}
                     y={y - 8}
                     textAnchor="middle"
-                    fill={isHovered ? "var(--color-accent)" : "var(--color-text-muted)"}
-                    fontSize="10"
+                    fill={
+                      isHovered
+                        ? isGame
+                          ? "#c084fc"
+                          : "var(--color-accent)"
+                        : isGame
+                        ? "var(--color-brand-blue)"
+                        : "var(--color-text-muted)"
+                    }
+                    fontSize={isGame ? "10" : "10"}
                     fontFamily="var(--font-mono)"
-                    fontWeight={isHovered ? "bold" : "normal"}
+                    fontWeight={isHovered || isGame ? "bold" : "normal"}
                   >
-                    {formatDurationSeconds(slide.durationSeconds)}
+                    {formatDurationSeconds(item.durationSeconds)}
                   </text>
                 )}
 
-                {/* Slide index label at bottom */}
+                {/* Item label at bottom */}
                 <text
                   x={x + barWidth / 2}
-                  y={svgHeight - paddingBottom + 18}
+                  y={svgHeight - paddingBottom + (isGame ? 19 : 18)}
                   textAnchor="middle"
-                  fill={isHovered ? "var(--color-text)" : "var(--color-text-muted)"}
-                  fontSize="12"
-                  fontFamily="var(--font-display)"
-                  fontWeight={isHovered ? "bold" : "normal"}
+                  fill={
+                    isHovered
+                      ? isGame
+                        ? "#a855f7"
+                        : "var(--color-text)"
+                      : isGame
+                      ? "var(--color-brand-blue)"
+                      : "var(--color-text-muted)"
+                  }
+                  fontSize={isGame ? "10" : "12"}
+                  fontFamily={isGame ? "var(--font-body)" : "var(--font-display)"}
+                  fontWeight={isHovered || isGame ? "bold" : "normal"}
                 >
-                  #{idx + 1}
+                  {item.label}
                 </text>
               </g>
             );
@@ -222,40 +334,78 @@ export const SlideDurationChart: FC<SlideDurationChartProps> = ({ slides }) => {
 
       {/* Floating or docked tooltip */}
       <div className={styles.chartTooltipArea}>
-        {hoveredIndex !== null && slides[hoveredIndex] ? (
-          <div className={styles.activeSlideTooltip}>
-            <span className={styles.tooltipBadge}>
-              Slide {hoveredIndex + 1} di {slides.length}
-            </span>
-            <strong className={styles.tooltipTitle}>
-              {slides[hoveredIndex].slideTitle}
-            </strong>
-            <div className={styles.tooltipStatsRow}>
-              <span>
-                Durata:{" "}
-                <strong>
-                  {formatDurationSeconds(slides[hoveredIndex].durationSeconds)}
-                </strong>
+        {hoveredItem ? (
+          hoveredItem.type === "game" ? (
+            <div className={styles.activeSlideTooltip}>
+              <span
+                className={styles.tooltipBadge}
+                style={{
+                  background: "linear-gradient(135deg, #8b5cf6, #3b82f6)",
+                  color: "#fff",
+                }}
+              >
+                🎮 FASE INTERATTIVA • TRA SLIDE 11 E 12
               </span>
-              <span>
-                Visite: <strong>{slides[hoveredIndex].visits}</strong>
-              </span>
-              <span>
-                Quota sul totale:{" "}
-                <strong>
-                  {totalSlideTime > 0
-                    ? `${Math.round(
-                        (slides[hoveredIndex].durationSeconds / totalSlideTime) *
-                          100
-                      )}%`
-                    : "0%"}
-                </strong>
-              </span>
+              <strong className={styles.tooltipTitle}>
+                {hoveredItem.title}
+              </strong>
+              <div className={styles.tooltipStatsRow}>
+                <span>
+                  Tempo totale di gioco:{" "}
+                  <strong style={{ color: "var(--color-brand-blue)" }}>
+                    {formatDurationSeconds(hoveredItem.durationSeconds)}
+                  </strong>
+                </span>
+                <span>
+                  Provocazioni completate:{" "}
+                  <strong>{hoveredItem.provocationsCount ?? 0}</strong>
+                </span>
+                <span>
+                  Quota sul talk:{" "}
+                  <strong>
+                    {totalSessionTime > 0
+                      ? `${Math.round(
+                          (hoveredItem.durationSeconds / totalSessionTime) * 100
+                        )}%`
+                      : "0%"}
+                  </strong>
+                </span>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className={styles.activeSlideTooltip}>
+              <span className={styles.tooltipBadge}>
+                Slide {(hoveredItem.slideIndex ?? 0) + 1} di {slides.length}
+              </span>
+              <strong className={styles.tooltipTitle}>
+                {hoveredItem.title}
+              </strong>
+              <div className={styles.tooltipStatsRow}>
+                <span>
+                  Durata:{" "}
+                  <strong>
+                    {formatDurationSeconds(hoveredItem.durationSeconds)}
+                  </strong>
+                </span>
+                <span>
+                  Visite: <strong>{hoveredItem.visits ?? 1}</strong>
+                </span>
+                <span>
+                  Quota sulle slide:{" "}
+                  <strong>
+                    {totalSlideTime > 0
+                      ? `${Math.round(
+                          (hoveredItem.durationSeconds / totalSlideTime) * 100
+                        )}%`
+                      : "0%"}
+                  </strong>
+                </span>
+              </div>
+            </div>
+          )
         ) : (
           <div className={styles.tooltipHint}>
-            Passa il mouse su una barra per visualizzare il titolo della slide, il numero di visite e la percentuale sul totale.
+            Passa il mouse sulle barre per visualizzare i dettagli di ciascuna slide e il tempo di gioco tra slide 11 e 12.
           </div>
         )}
       </div>

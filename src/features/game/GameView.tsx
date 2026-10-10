@@ -57,6 +57,9 @@ export const GameView: FC = () => {
     targetTimestamp: game.step === "DISCUSSION" ? game.timerDeadline : null,
     isPaused: game.isTimerPaused,
     remainingWhenPaused: game.remainingWhenPaused,
+    onExpire: () => {
+      dispatchGame({ type: "NEXT_PROVOCATION" });
+    },
   });
 
   const currentProvocation = game.currentProvocationId
