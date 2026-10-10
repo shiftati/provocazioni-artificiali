@@ -118,6 +118,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const discussionStartTimeRef = useRef<number | null>(null);
   const discussionAccumulatedSecondsRef = useRef<number>(0);
   const isDiscussionPausedRef = useRef<boolean>(false);
+  const currentDiscussionProvStatIdRef = useRef<string | null>(null);
 
   // Sync theme with HTML data attribute and meta theme-color
   useEffect(() => {
@@ -225,6 +226,24 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
           : curr.totalDurationSeconds;
 
         if (!isPresentation) {
+          const activeStatId = currentDiscussionProvStatIdRef.current;
+          if (activeStatId && discussionStartTimeRef.current) {
+            let discSec = discussionAccumulatedSecondsRef.current;
+            if (!isDiscussionPausedRef.current) {
+              discSec += (now - discussionStartTimeRef.current) / 1000;
+            }
+            const cleanDiscSec = Math.min(300, Math.max(1, Math.round(discSec)));
+            const updatedProvocations = curr.provocations.map((p) =>
+              p.id === activeStatId
+                ? { ...p, discussionDurationSeconds: cleanDiscSec }
+                : p
+            );
+            return {
+              ...curr,
+              totalDurationSeconds,
+              provocations: updatedProvocations,
+            };
+          }
           return { ...curr, totalDurationSeconds };
         }
 
@@ -322,6 +341,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       plannedEndTime: config.endTime,
       plannedEndTimestamp: config.endTimestamp,
       conclusionMinutes: config.conclusionMinutes,
+      introEndSlide: config.introEndSlide ?? 11,
       slides: SLIDES.map((s, idx) => ({
         slideIndex: idx,
         slideId: s.id,
@@ -352,10 +372,66 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     discussionStartTimeRef.current = null;
     discussionAccumulatedSecondsRef.current = 0;
     isDiscussionPausedRef.current = false;
+    currentDiscussionProvStatIdRef.current = null;
   }, [session, stats, config.endTime, config.endTimestamp, updateActiveSession]);
+
+  const finalizeActiveDiscussion = useCallback(
+    (now: number) => {
+      const activeStatId = currentDiscussionProvStatIdRef.current;
+      if (!activeStatId) return;
+
+      let discussionSec = discussionAccumulatedSecondsRef.current;
+      if (!isDiscussionPausedRef.current && discussionStartTimeRef.current) {
+        discussionSec += (now - discussionStartTimeRef.current) / 1000;
+      }
+      discussionSec = Math.min(300, Math.max(1, Math.round(discussionSec)));
+
+      updateActiveSession((curr) => {
+        const updatedProvocations = curr.provocations.map((p) => {
+          if (p.id === activeStatId) {
+            return {
+              ...p,
+              discussionDurationSeconds: discussionSec,
+              completedAt: now,
+            };
+          }
+          return p;
+        });
+
+        const totalProvTime = updatedProvocations.reduce(
+          (acc, p) =>
+            acc + (p.discussionDurationSeconds || 0) + (p.acceptanceTimeSeconds || 0),
+          0
+        );
+        const gameDurationSeconds = Math.max(
+          curr.gameDurationSeconds || 0,
+          totalProvTime
+        );
+
+        return {
+          ...curr,
+          provocations: updatedProvocations,
+          provocationsCount: updatedProvocations.length,
+          gameDurationSeconds,
+        };
+      });
+
+      currentDiscussionProvStatIdRef.current = null;
+      provocationDecisionStartTimeRef.current = null;
+      lastAcceptedProvocationIdRef.current = null;
+      lastAcceptanceTimeRef.current = 0;
+      discussionStartTimeRef.current = null;
+      discussionAccumulatedSecondsRef.current = 0;
+      isDiscussionPausedRef.current = false;
+    },
+    [updateActiveSession]
+  );
 
   const endTalk = useCallback(() => {
     const now = Date.now();
+
+    // Finalize any active provocation discussion
+    finalizeActiveDiscussion(now);
 
     // 1. If currently in presentation, close current slide time
     if (currentModeRef.current === "presentation") {
@@ -412,7 +488,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     setCurrentSessionIdState(null);
     appStorage.saveCurrentSessionId(null);
     currentSessionIdRef.current = null;
-  }, [updateActiveSession]);
+  }, [updateActiveSession, finalizeActiveDiscussion]);
 
   const setSlideIndex = useCallback(
     (index: number) => {
@@ -484,6 +560,9 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
         gameStartTimeRef.current = now;
       } else if (currentMode === "game" && mode === "presentation") {
+        // Finalize active provocation discussion if any
+        finalizeActiveDiscussion(now);
+
         // Leaving game mode: record game duration
         if (gameStartTimeRef.current) {
           const elapsedGame = Math.max(0, (now - gameStartTimeRef.current) / 1000);
@@ -504,12 +583,15 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         return updated;
       });
     },
-    [updateActiveSession]
+    [updateActiveSession, finalizeActiveDiscussion]
   );
 
   const closeStopCallsOverlay = useCallback(() => {
     setStopCallsOverlayOpen(false);
     const now = Date.now();
+
+    // Finalize active provocation discussion if ongoing
+    finalizeActiveDiscussion(now);
 
     if (gameStartTimeRef.current) {
       const elapsedGame = Math.max(0, (now - gameStartTimeRef.current) / 1000);
@@ -520,22 +602,25 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       gameStartTimeRef.current = null;
     }
 
-    // Jump to STOP_CALLS_TARGET_SLIDE_INDEX in presentation mode
+    // Pass to slide + 1 after the introEndSlide (1-based introEndSlide corresponds to index introEndSlide)
+    const introEnd = config.introEndSlide ?? 11;
+    const targetSlideIndex = Math.min(Math.max(0, introEnd), SLIDES.length - 1);
+
     slideStartTimeRef.current = now;
-    currentSlideIndexRef.current = APP_CONFIG.STOP_CALLS_TARGET_SLIDE_INDEX;
+    currentSlideIndexRef.current = targetSlideIndex;
     currentModeRef.current = "presentation";
 
     setSessionState((prev) => {
       const updated: AppSessionState = {
         ...prev,
         mode: "presentation",
-        currentSlideIndex: APP_CONFIG.STOP_CALLS_TARGET_SLIDE_INDEX,
+        currentSlideIndex: targetSlideIndex,
         stopCallsShown: true,
       };
       appStorage.saveSession(updated);
       return updated;
     });
-  }, [updateActiveSession]);
+  }, [config.introEndSlide, updateActiveSession, finalizeActiveDiscussion]);
 
   const dispatchGame = useCallback(
     (action: GameAction) => {
@@ -554,14 +639,51 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
       // 2. When accepting a provocation
       if (action.type === "ACCEPT_PROVOCATION") {
-        const decisionStart = provocationDecisionStartTimeRef.current ?? (now - 1000);
-        const acceptanceSeconds = Math.max(1, Math.round((now - decisionStart) / 1000));
+        const wasFromChallenge = prev.step === "CHALLENGE";
+        const decisionStart =
+          provocationDecisionStartTimeRef.current ?? now - 1000;
+        const acceptanceSeconds = Math.max(
+          1,
+          Math.round((now - decisionStart) / 1000)
+        );
 
         lastAcceptanceTimeRef.current = acceptanceSeconds;
-        lastAcceptedProvocationIdRef.current = next.currentProvocationId ?? null;
+        lastAcceptedProvocationIdRef.current = wasFromChallenge
+          ? null
+          : next.currentProvocationId ?? null;
         discussionStartTimeRef.current = now;
         discussionAccumulatedSecondsRef.current = 0;
         isDiscussionPausedRef.current = false;
+
+        const provId = wasFromChallenge
+          ? `custom_${now}`
+          : next.currentProvocationId ?? `prov_${now}`;
+        const provDef = wasFromChallenge ? null : PROVOCATION_MAP.get(provId);
+
+        const newProvStat: ProvocationStat = {
+          id: `prov_${now}`,
+          provocationId: provId,
+          // If accepted from 30s countdown screen, create without title so user can name it in analytics
+          provocationTitle: wasFromChallenge ? "" : provDef?.title ?? "",
+          provocationSubtitle: wasFromChallenge ? undefined : provDef?.subtitle,
+          acceptanceTimeSeconds: acceptanceSeconds,
+          discussionDurationSeconds: 0,
+          completedAt: now,
+        };
+
+        currentDiscussionProvStatIdRef.current = newProvStat.id;
+
+        updateActiveSession((curr) => {
+          if (curr.provocations.some((p) => p.id === newProvStat.id)) {
+            return curr;
+          }
+          const updatedProvocations = [...curr.provocations, newProvStat];
+          return {
+            ...curr,
+            provocations: updatedProvocations,
+            provocationsCount: updatedProvocations.length,
+          };
+        });
 
         // Legacy stats sync
         setStatsState((prevStats) => {
@@ -570,7 +692,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
             discussions: [
               ...prevStats.discussions,
               {
-                provocationId: next.currentProvocationId ?? "untitled",
+                provocationId: provId,
                 startedAt: now,
                 endedAt: now + APP_CONFIG.GAME_DISCUSSION_SECONDS * 1000,
                 durationSeconds: APP_CONFIG.GAME_DISCUSSION_SECONDS,
@@ -587,7 +709,8 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         if (!isDiscussionPausedRef.current) {
           // Pausing
           if (discussionStartTimeRef.current) {
-            discussionAccumulatedSecondsRef.current += (now - discussionStartTimeRef.current) / 1000;
+            discussionAccumulatedSecondsRef.current +=
+              (now - discussionStartTimeRef.current) / 1000;
           }
           isDiscussionPausedRef.current = true;
         } else {
@@ -599,60 +722,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
       // 4. Finishing discussion -> NEXT_PROVOCATION (only if previous step was DISCUSSION)
       if (action.type === "NEXT_PROVOCATION" && prev.step === "DISCUSSION") {
-        let discussionSec = discussionAccumulatedSecondsRef.current;
-        if (!isDiscussionPausedRef.current && discussionStartTimeRef.current) {
-          discussionSec += (now - discussionStartTimeRef.current) / 1000;
-        }
-        discussionSec = Math.min(300, Math.max(1, Math.round(discussionSec)));
-
-        const provId =
-          lastAcceptedProvocationIdRef.current ||
-          prev.currentProvocationId ||
-          "provocazione";
-        const provDef = PROVOCATION_MAP.get(provId);
-
-        const provStat: ProvocationStat = {
-          id: `prov_${now}`,
-          provocationId: provId,
-          provocationTitle: provDef?.title ?? "Provocazione",
-          provocationSubtitle: provDef?.subtitle,
-          acceptanceTimeSeconds: lastAcceptanceTimeRef.current || 15,
-          discussionDurationSeconds: discussionSec,
-          completedAt: now,
-        };
-
-        updateActiveSession((curr) => {
-          // Guard against duplicate id
-          if (curr.provocations.some((p) => p.id === provStat.id)) {
-            return curr;
-          }
-          const updatedProvocations = [...curr.provocations, provStat];
-          const totalDurationSeconds = curr.startedAt
-            ? Math.max(0, Math.round((now - curr.startedAt) / 1000))
-            : curr.totalDurationSeconds;
-
-          const totalProvTime = updatedProvocations.reduce(
-            (acc, p) => acc + (p.discussionDurationSeconds || 0) + (p.acceptanceTimeSeconds || 0),
-            0
-          );
-          const gameDurationSeconds = Math.max(curr.gameDurationSeconds || 0, totalProvTime);
-
-          return {
-            ...curr,
-            provocations: updatedProvocations,
-            provocationsCount: updatedProvocations.length,
-            gameDurationSeconds,
-            totalDurationSeconds,
-          };
-        });
-
-        // Reset provocation tracking refs
-        provocationDecisionStartTimeRef.current = null;
-        lastAcceptedProvocationIdRef.current = null;
-        lastAcceptanceTimeRef.current = 0;
-        discussionStartTimeRef.current = null;
-        discussionAccumulatedSecondsRef.current = 0;
-        isDiscussionPausedRef.current = false;
+        finalizeActiveDiscussion(now);
       }
 
       if (action.type === "SKIP_PROVOCATION") {

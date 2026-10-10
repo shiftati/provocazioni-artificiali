@@ -10,12 +10,13 @@ import styles from "./PresentationView.module.scss";
 
 export const PresentationView: FC = () => {
   const navigate = useNavigate();
-  const { session, setSlideIndex, setMode, endTalk, stopCallsOverlayOpen } = useAppState();
+  const { session, config, setSlideIndex, setMode, endTalk, stopCallsOverlayOpen } = useAppState();
 
   const totalSlides = SLIDES.length;
   // Ensure index is within range
   const currentIndex = Math.min(Math.max(0, session.currentSlideIndex), totalSlides - 1);
-  const isSlide11 = currentIndex === 10 || SLIDES[currentIndex]?.id === "klippy-matrix";
+  const introEndSlideIndex = (config.introEndSlide ? config.introEndSlide - 1 : 10);
+  const isIntroEndSlide = currentIndex === introEndSlideIndex;
   const isLastSlide = currentIndex === totalSlides - 1;
 
   // Finalize session and navigate to analytics
@@ -24,7 +25,7 @@ export const PresentationView: FC = () => {
     navigate("/analytics");
   }, [endTalk, navigate]);
 
-  // On-screen "Avanti" button: on slide 11 advances to slide 12; on last slide finishes session
+  // On-screen "Avanti" button: on introEndSlide advances to next slide; on last slide finishes session
   const handleOnScreenNext = useCallback(() => {
     if (isLastSlide) {
       handleEndSession();
@@ -36,9 +37,9 @@ export const PresentationView: FC = () => {
     }
   }, [isLastSlide, handleEndSession, currentIndex, totalSlides, setSlideIndex]);
 
-  // Keyboard "Next" (Right arrow / Space / PageDown): on slide 11 enters GAME mode; on other slides advances
+  // Keyboard "Next" (Right arrow / Space / PageDown): on introEndSlide enters GAME mode; on other slides advances
   const handleKeyboardNext = useCallback(() => {
-    if (isSlide11) {
+    if (isIntroEndSlide) {
       setMode("game");
       navigate("/game");
       return;
@@ -52,7 +53,7 @@ export const PresentationView: FC = () => {
     if (currentIndex < totalSlides - 1) {
       setSlideIndex(currentIndex + 1);
     }
-  }, [isSlide11, isLastSlide, handleEndSession, currentIndex, totalSlides, setSlideIndex, setMode, navigate]);
+  }, [isIntroEndSlide, isLastSlide, handleEndSession, currentIndex, totalSlides, setSlideIndex, setMode, navigate]);
 
   const handlePrev = useCallback(() => {
     if (currentIndex > 0) {

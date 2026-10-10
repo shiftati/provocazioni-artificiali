@@ -7,10 +7,12 @@ import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { TimeInput } from "../../components/ui/TimeInput";
 import { NumberInput } from "../../components/ui/NumberInput";
+import { SelectInput } from "../../components/ui/SelectInput";
 import { SegmentedControl } from "../../components/ui/SegmentedControl";
 import { Modal } from "../../components/ui/Modal";
 import { Badge } from "../../components/ui/Badge";
 import { LogoPlaceholder } from "../../components/layout/LogoPlaceholder";
+import { SLIDES } from "../presentation/slides.registry";
 import type { AppTheme } from "../../types";
 import {
   PlayIcon,
@@ -42,6 +44,10 @@ export const ConfigView: FC = () => {
     return typeof config.conclusionMinutes === "number" ? config.conclusionMinutes : 5;
   });
 
+  const [introEndSlide, setIntroEndSlide] = useState<number>(() => {
+    return typeof config.introEndSlide === "number" ? config.introEndSlide : 11;
+  });
+
   const [hasSavedToast, setHasSavedToast] = useState<boolean>(false);
   const [confirmResetOpen, setConfirmResetOpen] = useState<boolean>(false);
   const [confirmPastOpen, setConfirmPastOpen] = useState<boolean>(false);
@@ -71,8 +77,8 @@ export const ConfigView: FC = () => {
     const gameEndDate = new Date(gameEndMs);
     const gameEndTimeStr = `${String(gameEndDate.getHours()).padStart(2, "0")}:${String(gameEndDate.getMinutes()).padStart(2, "0")}`;
 
-    return `Fine gioco: ${gameEndTimeStr} (Stop alle telefonate a -${cleanConclusionMin} min) • Fine talk: ${timeValue} • ${getDurationPreview(talkEndMs)}`;
-  }, [parsedTarget, conclusionMinutes, timeValue]);
+    return `Fine gioco: ${gameEndTimeStr} (Stop alle telefonate a -${cleanConclusionMin} min) • Fine intro: Slide #${introEndSlide} • Fine talk: ${timeValue} • ${getDurationPreview(talkEndMs)}`;
+  }, [parsedTarget, conclusionMinutes, introEndSlide, timeValue]);
 
   const hasActiveSession =
     session.startedAt !== null ||
@@ -93,6 +99,7 @@ export const ConfigView: FC = () => {
       createdAt: Date.now(),
       theme: selectedTheme,
       conclusionMinutes: Math.max(0, conclusionMinutes || 0),
+      introEndSlide,
     });
 
     setHasSavedToast(true);
@@ -114,6 +121,7 @@ export const ConfigView: FC = () => {
       createdAt: Date.now(),
       theme: selectedTheme,
       conclusionMinutes: Math.max(0, conclusionMinutes || 0),
+      introEndSlide,
     });
 
     // Request fullscreen on stage canvas/viewport
@@ -137,6 +145,7 @@ export const ConfigView: FC = () => {
     resetAll();
     setTimeValue(getDefaultEndTime());
     setConclusionMinutes(5);
+    setIntroEndSlide(11);
     setConfirmResetOpen(false);
   };
 
@@ -271,6 +280,20 @@ export const ConfigView: FC = () => {
             step={1}
             suffix="min"
             hint="Numero di minuti dalla fine del gioco alla fine della presentazione. Triggera lo 'Stop alle telefonate'."
+          />
+
+          <SelectInput
+            id="talk-intro-end-slide"
+            label="Slide di fine intro"
+            value={introEndSlide}
+            onChange={(e) =>
+              setIntroEndSlide(parseInt(e.target.value, 10) || 11)
+            }
+            options={SLIDES.map((s, idx) => ({
+              value: idx + 1,
+              label: `Slide #${idx + 1}: ${s.title}`,
+            }))}
+            hint={`La slide selezionata è l'ultima slide dell'introduzione (default #11). Lo 'Stop alle telefonate' passerà alla slide successiva (#${introEndSlide + 1}${SLIDES[introEndSlide] ? `: ${SLIDES[introEndSlide].title}` : ""}).`}
           />
 
           <div className={styles.previewText} aria-live="polite">

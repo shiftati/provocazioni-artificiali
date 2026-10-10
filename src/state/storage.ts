@@ -24,6 +24,7 @@ export const DEFAULT_CONFIG: TalkConfig = {
   createdAt: 0,
   theme: "dark",
   conclusionMinutes: 5,
+  introEndSlide: 11,
 };
 
 export const DEFAULT_SESSION: AppSessionState = {

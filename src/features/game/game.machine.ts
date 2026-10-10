@@ -115,10 +115,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case "ACCEPT_PROVOCATION": {
       if (state.step !== "CHALLENGE" && state.step !== "PROVOCATION") return state;
 
-      let acceptedId = state.currentProvocationId;
+      const wasFromChallenge = state.step === "CHALLENGE";
+      let acceptedId = wasFromChallenge ? null : state.currentProvocationId;
 
-      // If accepted from CHALLENGE without a pre-selected provocation, pick the first unused
-      if (!acceptedId) {
+      // If accepted from PROVOCATION step without a pre-selected provocation, pick the first unused
+      if (!wasFromChallenge && !acceptedId) {
         acceptedId = getFirstUnusedProvocation(
           action.allProvocationIds,
           state.usedProvocationIds,

@@ -11,6 +11,7 @@ import { Button } from "../../components/ui/Button";
 import { Modal } from "../../components/ui/Modal";
 import { KPIStatsCards } from "./KPIStatsCards";
 import { SlideDurationChart } from "./SlideDurationChart";
+import { SessionDurationChart } from "./SessionDurationChart";
 import { ProvocationsChart } from "./ProvocationsChart";
 import { TalkDistributionChart } from "./TalkDistributionChart";
 import { MultiSessionChart } from "./MultiSessionChart";
@@ -36,6 +37,7 @@ export const AnalyticsView: FC = () => {
     sessions,
     currentSessionId,
     activeSessionRecord,
+    config,
     updateSessionRecord,
     deleteSessionRecord,
     clearAllSessionsRecords,
@@ -397,24 +399,28 @@ export const AnalyticsView: FC = () => {
 
           {currentViewSession && viewTab === "charts" && (
             <>
-              {/* 1. Slide Duration Chart */}
-              <SlideDurationChart
-                slides={currentViewSession.slides}
-                gameDurationSeconds={getSessionGameDuration(currentViewSession)}
-                provocationsCount={currentViewSession.provocationsCount}
+              {/* 1. Slide Duration Chart (senza barra del gioco) */}
+              <SlideDurationChart slides={currentViewSession.slides} />
+
+              {/* 2. Nuovo grafico: Durata delle sessioni (Intro, Gioco, Conclusione) */}
+              <SessionDurationChart
+                session={currentViewSession}
+                introEndSlide={
+                  currentViewSession.introEndSlide ?? config.introEndSlide ?? 11
+                }
               />
 
-              {/* 2. Provocations Acceptance & Discussion Chart */}
+              {/* 3. Provocations Acceptance & Discussion Chart */}
               <ProvocationsChart
                 provocations={currentViewSession.provocations}
                 onUpdateProvocation={handleUpdateProvocation}
                 onDeleteProvocation={handleDeleteProvocation}
               />
 
-              {/* 3. Time Distribution (Donut) */}
+              {/* 4. Time Distribution (Donut) */}
               <TalkDistributionChart session={currentViewSession} />
 
-              {/* 4. Multi-Session Comparison Chart (if >= 2 sessions) */}
+              {/* 5. Multi-Session Comparison Chart (if >= 2 sessions) */}
               <MultiSessionChart
                 sessions={sessions}
                 selectedId={currentViewSession.id}
@@ -447,7 +453,11 @@ export const AnalyticsView: FC = () => {
                                 100,
                             )
                           : 0;
-                      const isSlide11 = idx === 10 || s.slideId === "klippy-matrix";
+                      const introEndNum =
+                        currentViewSession.introEndSlide ??
+                        config.introEndSlide ??
+                        11;
+                      const isIntroEnd = idx === introEndNum - 1;
                       const gameDuration = getSessionGameDuration(currentViewSession);
                       const gamePct =
                         currentViewSession.totalDurationSeconds > 0
@@ -473,7 +483,7 @@ export const AnalyticsView: FC = () => {
                             <td>{s.visits}</td>
                             <td>{pct}%</td>
                           </tr>
-                          {isSlide11 && (
+                          {isIntroEnd && (
                             <tr key="game-session-row" className={styles.gameTableRow}>
                               <td>
                                 <span className={styles.gameTableBadge}>🎮 GIOCO</span>
@@ -483,7 +493,7 @@ export const AnalyticsView: FC = () => {
                                   Fase di Gioco (Provocazioni)
                                 </strong>
                                 <div className={styles.gameTableSub}>
-                                  Sessione interattiva tra Slide 11 (Klippy Matrix) e Slide 12 (Io sono eccellenza)
+                                  Sessione interattiva tra Slide {introEndNum} e Slide {introEndNum + 1}
                                 </div>
                               </td>
                               <td>

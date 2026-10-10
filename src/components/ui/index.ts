@@ -9,3 +9,4 @@ export * from "./Modal";
 export * from "./Stack";
 export * from "./Cluster";
 export * from "./NumberInput";
+export * from "./SelectInput";

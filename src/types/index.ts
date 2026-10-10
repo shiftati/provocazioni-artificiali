@@ -9,6 +9,7 @@ export interface TalkConfig {
   createdAt: number;
   theme?: AppTheme;
   conclusionMinutes?: number; // minuti dedicati alla conclusione
+  introEndSlide?: number;     // ultima slide dell'introduzione (1-based, default 11)
 }
 
 export interface AppSessionState {
@@ -91,5 +92,6 @@ export interface TalkSessionRecord {
   provocationsCount: number;
   notes?: string;
   conclusionMinutes?: number;
-  gameDurationSeconds?: number; // total time spent in game mode (between slide 11 and 12)
+  introEndSlide?: number;       // ultima slide dell'introduzione (1-based, default 11)
+  gameDurationSeconds?: number; // total time spent in game mode (between intro and conclusione)
 }

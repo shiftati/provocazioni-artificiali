@@ -28,7 +28,11 @@ export const ProvocationEditorModal: FC<ProvocationEditorModalProps> = ({
 
   useEffect(() => {
     if (provocation) {
-      setTitle(provocation.provocationTitle || "");
+      setTitle(
+        provocation.provocationTitle === "Provocazione"
+          ? ""
+          : provocation.provocationTitle || ""
+      );
       setSubtitle(provocation.provocationSubtitle || "");
     }
   }, [provocation]);
@@ -39,7 +43,7 @@ export const ProvocationEditorModal: FC<ProvocationEditorModalProps> = ({
     const trimmedTitle = title.trim();
     onSave({
       ...provocation,
-      provocationTitle: trimmedTitle || "Provocazione",
+      provocationTitle: trimmedTitle,
       provocationSubtitle: subtitle.trim() || undefined,
     });
     onClose();
