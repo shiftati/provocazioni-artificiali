@@ -1,11 +1,13 @@
 import type { ComponentType } from "react";
 
 export type AppMode = "presentation" | "game";
+export type AppTheme = "dark" | "light";
 
 export interface TalkConfig {
   endTime: string;        // e.g. "16:30"
   endTimestamp: number;   // epoch millis
   createdAt: number;
+  theme?: AppTheme;
 }
 
 export interface AppSessionState {

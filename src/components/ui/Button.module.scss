@@ -98,15 +98,15 @@
 }
 
 .variantSecondary {
-  background-color: #000000;
+  background-color: var(--color-decal-bg);
   color: var(--color-text);
   border: 1px solid var(--color-border);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 
   &:hover:not(:disabled) {
     background-color: var(--color-surface-active);
     border-color: var(--color-accent);
-    color: #ffffff;
+    color: var(--color-accent);
   }
 }
 
@@ -116,8 +116,8 @@
   border-color: transparent;
 
   &:hover:not(:disabled) {
-    color: var(--color-brand-white);
-    background-color: #000000;
+    color: var(--color-text);
+    background-color: var(--color-surface-active);
     border-color: var(--color-border);
   }
 }

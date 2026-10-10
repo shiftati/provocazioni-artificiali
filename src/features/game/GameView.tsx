@@ -76,7 +76,7 @@ export const GameView: FC = () => {
                 />
                 <circle cx="38" cy="42" r="5" fill="var(--color-accent)" />
                 <circle cx="62" cy="42" r="5" fill="var(--color-accent)" />
-                <path d="M38 65 Q50 78 62 65" fill="none" stroke="var(--color-brand-white)" strokeWidth="4" strokeLinecap="round" />
+                <path d="M38 65 Q50 78 62 65" fill="none" stroke="var(--color-text)" strokeWidth="4" strokeLinecap="round" />
               </svg>
             </div>
 

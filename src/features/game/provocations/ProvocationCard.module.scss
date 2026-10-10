@@ -29,7 +29,7 @@
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--color-accent);
-  background-color: #000000;
+  background-color: var(--color-decal-bg);
   border: 2px solid #000000;
   border-radius: 0;
   box-shadow: 6px 6px 0 -2px var(--color-accent), 6px 6px 0 0 #000000;
@@ -48,7 +48,7 @@
 }
 
 .title {
-  background-color: #000000;
+  background-color: var(--color-decal-bg);
   border: 4px solid #000000;
   border-radius: 0;
   box-shadow: var(--shadow-box-offset-lg);
@@ -58,7 +58,7 @@
   font-size: clamp(3rem, 5.2rem, 5.2rem);
   font-weight: 800;
   line-height: 1.15;
-  color: var(--color-brand-white);
+  color: var(--color-decal-text);
   margin-bottom: var(--space-6);
   letter-spacing: -0.02em;
   text-transform: uppercase;
@@ -72,7 +72,7 @@
 }
 
 .subtitle {
-  background-color: #000000;
+  background-color: var(--color-decal-bg);
   border: 3px solid #000000;
   border-radius: 0;
   box-shadow: var(--shadow-box-offset-mint);
@@ -97,7 +97,7 @@
   font-family: var(--font-mono);
   font-size: 1.15rem;
   color: var(--color-text-subtle);
-  background-color: #000000;
+  background-color: var(--color-decal-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xs);
   padding: var(--space-1) var(--space-3);

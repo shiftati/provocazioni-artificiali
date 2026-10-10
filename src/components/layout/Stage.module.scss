@@ -5,9 +5,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-bg);
+  background-color: var(--color-stage-viewport, var(--color-bg));
   overflow: hidden;
   position: relative;
+  transition: background-color var(--duration-base) var(--ease);
 }
 
 .stageCanvas {
@@ -15,10 +16,13 @@
   height: 1080px;
   flex-shrink: 0;
   position: relative;
-  background-color: var(--color-bg);
-  box-shadow: 0 0 80px rgba(0, 0, 0, 0.7);
+  background-color: var(--color-stage-bg, var(--color-bg));
+  border: 8px solid var(--color-frame);
+  box-shadow: 0 0 80px rgba(0, 0, 0, 0.45);
   transform-origin: center center;
-  transition: transform 0.08s ease-out;
+  transition: transform 0.08s ease-out,
+              background-color var(--duration-base) var(--ease),
+              border-color var(--duration-base) var(--ease);
   overflow: hidden;
   display: flex;
   flex-direction: column;

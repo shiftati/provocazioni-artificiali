@@ -19,6 +19,7 @@ export const DEFAULT_CONFIG: TalkConfig = {
   endTime: "16:30",
   endTimestamp: 0,
   createdAt: 0,
+  theme: "dark",
 };
 
 export const DEFAULT_SESSION: AppSessionState = {
@@ -85,6 +86,14 @@ export const appStorage = {
   },
   saveConfig(config: TalkConfig): void {
     writeItem(STORAGE_KEYS.CONFIG, config);
+  },
+  getTheme(): "dark" | "light" {
+    const cfg = this.getConfig();
+    return cfg.theme || "dark";
+  },
+  saveTheme(theme: "dark" | "light"): void {
+    const cfg = this.getConfig();
+    this.saveConfig({ ...cfg, theme });
   },
   hasConfig(): boolean {
     const cfg = this.getConfig();

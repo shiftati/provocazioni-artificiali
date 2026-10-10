@@ -14,9 +14,9 @@
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  background-color: #000000;
+  background-color: var(--color-decal-bg);
   border: 1px solid var(--color-border);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
   padding: var(--space-2) var(--space-5);
   border-radius: var(--radius-sm);
   z-index: var(--z-chrome);
@@ -27,7 +27,7 @@
   font-family: var(--font-mono);
   font-size: 1.15rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-text);
   padding: 0 var(--space-2);
   letter-spacing: 0.05em;
 }

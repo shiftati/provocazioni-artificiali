@@ -18,6 +18,7 @@ import type {
   GameState,
   AppStats,
   AppMode,
+  AppTheme,
 } from "../types";
 
 export interface AppStateContextValue {
@@ -25,10 +26,12 @@ export interface AppStateContextValue {
   session: AppSessionState;
   game: GameState;
   stats: AppStats;
+  theme: AppTheme;
   globalRemainingSeconds: number;
   isGlobalExpired: boolean;
   stopCallsOverlayOpen: boolean;
   updateConfig: (cfg: TalkConfig) => void;
+  setTheme: (theme: AppTheme) => void;
   startTalk: () => void;
   setSlideIndex: (index: number) => void;
   setMode: (mode: AppMode) => void;
@@ -44,7 +47,17 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [session, setSessionState] = useState<AppSessionState>(() => appStorage.getSession());
   const [game, setGameState] = useState<GameState>(() => appStorage.getGame());
   const [stats, setStatsState] = useState<AppStats>(() => appStorage.getStats());
+  const [theme, setThemeState] = useState<AppTheme>(() => appStorage.getTheme());
   const [stopCallsOverlayOpen, setStopCallsOverlayOpen] = useState<boolean>(false);
+
+  // Sync theme with HTML data attribute and meta theme-color
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute("content", theme === "light" ? "#1e66fa" : "#0e1e30");
+    }
+  }, [theme]);
 
   // Global Countdown calculation without drift
   const calculateGlobalRemaining = useCallback((): number => {
@@ -85,10 +98,22 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     return () => clearInterval(interval);
   }, [config.endTimestamp, calculateGlobalRemaining]);
 
+  const setTheme = useCallback((newTheme: AppTheme) => {
+    setThemeState(newTheme);
+    setConfigState((prev) => {
+      const updated = { ...prev, theme: newTheme };
+      appStorage.saveConfig(updated);
+      return updated;
+    });
+  }, []);
+
   const updateConfig = useCallback((newConfig: TalkConfig) => {
     setConfigState(newConfig);
+    if (newConfig.theme && newConfig.theme !== theme) {
+      setThemeState(newConfig.theme);
+    }
     appStorage.saveConfig(newConfig);
-  }, []);
+  }, [theme]);
 
   const startTalk = useCallback(() => {
     const updated: AppSessionState = {
@@ -200,10 +225,12 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         session,
         game,
         stats,
+        theme,
         globalRemainingSeconds,
         isGlobalExpired,
         stopCallsOverlayOpen,
         updateConfig,
+        setTheme,
         startTalk,
         setSlideIndex,
         setMode,

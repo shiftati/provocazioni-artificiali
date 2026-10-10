@@ -1,5 +1,6 @@
 @layer tokens {
-  :root {
+  :root,
+  [data-theme="dark"] {
     /* Palette grafica estratta dai visual di riferimento */
     --color-brand-orange: #ff5500;
     --color-brand-navy: #071526;
@@ -7,6 +8,12 @@
     --color-brand-black: #000000;
     --color-brand-mint: #5ef2b8;
     --color-brand-yellow: #ffd100;
+    --color-brand-blue: #1e66fa;
+
+    /* Cornice dell'app */
+    --color-frame: #071526;
+    --color-stage-viewport: #071526;
+    --color-stage-bg: #071526;
 
     /* Semantici — derivati dai colori di riferimento */
     --color-bg: #071526;
@@ -31,6 +38,14 @@
     --color-border-card: #152438;
     --color-border-focus: #ff5500;
     --color-backdrop: rgba(7, 21, 38, 0.88);
+    --color-backdrop-heavy: rgba(7, 21, 38, 0.95);
+
+    /* Brutalist Decals & Inputs */
+    --color-decal-bg: #000000;
+    --color-decal-text: #ffffff;
+    --color-decal-border: #000000;
+    --color-bullet-bg: rgba(11, 23, 38, 0.7);
+    --calendar-picker-filter: invert(1);
 
     /* Tipografia */
     --font-display: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
@@ -85,5 +100,65 @@
     --stage-width: 1920px;
     --stage-height: 1080px;
     --stage-scale: 1;
+  }
+
+  [data-theme="light"] {
+    /* Palette grafica light */
+    --color-brand-orange: #ff5500;
+    --color-brand-navy: #071526;
+    --color-brand-white: #ffffff;
+    --color-brand-black: #000000;
+    --color-brand-mint: #059669;
+    --color-brand-yellow: #d97706;
+    --color-brand-blue: #1e66fa;
+
+    /* Cornice dell'app: blu chiaro #1e66fa per delimitare la vista dell'app */
+    --color-frame: #1e66fa;
+    --color-stage-viewport: #1e66fa;
+    --color-stage-bg: #f8fafd;
+
+    /* Semantici Light */
+    --color-bg: #edf2f9;
+    --color-surface: #ffffff;
+    --color-surface-raised: #f8fafc;
+    --color-surface-active: #e2e8f0;
+    --color-text: #071526;
+    --color-text-muted: #3d5168;
+    --color-text-subtle: #627791;
+
+    /* Colore d'accento: arancione invariato */
+    --color-accent: #ff5500;
+    --color-accent-hover: #ff7026;
+    --color-accent-active: #e04a00;
+    --color-accent-subtle: rgba(255, 85, 0, 0.12);
+    --color-accent-contrast: #ffffff;
+
+    --color-mint: #059669;
+    --color-mint-hover: #047857;
+    --color-mint-contrast: #ffffff;
+    --color-success: #059669;
+    --color-warning: #ea580c;
+    --color-danger: #dc2626;
+    --color-border: #cbd5e1;
+    --color-border-card: #94a3b8;
+    --color-border-focus: #ff5500;
+    --color-backdrop: rgba(15, 23, 42, 0.65);
+    --color-backdrop-heavy: rgba(15, 23, 42, 0.92);
+
+    /* Brutalist Decals & Inputs in light theme */
+    --color-decal-bg: #ffffff;
+    --color-decal-text: #071526;
+    --color-decal-border: #000000;
+    --color-bullet-bg: #ffffff;
+    --calendar-picker-filter: none;
+
+    --shadow-accent-bottom: 0 4px 0 #ff5500;
+    --shadow-card: 0 12px 36px rgba(15, 23, 42, 0.12);
+
+    /* Brutalist Decal Shifted Box Shadows (bordo nero + fondo sfalsato con bordo nero) */
+    --shadow-box-offset: 8px 8px 0 -3px var(--color-accent), 8px 8px 0 0 #000000;
+    --shadow-box-offset-lg: 14px 14px 0 -4px var(--color-accent), 14px 14px 0 0 #000000;
+    --shadow-box-offset-mint: 8px 8px 0 -3px var(--color-mint), 8px 8px 0 0 #000000;
+    --shadow-box-offset-mint-lg: 14px 14px 0 -4px var(--color-mint), 14px 14px 0 0 #000000;
   }
 }

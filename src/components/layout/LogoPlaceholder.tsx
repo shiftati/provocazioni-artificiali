@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useAppState } from "../../state/AppStateContext";
 
 export interface LogoPlaceholderProps {
   className?: string;
@@ -13,9 +14,20 @@ export const LogoPlaceholder: FC<LogoPlaceholderProps> = ({
   className,
   size = "md",
 }) => {
+  const { theme } = useAppState();
+  const isLight = theme === "light";
+
   const codemotionHeight = size === "sm" ? 22 : size === "lg" ? 40 : 28;
   const shiftatiHeight = size === "sm" ? 26 : size === "lg" ? 46 : 32;
   const dividerHeight = size === "sm" ? 18 : size === "lg" ? 34 : 24;
+
+  const codemotionSrc = isLight
+    ? `${BASE_URL}logo/codemotion-logo-black.svg`
+    : `${BASE_URL}logo/codemotion-logo-white.svg`;
+
+  const shiftatiSrc = isLight
+    ? `${BASE_URL}logo/shiftati-logo-wide-black.png`
+    : `${BASE_URL}logo/shiftati-logo-wide-bianco.png`;
 
   return (
     <div
@@ -29,7 +41,7 @@ export const LogoPlaceholder: FC<LogoPlaceholderProps> = ({
     >
       {/* Codemotion Logo */}
       <img
-        src={`${BASE_URL}logo/codemotion-logo-white.svg`}
+        src={codemotionSrc}
         alt="Codemotion"
         height={codemotionHeight}
         style={{
@@ -52,7 +64,7 @@ export const LogoPlaceholder: FC<LogoPlaceholderProps> = ({
 
       {/* Shiftati di Testa Logo */}
       <img
-        src={`${BASE_URL}logo/shiftati-logo-wide-bianco.png`}
+        src={shiftatiSrc}
         alt="Shiftati di Testa"
         height={shiftatiHeight}
         style={{

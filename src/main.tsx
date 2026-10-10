@@ -1,7 +1,11 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
+import { appStorage } from "./state/storage";
 import "./styles/index.scss";
+
+// Apply persisted theme immediately before render
+document.documentElement.setAttribute("data-theme", appStorage.getTheme());
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {

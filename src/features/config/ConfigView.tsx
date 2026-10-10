@@ -6,9 +6,11 @@ import { parseEndTimeToday, getDurationPreview } from "../../utils/time";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { TimeInput } from "../../components/ui/TimeInput";
+import { SegmentedControl } from "../../components/ui/SegmentedControl";
 import { Modal } from "../../components/ui/Modal";
 import { Badge } from "../../components/ui/Badge";
 import { LogoPlaceholder } from "../../components/layout/LogoPlaceholder";
+import type { AppTheme } from "../../types";
 import {
   PlayIcon,
   CheckIcon,
@@ -20,8 +22,13 @@ import styles from "./ConfigView.module.scss";
 
 export const ConfigView: FC = () => {
   const navigate = useNavigate();
-  const { config, session, game, updateConfig, startTalk, resetAll } = useAppState();
+  const { config, session, game, theme, setTheme, updateConfig, startTalk, resetAll } = useAppState();
   const { requestFullscreen } = useFullscreen();
+
+  // Initialize selected theme
+  const [selectedTheme, setSelectedTheme] = useState<AppTheme>(
+    () => config.theme || theme || "dark"
+  );
 
   // Initialize input with stored config endTime or a default calculated time
   const [timeValue, setTimeValue] = useState<string>(() => {
@@ -35,6 +42,11 @@ export const ConfigView: FC = () => {
   const [hasSavedToast, setHasSavedToast] = useState<boolean>(false);
   const [confirmResetOpen, setConfirmResetOpen] = useState<boolean>(false);
   const [confirmPastOpen, setConfirmPastOpen] = useState<boolean>(false);
+
+  const handleThemeChange = (newTheme: AppTheme) => {
+    setSelectedTheme(newTheme);
+    setTheme(newTheme);
+  };
 
   // Compute parsed target
   const parsedTarget = useMemo(() => {
@@ -67,6 +79,7 @@ export const ConfigView: FC = () => {
       endTime: timeValue,
       endTimestamp: parsedTarget.timestamp,
       createdAt: Date.now(),
+      theme: selectedTheme,
     });
 
     setHasSavedToast(true);
@@ -86,6 +99,7 @@ export const ConfigView: FC = () => {
       endTime: timeValue,
       endTimestamp: parsedTarget.timestamp,
       createdAt: Date.now(),
+      theme: selectedTheme,
     });
 
     // Request fullscreen on stage canvas/viewport
@@ -172,12 +186,33 @@ export const ConfigView: FC = () => {
         {/* Configuration block */}
         <Card className={styles.configCard}>
           <div className={styles.cardHeading}>
-            <span>Configurazione Orario</span>
+            <span>Configurazione Talk</span>
             {hasSavedToast && (
               <span className={styles.savedToast}>
                 <CheckIcon size={18} /> Salvato
               </span>
             )}
+          </div>
+
+          {/* Theme selector */}
+          <div className={styles.themeSection}>
+            <label className={styles.themeLabel} id="theme-selector-label">
+              Tema interfaccia
+            </label>
+            <SegmentedControl<AppTheme>
+              options={[
+                { value: "dark", label: "🌙 Dark" },
+                { value: "light", label: "☀️ Light" },
+              ]}
+              value={selectedTheme}
+              onChange={handleThemeChange}
+              ariaLabel="Seleziona tema dell'applicazione"
+            />
+            <span className={styles.themeHint}>
+              {selectedTheme === "light"
+                ? "Tema Light attivo: cornice blu chiaro (#1e66fa) e accenti arancioni."
+                : "Tema Dark attivo: visual ad alto contrasto per ambienti bui e proiettori."}
+            </span>
           </div>
 
           <TimeInput
@@ -221,7 +256,7 @@ export const ConfigView: FC = () => {
         onClose={() => setConfirmResetOpen(false)}
         ariaLabel="Conferma azzeramento sessione"
       >
-        <h2 style={{ fontSize: "1.8rem", marginBottom: "var(--space-4)", color: "var(--color-brand-white)" }}>
+        <h2 style={{ fontSize: "1.8rem", marginBottom: "var(--space-4)", color: "var(--color-text)" }}>
           Ricominciare da capo?
         </h2>
         <p style={{ color: "var(--color-text-muted)", marginBottom: "var(--space-8)", fontSize: "1.1rem" }}>

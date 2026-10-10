@@ -22,7 +22,7 @@
 .eyebrow {
   display: inline-flex;
   align-items: center;
-  background-color: #000000;
+  background-color: var(--color-decal-bg);
   color: var(--color-accent);
   padding: var(--space-1) var(--space-4);
   border: 1px solid var(--color-border);
@@ -38,7 +38,7 @@
   font-family: var(--font-mono);
   font-size: 1.05rem;
   color: var(--color-text-subtle);
-  background-color: #000000;
+  background-color: var(--color-decal-bg);
   padding: var(--space-1) var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xs);
@@ -71,7 +71,7 @@
 }
 
 .titleBig {
-  background-color: #000000;
+  background-color: var(--color-decal-bg);
   border: 4px solid #000000;
   border-radius: 0;
   box-shadow: var(--shadow-box-offset-lg);
@@ -80,7 +80,7 @@
   font-size: clamp(3.2rem, 6.2rem, 6.2rem);
   line-height: 1.1;
   font-weight: 800;
-  color: var(--color-brand-white);
+  color: var(--color-decal-text);
   margin-bottom: var(--space-6);
   letter-spacing: -0.02em;
   text-transform: uppercase;
@@ -91,7 +91,7 @@
 }
 
 .subtitleBig {
-  background-color: #000000;
+  background-color: var(--color-decal-bg);
   border: 3px solid #000000;
   border-radius: 0;
   box-shadow: var(--shadow-box-offset-mint);
@@ -110,20 +110,20 @@
 }
 
 .speakerPill {
-  background-color: #000000;
+  background-color: var(--color-decal-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xs);
   padding: var(--space-2) var(--space-6);
   font-family: var(--font-mono);
   font-size: 1.15rem;
-  color: var(--color-brand-white);
+  color: var(--color-text);
   font-weight: 600;
 }
 
 /* TitleContentSlide */
 .contentTitle {
   display: inline-block;
-  background-color: #000000;
+  background-color: var(--color-decal-bg);
   border: 4px solid #000000;
   border-radius: 0;
   box-shadow: var(--shadow-box-offset-lg);
@@ -131,7 +131,7 @@
   font-family: var(--font-display);
   font-size: clamp(2.6rem, 4.2rem, 4.2rem);
   font-weight: 800;
-  color: #ffffff;
+  color: var(--color-decal-text);
   text-transform: uppercase;
   letter-spacing: -0.01em;
   margin-bottom: var(--space-8);
@@ -152,7 +152,7 @@
   font-size: 2rem;
   line-height: 1.4;
   color: var(--color-text);
-  background-color: rgba(11, 23, 38, 0.7);
+  background-color: var(--color-bullet-bg);
   border: 1px solid var(--color-border);
   border-left: 3px solid var(--color-mint);
   padding: var(--space-4) var(--space-6);
@@ -200,7 +200,7 @@
 }
 
 .fullBleedQuote {
-  background-color: #000000;
+  background-color: var(--color-decal-bg);
   border: 4px solid #000000;
   border-radius: 0;
   box-shadow: var(--shadow-box-offset-lg);
@@ -210,7 +210,7 @@
   font-weight: 800;
   max-width: 1500px;
   margin-bottom: var(--space-8);
-  color: #ffffff;
+  color: var(--color-decal-text);
 }
 
 /* ClosingSlide */
@@ -226,7 +226,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #000000;
+  background-color: var(--color-decal-bg);
   border: 3px solid #000000;
   border-radius: 0;
   box-shadow: var(--shadow-box-offset);
