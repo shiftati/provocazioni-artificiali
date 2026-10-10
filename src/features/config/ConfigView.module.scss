@@ -1,14 +1,21 @@
 .container {
   width: 100%;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   padding: var(--space-8);
   background-color: var(--color-bg);
   overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.contentWrapper {
+  margin: auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
 .brandHeader {

@@ -1,5 +1,6 @@
 import { useState, useEffect, type FC } from "react";
 import type { TalkSessionRecord } from "../../types";
+import { SLIDES } from "../presentation/slides.registry";
 import { Modal } from "../../components/ui/Modal";
 import { Button } from "../../components/ui/Button";
 import { CheckIcon } from "../../components/icons";
@@ -20,11 +21,13 @@ export const SessionEditorModal: FC<SessionEditorModalProps> = ({
 }) => {
   const [name, setName] = useState("");
   const [notes, setNotes] = useState("");
+  const [introEndSlide, setIntroEndSlide] = useState<number>(11);
 
   useEffect(() => {
     if (session) {
       setName(session.name || "");
       setNotes(session.notes || "");
+      setIntroEndSlide(session.introEndSlide ?? 11);
     }
   }, [session]);
 
@@ -35,6 +38,7 @@ export const SessionEditorModal: FC<SessionEditorModalProps> = ({
       ...session,
       name: name.trim() || session.name,
       notes: notes.trim(),
+      introEndSlide,
     });
     onClose();
   };
@@ -62,6 +66,24 @@ export const SessionEditorModal: FC<SessionEditorModalProps> = ({
           onChange={(e) => setName(e.target.value)}
           placeholder="Es: Codemotion 2026 - Main Stage"
         />
+      </div>
+
+      <div className={styles.formGroup}>
+        <label className={styles.formLabel} htmlFor="session-intro-end-input">
+          Slide di fine intro (Game Trigger)
+        </label>
+        <select
+          id="session-intro-end-input"
+          className={styles.formInput}
+          value={introEndSlide}
+          onChange={(e) => setIntroEndSlide(parseInt(e.target.value, 10) || 11)}
+        >
+          {SLIDES.map((s, idx) => (
+            <option key={s.id} value={idx + 1}>
+              #{idx + 1}: {s.title}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className={styles.formGroup}>

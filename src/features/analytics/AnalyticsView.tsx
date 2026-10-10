@@ -78,6 +78,17 @@ export const AnalyticsView: FC = () => {
     return found ?? sessions[0] ?? null;
   }, [sessions, selectedSessionId]);
 
+  // Determine the effective intro end slide for the selected session
+  const effectiveIntroEndSlide = useMemo(() => {
+    if (!currentViewSession) return 11;
+    const rawVal =
+      currentViewSession.id === currentSessionId
+        ? (config.introEndSlide ?? currentViewSession.introEndSlide ?? 11)
+        : (currentViewSession.introEndSlide ?? config.introEndSlide ?? 11);
+    const maxSlides = currentViewSession.slides.length || 14;
+    return Math.min(Math.max(1, rawVal), maxSlides);
+  }, [currentViewSession, currentSessionId, config.introEndSlide]);
+
   const handleUpdateProvocation = (updatedProv: ProvocationStat) => {
     if (!currentViewSession) return;
     const updatedProvocations = currentViewSession.provocations.map((p) =>
@@ -393,9 +404,7 @@ export const AnalyticsView: FC = () => {
               {/* 2. Nuovo grafico: Durata delle sessioni (Intro, Gioco, Conclusione) */}
               <SessionDurationChart
                 session={currentViewSession}
-                introEndSlide={
-                  currentViewSession.introEndSlide ?? config.introEndSlide ?? 11
-                }
+                introEndSlide={effectiveIntroEndSlide}
               />
 
               {/* 3. Provocations Acceptance & Discussion Chart */}
@@ -441,11 +450,7 @@ export const AnalyticsView: FC = () => {
                                 100,
                             )
                           : 0;
-                      const introEndNum =
-                        currentViewSession.introEndSlide ??
-                        config.introEndSlide ??
-                        11;
-                      const isIntroEnd = idx === introEndNum - 1;
+                      const isIntroEnd = idx === effectiveIntroEndSlide - 1;
                       const gameDuration =
                         getSessionGameDuration(currentViewSession);
                       const gamePct =
@@ -489,8 +494,10 @@ export const AnalyticsView: FC = () => {
                                   Fase di Gioco (Provocazioni)
                                 </strong>
                                 <div className={styles.gameTableSub}>
-                                  Sessione interattiva tra Slide {introEndNum} e
-                                  Slide {introEndNum + 1}
+                                  {effectiveIntroEndSlide <
+                                  currentViewSession.slides.length
+                                    ? `Sessione interattiva tra Slide ${effectiveIntroEndSlide} e Slide ${effectiveIntroEndSlide + 1}`
+                                    : `Sessione interattiva dopo Slide ${effectiveIntroEndSlide}`}
                                 </div>
                               </td>
                               <td>

@@ -41,7 +41,7 @@ export interface AppStateContextValue {
   activeSessionRecord: TalkSessionRecord | null;
   updateConfig: (cfg: TalkConfig) => void;
   setTheme: (theme: AppTheme) => void;
-  startTalk: () => void;
+  startTalk: (configOverrides?: Partial<TalkConfig>) => void;
   endTalk: () => void;
   setSlideIndex: (index: number) => void;
   setMode: (mode: AppMode) => void;
@@ -287,17 +287,29 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
     appStorage.saveConfig(newConfig);
 
+    // If an active session is currently running, sync the updated config values
+    if (currentSessionIdRef.current) {
+      updateActiveSession((prev) => ({
+        ...prev,
+        plannedEndTime: newConfig.endTime,
+        plannedEndTimestamp: newConfig.endTimestamp,
+        conclusionMinutes: newConfig.conclusionMinutes,
+        introEndSlide: newConfig.introEndSlide ?? prev.introEndSlide ?? 11,
+      }));
+    }
+
     // Reset stopCallsShown whenever config is updated so new or revised timers trigger
     setSessionState((prev) => {
       const updated = { ...prev, stopCallsShown: false };
       appStorage.saveSession(updated);
       return updated;
     });
-  }, [theme]);
+  }, [theme, updateActiveSession]);
 
   // Start new talk: creates a brand new session in storage and begins recording
-  const startTalk = useCallback(() => {
+  const startTalk = useCallback((configOverrides?: Partial<TalkConfig>) => {
     const now = Date.now();
+    const activeConfig = { ...appStorage.getConfig(), ...configOverrides };
 
     // 1. Finalize any ongoing active session
     if (currentSessionIdRef.current) {
@@ -338,10 +350,10 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       endedAt: null,
       totalDurationSeconds: 0,
       gameDurationSeconds: 0,
-      plannedEndTime: config.endTime,
-      plannedEndTimestamp: config.endTimestamp,
-      conclusionMinutes: config.conclusionMinutes,
-      introEndSlide: config.introEndSlide ?? 11,
+      plannedEndTime: activeConfig.endTime,
+      plannedEndTimestamp: activeConfig.endTimestamp,
+      conclusionMinutes: activeConfig.conclusionMinutes,
+      introEndSlide: activeConfig.introEndSlide ?? 11,
       slides: SLIDES.map((s, idx) => ({
         slideIndex: idx,
         slideId: s.id,

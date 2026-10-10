@@ -129,21 +129,23 @@ export const ConfigView: FC = () => {
       return;
     }
 
-    // Save configuration
-    updateConfig({
+    const newConfigData = {
       endTime: timeValue,
       endTimestamp: parsedTarget.timestamp,
       createdAt: Date.now(),
       theme: selectedTheme,
       conclusionMinutes: Math.max(0, conclusionMinutes || 0),
       introEndSlide,
-    });
+    };
+
+    // Save configuration
+    updateConfig(newConfigData);
 
     // Request fullscreen on stage canvas/viewport
     await requestFullscreen();
 
     // Start presentation session
-    startTalk();
+    startTalk(newConfigData);
     navigate("/presentation");
   };
 
@@ -166,26 +168,27 @@ export const ConfigView: FC = () => {
 
   return (
     <div className={styles.container}>
-      <header className={styles.brandHeader}>
-        <LogoPlaceholder />
-        <h1 className={styles.title}>
-          Pannello <span className={styles.highlight}>Talk dal Vivo</span>
-        </h1>
-        <p className={styles.subtitle}>
-          Configura l'orario di fine del tuo talk, avvia lo stage a 16:9 ed
-          entra nella presentazione.
-        </p>
-        <div className={styles.headerLinks}>
-          <Button
-            variant="secondary"
-            size="md"
-            onClick={() => navigate("/analytics")}
-            leftIcon={<AnalyticsIcon size={18} />}
-          >
-            Statistiche & Analytics Talk
-          </Button>
-        </div>
-      </header>
+      <div className={styles.contentWrapper}>
+        <header className={styles.brandHeader}>
+          <LogoPlaceholder />
+          <h1 className={styles.title}>
+            Pannello <span className={styles.highlight}>Talk dal Vivo</span>
+          </h1>
+          <p className={styles.subtitle}>
+            Configura l'orario di fine del tuo talk, avvia lo stage a 16:9 ed
+            entra nella presentazione.
+          </p>
+          <div className={styles.headerLinks}>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => navigate("/analytics")}
+              leftIcon={<AnalyticsIcon size={18} />}
+            >
+              Statistiche & Analytics Talk
+            </Button>
+          </div>
+        </header>
 
       <div className={styles.cardGrid}>
         {/* Active Session block */}
@@ -353,6 +356,7 @@ export const ConfigView: FC = () => {
           </div>
         </Card>
       </div>
+    </div>
 
       {/* Confirmation Modal: Reset session */}
       <Modal
