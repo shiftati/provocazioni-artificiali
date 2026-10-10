@@ -16,7 +16,7 @@ const STORAGE_KEYS = {
 const CURRENT_VERSION = 1;
 
 export const DEFAULT_CONFIG: TalkConfig = {
-  endTime: "16:30",
+  endTime: "",
   endTimestamp: 0,
   createdAt: 0,
   theme: "dark",
@@ -132,7 +132,14 @@ export const appStorage = {
     writeItem(STORAGE_KEYS.HEADER_COLLAPSED, collapsed);
   },
 
-  // Reset all
+  // Reset methods
+  clearConfig(): void {
+    try {
+      localStorage.removeItem(STORAGE_KEYS.CONFIG);
+    } catch {
+      // Ignore
+    }
+  },
   clearSession(): void {
     try {
       localStorage.removeItem(STORAGE_KEYS.SESSION);
@@ -141,5 +148,9 @@ export const appStorage = {
     } catch {
       // Ignore
     }
+  },
+  clearAll(): void {
+    this.clearConfig();
+    this.clearSession();
   },
 };

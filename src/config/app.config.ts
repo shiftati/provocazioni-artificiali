@@ -1,5 +1,5 @@
 export const APP_CONFIG = {
-  STOP_CALLS_TARGET_SLIDE_INDEX: 3,   // Slide index to jump to after "Prosegui" (0-based: 4th slide)
+  STOP_CALLS_TARGET_SLIDE_INDEX: 11,  // Slide index to jump to after "Prosegui" (0-based: 12th slide)
   GAME_CHALLENGE_SECONDS: 30,         // Countdown for "Accetta provocazione" (Step 2)
   GAME_DISCUSSION_SECONDS: 5 * 60,    // Discussion countdown (Step 3) - 5 minutes
   STAGE_WIDTH: 1920,

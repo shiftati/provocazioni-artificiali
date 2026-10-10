@@ -2,7 +2,7 @@ import { useState, useMemo, type FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppState } from "../../state/AppStateContext";
 import { useFullscreen } from "../../hooks/useFullscreen";
-import { parseEndTimeToday, getDurationPreview } from "../../utils/time";
+import { parseEndTimeToday, getDurationPreview, getDefaultEndTime } from "../../utils/time";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { TimeInput } from "../../components/ui/TimeInput";
@@ -33,10 +33,7 @@ export const ConfigView: FC = () => {
   // Initialize input with stored config endTime or a default calculated time
   const [timeValue, setTimeValue] = useState<string>(() => {
     if (config.endTime) return config.endTime;
-    const d = new Date(Date.now() + 45 * 60 * 1000);
-    const h = String(d.getHours()).padStart(2, "0");
-    const m = String(d.getMinutes()).padStart(2, "0");
-    return `${h}:${m}`;
+    return getDefaultEndTime();
   });
 
   const [hasSavedToast, setHasSavedToast] = useState<boolean>(false);
@@ -121,6 +118,7 @@ export const ConfigView: FC = () => {
 
   const handleResetConfirm = () => {
     resetAll();
+    setTimeValue(getDefaultEndTime());
     setConfirmResetOpen(false);
   };
 
@@ -260,7 +258,7 @@ export const ConfigView: FC = () => {
           Ricominciare da capo?
         </h2>
         <p style={{ color: "var(--color-text-muted)", marginBottom: "var(--space-8)", fontSize: "1.1rem" }}>
-          Questa operazione riporterà la presentazione alla prima slide e azzererà il contatore e la cronologia delle provocazioni discusse nel gioco.
+          Questa operazione azzererà la configurazione del talk, riporterà la presentazione alla prima slide e resetterà il contatore e la cronologia delle provocazioni discusse nel gioco.
         </p>
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--space-4)" }}>
           <Button variant="ghost" size="md" onClick={() => setConfirmResetOpen(false)}>

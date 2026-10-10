@@ -1,4 +1,5 @@
 import { useCallback, type FC } from "react";
+import { useNavigate } from "react-router-dom";
 import { Stage } from "../../components/layout/Stage";
 import { SLIDES } from "./slides.registry";
 import { useAppState } from "../../state/AppStateContext";
@@ -8,17 +9,25 @@ import { ArrowLeftIcon, ArrowRightIcon } from "../../components/icons";
 import styles from "./PresentationView.module.scss";
 
 export const PresentationView: FC = () => {
-  const { session, setSlideIndex, stopCallsOverlayOpen } = useAppState();
+  const navigate = useNavigate();
+  const { session, setSlideIndex, setMode, stopCallsOverlayOpen } = useAppState();
 
   const totalSlides = SLIDES.length;
   // Ensure index is within range
   const currentIndex = Math.min(Math.max(0, session.currentSlideIndex), totalSlides - 1);
+  const isSlide11 = currentIndex === 10 || SLIDES[currentIndex]?.id === "klippy-matrix";
 
   const handleNext = useCallback(() => {
+    if (isSlide11) {
+      setMode("game");
+      navigate("/game");
+      return;
+    }
+
     if (currentIndex < totalSlides - 1) {
       setSlideIndex(currentIndex + 1);
     }
-  }, [currentIndex, totalSlides, setSlideIndex]);
+  }, [isSlide11, currentIndex, totalSlides, setSlideIndex, setMode, navigate]);
 
   const handlePrev = useCallback(() => {
     if (currentIndex > 0) {
@@ -59,11 +68,15 @@ export const PresentationView: FC = () => {
         </span>
 
         <IconButton
-          aria-label="Slide successiva"
+          aria-label={isSlide11 ? "Passa al Gioco" : "Slide successiva"}
           size="md"
           onClick={handleNext}
           disabled={currentIndex === totalSlides - 1}
-          title="Slide successiva (Freccia Destra / Spazio / PageDown)"
+          title={
+            isSlide11
+              ? "Passa alla modalità Gioco (Freccia Destra / Spazio / PageDown)"
+              : "Slide successiva (Freccia Destra / Spazio / PageDown)"
+          }
         >
           <ArrowRightIcon size={20} />
         </IconButton>

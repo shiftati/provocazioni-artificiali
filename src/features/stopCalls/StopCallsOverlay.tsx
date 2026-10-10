@@ -1,20 +1,42 @@
-import type { FC } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, type FC } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
-import { PhoneOffIcon, ArrowRightIcon } from "../../components/icons";
+import { ArrowRightIcon } from "../../components/icons";
 import { useAppState } from "../../state/AppStateContext";
 import styles from "./StopCallsOverlay.module.scss";
 
-export const StopCallsOverlay: FC = () => {
-  const { stopCallsOverlayOpen, closeStopCallsOverlay } = useAppState();
-  const navigate = useNavigate();
+const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
 
-  if (!stopCallsOverlayOpen) return null;
+const STOP_CALLS_BG = `${BASE_URL}images/${encodeURI("Stop alle telefonate.jpg")}`;
+
+export const StopCallsOverlay: FC = () => {
+  const { session, stopCallsOverlayOpen, closeStopCallsOverlay } = useAppState();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleProceed = () => {
     closeStopCallsOverlay();
     navigate("/presentation");
   };
+
+  useEffect(() => {
+    if (!stopCallsOverlayOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Enter" || event.key === " " || event.key === "ArrowRight") {
+        event.preventDefault();
+        handleProceed();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [stopCallsOverlayOpen]);
+
+  const isConfigRoute = location.pathname === "/" || location.pathname === "";
+  if (!stopCallsOverlayOpen || session.startedAt === null || isConfigRoute) return null;
 
   return (
     <div
@@ -22,28 +44,19 @@ export const StopCallsOverlay: FC = () => {
       aria-modal="true"
       aria-labelledby="stop-calls-title"
       className={styles.overlay}
+      style={{ backgroundImage: `url("${STOP_CALLS_BG}")` }}
     >
-      <div className={styles.iconWrapper} aria-hidden="true">
-        <PhoneOffIcon size={96} />
+      <div className={styles.modalContent}>
+        <Button
+          variant="primary"
+          size="xl"
+          onClick={handleProceed}
+          rightIcon={<ArrowRightIcon size={28} />}
+          className={styles.actionButton}
+        >
+          Prosegui
+        </Button>
       </div>
-
-      <h1 id="stop-calls-title" className={styles.title}>
-        Stop alle <span className={styles.highlight}>telefonate!</span>
-      </h1>
-
-      <p className={styles.subtitle}>
-        Il tempo a disposizione per le discussioni è terminato. È il momento di tirare le fila e scoprire il verdetto della sala.
-      </p>
-
-      <Button
-        variant="primary"
-        size="xl"
-        onClick={handleProceed}
-        rightIcon={<ArrowRightIcon size={28} />}
-        className={styles.actionButton}
-      >
-        Prosegui
-      </Button>
     </div>
   );
 };

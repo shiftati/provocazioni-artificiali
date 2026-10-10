@@ -22,48 +22,25 @@
 .idleContainer {
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: var(--space-12);
-  background: transparent;
   position: relative;
   overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-sizing: border-box;
 }
 
-.sawMaskContainer {
-  margin-bottom: var(--space-6);
-  filter: drop-shadow(0 0 35px rgba(255, 85, 0, 0.45));
+.idleControls {
+  position: absolute;
+  bottom: 48px;
+  right: 48px;
+  z-index: var(--z-chrome);
+  display: flex;
+  align-items: center;
 }
 
-.idleTitle {
-  background-color: var(--color-decal-bg);
-  border: 4px solid #000000;
-  border-radius: 0;
-  box-shadow: var(--shadow-box-offset-lg);
-  padding: var(--space-4) var(--space-8);
-  font-family: var(--font-display);
-  font-size: clamp(2.8rem, 5.2rem, 5.2rem);
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  color: var(--color-decal-text);
-  margin-bottom: var(--space-6);
-  text-transform: uppercase;
-}
-
-.idleSubtitle {
-  background-color: var(--color-decal-bg);
-  border: 3px solid #000000;
-  border-radius: 0;
-  box-shadow: var(--shadow-box-offset-mint);
-  padding: var(--space-4) var(--space-8);
-  font-size: 1.6rem;
-  color: var(--color-text-muted);
-  max-width: 850px;
-  margin-bottom: var(--space-10);
+.idleButton {
+  min-width: 260px;
 }
 
 /* CHALLENGE Step */

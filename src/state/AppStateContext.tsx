@@ -10,6 +10,7 @@ import {
 } from "react";
 import { appStorage } from "./storage";
 import { APP_CONFIG } from "../config/app.config";
+import { getDefaultEndTime } from "../utils/time";
 import { gameReducer, type GameAction } from "../features/game/game.machine";
 import { PROVOCATIONS } from "../features/game/provocations.registry";
 import type {
@@ -44,7 +45,17 @@ const AppStateContext = createContext<AppStateContextValue | null>(null);
 
 export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [config, setConfigState] = useState<TalkConfig>(() => appStorage.getConfig());
-  const [session, setSessionState] = useState<AppSessionState>(() => appStorage.getSession());
+  const [session, setSessionState] = useState<AppSessionState>(() => {
+    const saved = appStorage.getSession();
+    const currentConfig = appStorage.getConfig();
+    // If countdown is in the future, stopCalls cannot have been shown yet
+    if (currentConfig.endTimestamp > Date.now() && saved.stopCallsShown) {
+      const reset = { ...saved, stopCallsShown: false };
+      appStorage.saveSession(reset);
+      return reset;
+    }
+    return saved;
+  });
   const [game, setGameState] = useState<GameState>(() => appStorage.getGame());
   const [stats, setStatsState] = useState<AppStats>(() => appStorage.getStats());
   const [theme, setThemeState] = useState<AppTheme>(() => appStorage.getTheme());
@@ -82,9 +93,9 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       const remaining = calculateGlobalRemaining();
       setGlobalRemainingSeconds(remaining);
 
-      // Trigger "Stop alle telefonate" if expired and not shown yet
+      // Trigger "Stop alle telefonate" if expired and not shown yet AND session is currently active
       if (remaining <= 0) {
-        if (!sessionRef.current.stopCallsShown) {
+        if (sessionRef.current.startedAt !== null && !sessionRef.current.stopCallsShown) {
           setStopCallsOverlayOpen(true);
           const updatedSession = { ...sessionRef.current, stopCallsShown: true };
           setSessionState(updatedSession);
@@ -113,6 +124,13 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       setThemeState(newConfig.theme);
     }
     appStorage.saveConfig(newConfig);
+
+    // Reset stopCallsShown whenever config is updated so new or revised timers trigger
+    setSessionState((prev) => {
+      const updated = { ...prev, stopCallsShown: false };
+      appStorage.saveSession(updated);
+      return updated;
+    });
   }, [theme]);
 
   const startTalk = useCallback(() => {
@@ -121,6 +139,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       startedAt: Date.now(),
       currentSlideIndex: 0,
       mode: "presentation",
+      stopCallsShown: false,
     };
     setSessionState(updated);
     appStorage.saveSession(updated);
@@ -209,12 +228,22 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   );
 
   const resetAll = useCallback(() => {
-    appStorage.clearSession();
+    appStorage.clearAll();
+    const defaultEndTime = getDefaultEndTime();
+    const resetConfig: TalkConfig = {
+      endTime: defaultEndTime,
+      endTimestamp: 0,
+      createdAt: 0,
+      theme,
+    };
+    appStorage.saveConfig(resetConfig);
+    setConfigState(resetConfig);
     setSessionState(appStorage.getSession());
     setGameState(appStorage.getGame());
     setStatsState(appStorage.getStats());
     setStopCallsOverlayOpen(false);
-  }, []);
+    setGlobalRemainingSeconds(0);
+  }, [theme]);
 
   const isGlobalExpired = config.endTimestamp > 0 && globalRemainingSeconds <= 0;
 

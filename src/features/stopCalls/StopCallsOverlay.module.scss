@@ -1,62 +1,29 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(7, 21, 38, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  z-index: var(--z-overlay);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 9999;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
   padding: var(--space-8);
   animation: overlayFadeIn var(--duration-base) var(--ease);
   user-select: none;
+  overflow: hidden;
 }
 
-.iconWrapper {
-  color: var(--color-accent);
-  margin-bottom: var(--space-6);
-  filter: drop-shadow(0 0 25px rgba(255, 85, 0, 0.5));
-  animation: pulseIcon 1.5s infinite ease-in-out;
-}
-
-.title {
-  background-color: var(--color-decal-bg);
-  border: 4px solid #000000;
-  border-radius: 0;
-  box-shadow: var(--shadow-box-offset-lg);
-  padding: var(--space-4) var(--space-10);
-  font-family: var(--font-display);
-  font-size: clamp(3rem, 6rem, 6rem);
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  color: var(--color-decal-text);
-  margin-bottom: var(--space-6);
-  text-transform: uppercase;
-}
-
-.highlight {
-  color: var(--color-accent);
-}
-
-.subtitle {
-  background-color: var(--color-decal-bg);
-  border: 3px solid #000000;
-  border-radius: 0;
-  box-shadow: var(--shadow-box-offset-mint);
-  padding: var(--space-5) var(--space-8);
-  font-size: clamp(1.3rem, 2rem, 2rem);
-  color: var(--color-text-muted);
-  max-width: 900px;
-  line-height: 1.4;
-  margin-bottom: var(--space-12);
+.modalContent {
+  position: absolute;
+  bottom: 48px;
+  right: 48px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
 }
 
 .actionButton {
-  min-width: 280px;
+  min-width: 260px;
 }
 
 @keyframes overlayFadeIn {
@@ -66,18 +33,6 @@
   }
   to {
     opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes pulseIcon {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
     transform: scale(1);
   }
 }

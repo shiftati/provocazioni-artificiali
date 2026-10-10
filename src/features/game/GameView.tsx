@@ -4,6 +4,7 @@ import { useAppState } from "../../state/AppStateContext";
 import { PROVOCATIONS, PROVOCATION_MAP } from "./provocations.registry";
 import { getAvailableProvocations } from "./game.machine";
 import { useCountdown } from "../../hooks/useCountdown";
+import { useKeyboardNavigation } from "../../hooks/useKeyboardNavigation";
 import { Button } from "../../components/ui/Button";
 import { Badge } from "../../components/ui/Badge";
 import { CountdownDisplay } from "../../components/ui/CountdownDisplay";
@@ -16,9 +17,25 @@ import {
 } from "../../components/icons";
 import styles from "./GameView.module.scss";
 
+const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+
+const KLIPPY_SAW_IMAGE = `${BASE_URL}images/slides/${encodeURI("8. Klippy saw.jpg")}`;
+
 export const GameView: FC = () => {
   const { game, dispatchGame } = useAppState();
   const allProvocationIds = PROVOCATIONS.map((p) => p.id);
+
+  // Keyboard navigation to start game when in IDLE
+  useKeyboardNavigation({
+    onNext: () => {
+      if (game.step === "IDLE") {
+        dispatchGame({ type: "PLAY", allProvocationIds });
+      }
+    },
+    enabled: game.step === "IDLE",
+  });
 
   // Challenge timer (30s)
   const challengeCountdown = useCountdown({
@@ -39,14 +56,16 @@ export const GameView: FC = () => {
   const availableCount = getAvailableProvocations(
     allProvocationIds,
     game.usedProvocationIds,
-    game.skippedProvocationIds
+    game.skippedProvocationIds,
   ).length;
 
   const currentProvocation = game.currentProvocationId
     ? PROVOCATION_MAP.get(game.currentProvocationId)
     : null;
 
-  const ProvocationComponent = currentProvocation ? currentProvocation.component : null;
+  const ProvocationComponent = currentProvocation
+    ? currentProvocation.component
+    : null;
 
   return (
     <div className={styles.gameWrapper}>
@@ -61,38 +80,23 @@ export const GameView: FC = () => {
       <Stage>
         {/* STEP 1: IDLE */}
         {game.step === "IDLE" && (
-          <div className={styles.idleContainer}>
-            {/* Thematic SAW spiral / mask placeholder SVG */}
-            <div className={styles.sawMaskContainer} aria-hidden="true">
-              <svg width="120" height="120" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="45" fill="none" stroke="var(--color-surface-raised)" strokeWidth="6" />
-                <circle cx="50" cy="50" r="32" fill="none" stroke="var(--color-border)" strokeWidth="4" />
-                <path
-                  d="M50 50 m -22, 0 a 22,22 0 1,0 44,0 a 22,22 0 1,0 -44,0"
-                  fill="none"
-                  stroke="var(--color-accent)"
-                  strokeWidth="5"
-                  strokeDasharray="10 5"
-                />
-                <circle cx="38" cy="42" r="5" fill="var(--color-accent)" />
-                <circle cx="62" cy="42" r="5" fill="var(--color-accent)" />
-                <path d="M38 65 Q50 78 62 65" fill="none" stroke="var(--color-text)" strokeWidth="4" strokeLinecap="round" />
-              </svg>
+          <div
+            className={styles.idleContainer}
+            style={{ backgroundImage: `url("${KLIPPY_SAW_IMAGE}")` }}
+            role="region"
+            aria-label="Klippy saw - Inizia il gioco"
+          >
+            <div className={styles.idleControls}>
+              <Button
+                variant="primary"
+                size="xl"
+                onClick={() => dispatchGame({ type: "PLAY", allProvocationIds })}
+                leftIcon={<PlayIcon size={32} />}
+                className={styles.idleButton}
+              >
+                Inizia il gioco
+              </Button>
             </div>
-
-            <h1 className={styles.idleTitle}>Voglio fare un gioco con te</h1>
-            <p className={styles.idleSubtitle}>
-              Sei pronto a mettere in discussione i pilastri della tua carriera di sviluppatore davanti a tutta la sala?
-            </p>
-
-            <Button
-              variant="primary"
-              size="xl"
-              onClick={() => dispatchGame({ type: "PLAY", allProvocationIds })}
-              leftIcon={<PlayIcon size={32} />}
-            >
-              Inizia il Gioco
-            </Button>
           </div>
         )}
 
@@ -116,7 +120,9 @@ export const GameView: FC = () => {
             <Button
               variant="primary"
               size="xl"
-              onClick={() => dispatchGame({ type: "ACCEPT_PROVOCATION", allProvocationIds })}
+              onClick={() =>
+                dispatchGame({ type: "ACCEPT_PROVOCATION", allProvocationIds })
+              }
               leftIcon={<CheckIcon size={28} />}
             >
               Accetta Provocazione
@@ -131,12 +137,16 @@ export const GameView: FC = () => {
               <ProvocationComponent />
             ) : (
               <div className={styles.idleContainer}>
-                <h2 className={styles.idleTitle} style={{ color: "var(--color-danger)" }}>
+                <h2
+                  className={styles.idleTitle}
+                  style={{ color: "var(--color-danger)" }}
+                >
                   Provocazioni Esaurite!
                 </h2>
                 <p className={styles.idleSubtitle}>
-                  Tutte le provocazioni disponibili per questa sessione sono state discusse o scartate.
-                  Puoi comunque accettare e avviare una discussione (senza titolo).
+                  Tutte le provocazioni disponibili per questa sessione sono
+                  state discusse o scartate. Puoi comunque accettare e avviare
+                  una discussione (senza titolo).
                 </p>
               </div>
             )}
@@ -145,14 +155,18 @@ export const GameView: FC = () => {
             <div className={styles.provocationControls}>
               {availableCount <= 1 && (
                 <span className={styles.exhaustedMessage}>
-                  {availableCount === 0 ? "Nessuna altra provocazione" : "Ultima provocazione rimasta"}
+                  {availableCount === 0
+                    ? "Nessuna altra provocazione"
+                    : "Ultima provocazione rimasta"}
                 </span>
               )}
 
               <Button
                 variant="secondary"
                 size="lg"
-                onClick={() => dispatchGame({ type: "SKIP_PROVOCATION", allProvocationIds })}
+                onClick={() =>
+                  dispatchGame({ type: "SKIP_PROVOCATION", allProvocationIds })
+                }
                 disabled={availableCount <= 1}
                 leftIcon={<ShuffleIcon size={22} />}
               >
@@ -162,7 +176,12 @@ export const GameView: FC = () => {
               <Button
                 variant="primary"
                 size="lg"
-                onClick={() => dispatchGame({ type: "ACCEPT_PROVOCATION", allProvocationIds })}
+                onClick={() =>
+                  dispatchGame({
+                    type: "ACCEPT_PROVOCATION",
+                    allProvocationIds,
+                  })
+                }
                 leftIcon={<CheckIcon size={24} />}
               >
                 Accetta provocazione
@@ -175,12 +194,9 @@ export const GameView: FC = () => {
         {game.step === "DISCUSSION" && (
           <div className={styles.discussionContainer}>
             <div className={styles.discussionHeader}>
-              <span className={styles.discussionEyebrow}>Tempo di Discussione</span>
-              {currentProvocation?.title && (
-                <p className={styles.discussionTitle}>
-                  {currentProvocation.title}
-                </p>
-              )}
+              <span className={styles.discussionEyebrow}>
+                Tempo di Discussione
+              </span>
             </div>
 
             <div className={styles.discussionCountdownWrapper}>
@@ -192,9 +208,7 @@ export const GameView: FC = () => {
                 ariaLabel="Tempo discussione"
               />
               {game.isTimerPaused && (
-                <Badge variant="danger">
-                  PAUSA IN CORSO
-                </Badge>
+                <Badge variant="danger">PAUSA IN CORSO</Badge>
               )}
             </div>
 
@@ -202,8 +216,16 @@ export const GameView: FC = () => {
               <Button
                 variant="secondary"
                 size="lg"
-                onClick={() => dispatchGame({ type: "TOGGLE_PAUSE_DISCUSSION" })}
-                leftIcon={game.isTimerPaused ? <PlayIcon size={24} /> : <PauseIcon size={24} />}
+                onClick={() =>
+                  dispatchGame({ type: "TOGGLE_PAUSE_DISCUSSION" })
+                }
+                leftIcon={
+                  game.isTimerPaused ? (
+                    <PlayIcon size={24} />
+                  ) : (
+                    <PauseIcon size={24} />
+                  )
+                }
               >
                 {game.isTimerPaused ? "Riprendi" : "Pausa"}
               </Button>

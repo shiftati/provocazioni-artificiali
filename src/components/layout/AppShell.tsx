@@ -106,8 +106,8 @@ export const AppShell: FC<AppShellProps> = ({ children }) => {
         {children}
       </main>
 
-      {/* Global "Stop alle telefonate" overlay triggers anywhere */}
-      <StopCallsOverlay />
+      {/* Global "Stop alle telefonate" overlay triggers during presentation/game */}
+      {!isHome && <StopCallsOverlay />}
 
       {/* Offline PWA update banner */}
       {swUpdateAvailable && (

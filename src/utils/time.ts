@@ -1,4 +1,15 @@
 /**
+ * Returns a default end time formatted as "HH:mm", calculated as 45 minutes from now.
+ */
+export function getDefaultEndTime(): string {
+  const d = new Date(Date.now() + 45 * 60 * 1000);
+  const h = String(d.getHours()).padStart(2, "0");
+  const m = String(d.getMinutes()).padStart(2, "0");
+  return `${h}:${m}`;
+}
+
+
+/**
  * Converts a time string "HH:mm" into an absolute timestamp (epoch milliseconds) for today.
  * Returns the timestamp and a boolean indicating whether the time is already in the past.
  */
