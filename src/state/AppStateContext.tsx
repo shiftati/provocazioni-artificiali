@@ -150,7 +150,8 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
     if (isPostStopCalls) {
       const diffMs = config.endTimestamp - effectiveNow;
-      return diffMs >= 0 ? Math.ceil(diffMs / 1000) : Math.floor(diffMs / 1000);
+      const s = Math.ceil(diffMs / 1000);
+      return s === 0 ? 0 : s;
     }
 
     // Altrimenti countdown sulla fine del gioco (non del gioco: si ferma a 0)
@@ -213,9 +214,12 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
       if (isPostStopCalls) {
         // Countdown per la fine del talk: prosegue in negativo una volta arrivato a zero
-        // finché non si preme la bandierina di fine talk
+        // finché non si preme la bandierina di fine talk.
+        // Math.ceil permette di visualizzare 0 (00:00) per l'intero primo secondo di tolleranza
+        // (tra 0 e -999ms) prima di passare a -1 (-00:01).
         const diffMs = config.endTimestamp - effectiveNow;
-        setGlobalRemainingSeconds(diffMs >= 0 ? Math.ceil(diffMs / 1000) : Math.floor(diffMs / 1000));
+        const s = Math.ceil(diffMs / 1000);
+        setGlobalRemainingSeconds(s === 0 ? 0 : s);
       } else {
         // Countdown per la fine del gioco: non va in negativo, si ferma a 0
         const diffMs = gameEndTimestamp - effectiveNow;
