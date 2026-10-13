@@ -10,7 +10,7 @@ import {
   ClockIcon,
   ChevronUpIcon,
   AnalyticsIcon,
-  DownloadIcon,
+  // DownloadIcon,
   SlidesIcon,
   GameIcon,
   SunIcon,
@@ -18,7 +18,7 @@ import {
 } from "../icons";
 import { useAppState } from "../../state/AppStateContext";
 import { useFullscreen } from "../../hooks/useFullscreen";
-import { usePwaInstall } from "../../hooks/usePwaInstall";
+// import { usePwaInstall } from "../../hooks/usePwaInstall";
 import { formatSecondsToMMSS } from "../../utils/time";
 import styles from "./TopBar.module.scss";
 
@@ -29,9 +29,17 @@ export interface TopBarProps {
 export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { globalRemainingSeconds, session, config, setMode, isSessionActive, theme, setTheme } = useAppState();
+  const {
+    globalRemainingSeconds,
+    session,
+    config,
+    setMode,
+    isSessionActive,
+    theme,
+    setTheme,
+  } = useAppState();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
-  const { isInstallable, isInstalled, installApp } = usePwaInstall();
+  // const { isInstallable, isInstalled, installApp } = usePwaInstall();
 
   const isPresentation = location.pathname === "/presentation";
   const isGame = location.pathname === "/game";
@@ -47,7 +55,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
     }
   };
 
-  const introEndIndex = (config.introEndSlide ? config.introEndSlide - 1 : 10);
+  const introEndIndex = config.introEndSlide ? config.introEndSlide - 1 : 10;
   const isPostGameSlides = session.currentSlideIndex > introEndIndex;
   const isPostStopCalls = session.stopCallsShown || isPostGameSlides;
   const isTalkEnded = Boolean(session.endedAt);
@@ -56,14 +64,18 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
   const countdownTitle = isTalkEnded
     ? `Talk concluso (${isNegative ? "tempo sforato di " : "tempo residuo "}${formatSecondsToMMSS(globalRemainingSeconds)})`
     : isPostStopCalls
-    ? (isNegative ? `Tempo talk sforato: ${formatSecondsToMMSS(globalRemainingSeconds)}` : "Countdown fine talk")
-    : "Countdown fine gioco";
+      ? isNegative
+        ? `Tempo talk sforato: ${formatSecondsToMMSS(globalRemainingSeconds)}`
+        : "Countdown fine talk"
+      : "Countdown fine gioco";
 
   const countdownAriaLabel = isTalkEnded
     ? `Talk concluso, ${isNegative ? "tempo sforato di " : "tempo residuo "}${formatSecondsToMMSS(globalRemainingSeconds)}`
     : isPostStopCalls
-    ? (isNegative ? `Tempo talk sforato: ${formatSecondsToMMSS(globalRemainingSeconds)}` : "Tempo rimanente per la fine del talk")
-    : "Tempo rimanente per la fine del gioco";
+      ? isNegative
+        ? `Tempo talk sforato: ${formatSecondsToMMSS(globalRemainingSeconds)}`
+        : "Tempo rimanente per la fine del talk"
+      : "Tempo rimanente per la fine del gioco";
 
   return (
     <header className={styles.topBar}>
@@ -106,12 +118,40 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
           </div>
         )}
 
+        {/* {isInstallable && !isInstalled && (
+          <IconButton
+            aria-label="Installa app sul dispositivo"
+            onClick={() => installApp()}
+            title="Installa App sul dispositivo (PWA)"
+          >
+            <DownloadIcon size={20} />
+          </IconButton>
+        )} */}
+
         <IconButton
-          aria-label={isFullscreen ? "Esci da schermo intero" : "Attiva schermo intero"}
+          aria-label={
+            isFullscreen ? "Esci da schermo intero" : "Attiva schermo intero"
+          }
           onClick={() => toggleFullscreen()}
           title={isFullscreen ? "Esci da schermo intero" : "Schermo intero"}
         >
-          {isFullscreen ? <ExitFullscreenIcon size={20} /> : <FullscreenIcon size={20} />}
+          {isFullscreen ? (
+            <ExitFullscreenIcon size={20} />
+          ) : (
+            <FullscreenIcon size={20} />
+          )}
+        </IconButton>
+
+        <IconButton
+          aria-label={
+            theme === "dark" ? "Passa a tema chiaro" : "Passa a tema scuro"
+          }
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          title={
+            theme === "dark" ? "Passa a tema chiaro" : "Passa a tema scuro"
+          }
+        >
+          {theme === "dark" ? <SunIcon size={20} /> : <MoonIcon size={20} />}
         </IconButton>
 
         <IconButton
@@ -121,24 +161,6 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
           title="Statistiche & Analytics (A)"
         >
           <AnalyticsIcon size={20} />
-        </IconButton>
-
-        {isInstallable && !isInstalled && (
-          <IconButton
-            aria-label="Installa app sul dispositivo"
-            onClick={() => installApp()}
-            title="Installa App sul dispositivo (PWA)"
-          >
-            <DownloadIcon size={20} />
-          </IconButton>
-        )}
-
-        <IconButton
-          aria-label={theme === "dark" ? "Passa a tema chiaro" : "Passa a tema scuro"}
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          title={theme === "dark" ? "Passa a tema chiaro" : "Passa a tema scuro"}
-        >
-          {theme === "dark" ? <SunIcon size={20} /> : <MoonIcon size={20} />}
         </IconButton>
 
         <IconButton
