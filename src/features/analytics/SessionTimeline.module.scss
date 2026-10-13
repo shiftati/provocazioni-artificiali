@@ -310,6 +310,33 @@
   border: 1px solid var(--color-border);
 }
 
+.eventRightAction {
+  margin-left: auto;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.playEventBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(30, 102, 250, 0.1);
+  border: 1px solid rgba(30, 102, 250, 0.3);
+  color: var(--color-brand-blue);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--color-brand-blue);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(30, 102, 250, 0.3);
+  }
+}
+
 .emptyTimeline {
   display: flex;
   flex-direction: column;

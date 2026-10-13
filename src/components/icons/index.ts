@@ -25,3 +25,5 @@ export * from "./SlidesIcon";
 export * from "./GameIcon";
 export * from "./SunIcon";
 export * from "./MoonIcon";
+export * from "./StepBackIcon";
+export * from "./StepForwardIcon";

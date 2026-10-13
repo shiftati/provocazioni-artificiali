@@ -1,0 +1,271 @@
+.replayViewport {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg, #08121e);
+  color: var(--color-text, #ffffff);
+  overflow: hidden;
+  z-index: 900;
+}
+
+/* Discrete top header for replay mode */
+.topReplayBar {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-4);
+  right: var(--space-4);
+  z-index: var(--z-chrome, 100);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.topPill {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: rgba(14, 30, 48, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  padding: 6px 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.replayBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #ff4d4f;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.liveDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ff4d4f;
+  box-shadow: 0 0 8px #ff4d4f;
+  animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.sessionTitle {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.sessionDate {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.topRightActions {
+  pointer-events: auto;
+}
+
+/* Stage Area */
+.stageContainer {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Presentation controls overlay */
+.slideCounter {
+  position: absolute;
+  bottom: calc(var(--space-4) + 80px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  z-index: 50;
+  pointer-events: none;
+}
+
+/* Game step containers inside Replay Stage */
+.gameWrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.idleContainer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.idleControls {
+  position: absolute;
+  bottom: 48px;
+  right: 48px;
+  z-index: 10;
+}
+
+.challengeContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-12);
+}
+
+.challengeHeading {
+  background-color: var(--color-decal-bg);
+  border: 3px solid #000000;
+  border-radius: 0;
+  box-shadow: var(--shadow-box-offset);
+  padding: var(--space-3) var(--space-6);
+  font-family: var(--font-mono);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-decal-text);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-4);
+}
+
+.challengeCountdown {
+  margin: var(--space-6) 0 var(--space-10) 0;
+}
+
+.challengeControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+}
+
+.provocationWrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.provocationControls {
+  position: absolute;
+  bottom: var(--space-6);
+  right: var(--space-8);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.discussionContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-12);
+}
+
+.discussionHeader {
+  margin-bottom: var(--space-4);
+}
+
+.discussionEyebrow {
+  background-color: var(--color-decal-bg);
+  border: 3px solid #000000;
+  box-shadow: var(--shadow-box-offset);
+  padding: var(--space-2) var(--space-5);
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-decal-text);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.discussionCountdownWrapper {
+  margin: var(--space-6) 0 var(--space-10) 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.discussionControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+}
+
+/* Stop Calls Overlay in Replay */
+.stopCallsOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 48px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.6);
+}
+
+.stopCallsBadge {
+  background: rgba(0, 0, 0, 0.75);
+  border: 2px solid #ff4d4f;
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}

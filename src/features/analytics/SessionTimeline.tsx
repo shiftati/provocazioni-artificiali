@@ -1,8 +1,9 @@
 import { useState, useMemo, type FC } from "react";
+import { useNavigate } from "react-router-dom";
 import type { TalkSessionRecord, SessionEvent } from "../../types";
 import { formatTimeWithSeconds, formatRelativeTime } from "../../utils/time";
 import { Button } from "../../components/ui/Button";
-import { CopyIcon, DownloadIcon } from "../../components/icons";
+import { CopyIcon, DownloadIcon, PlayIcon } from "../../components/icons";
 import styles from "./SessionTimeline.module.scss";
 
 export interface SessionTimelineProps {
@@ -50,6 +51,7 @@ function getEventBadgeInfo(event: SessionEvent): { icon: string; styleClass: str
 }
 
 export const SessionTimeline: FC<SessionTimelineProps> = ({ session, onToast }) => {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState<FilterCategory>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -186,6 +188,15 @@ export const SessionTimeline: FC<SessionTimelineProps> = ({ session, onToast }) 
 
         <div className={styles.timelineHeaderActions}>
           <Button
+            variant="primary"
+            size="md"
+            onClick={() => navigate(`/replay/${session.id}`)}
+            leftIcon={<PlayIcon size={18} />}
+            title="Rivedi l'intera presentazione passo passo seguendo la sequenza temporale degli eventi"
+          >
+            Rivedi Sessione (Replay)
+          </Button>
+          <Button
             variant="ghost"
             size="md"
             onClick={handleCopyText}
@@ -320,6 +331,21 @@ export const SessionTimeline: FC<SessionTimelineProps> = ({ session, onToast }) 
                       </span>
                     )}
                   </div>
+                </div>
+
+                <div className={styles.eventRightAction}>
+                  <button
+                    type="button"
+                    className={styles.playEventBtn}
+                    onClick={() =>
+                      navigate(`/replay/${session.id}?startAt=${evt.timestamp}`)
+                    }
+                    title="Avvia il replay della sessione partendo da questo evento"
+                    aria-label={`Rivedi da ${evt.description}`}
+                  >
+                    <PlayIcon size={12} />
+                    <span>Rivedi da qui</span>
+                  </button>
                 </div>
               </div>
             );

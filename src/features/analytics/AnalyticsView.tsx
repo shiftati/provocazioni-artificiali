@@ -287,6 +287,15 @@ export const AnalyticsView: FC = () => {
               {currentViewSession && (
                 <>
                   <Button
+                    variant="primary"
+                    size="md"
+                    onClick={() => navigate(`/replay/${currentViewSession.id}`)}
+                    leftIcon={<PlayIcon size={16} />}
+                    title="Rivedi la presentazione di questa sessione passo passo"
+                  >
+                    Replay Talk
+                  </Button>
+                  <Button
                     variant="ghost"
                     size="md"
                     onClick={() => setIsEditorOpen(true)}

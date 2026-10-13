@@ -7,21 +7,30 @@ import { ConfigView } from "./features/config/ConfigView";
 import { PresentationView } from "./features/presentation/PresentationView";
 import { GameView } from "./features/game/GameView";
 import { AnalyticsView } from "./features/analytics/AnalyticsView";
+import { SessionReplayView } from "./features/replay/SessionReplayView";
 
 export const App: FC = () => {
   return (
     <ErrorBoundary>
       <AppStateProvider>
         <HashRouter>
-          <AppShell>
-            <Routes>
-              <Route path="/" element={<ConfigView />} />
-              <Route path="/presentation" element={<PresentationView />} />
-              <Route path="/game" element={<GameView />} />
-              <Route path="/analytics" element={<AnalyticsView />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </AppShell>
+          <Routes>
+            <Route path="/replay/:sessionId?" element={<SessionReplayView />} />
+            <Route
+              path="*"
+              element={
+                <AppShell>
+                  <Routes>
+                    <Route path="/" element={<ConfigView />} />
+                    <Route path="/presentation" element={<PresentationView />} />
+                    <Route path="/game" element={<GameView />} />
+                    <Route path="/analytics" element={<AnalyticsView />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </AppShell>
+              }
+            />
+          </Routes>
         </HashRouter>
       </AppStateProvider>
     </ErrorBoundary>
