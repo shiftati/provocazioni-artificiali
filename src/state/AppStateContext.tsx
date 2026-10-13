@@ -65,8 +65,8 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const currentConfig = appStorage.getConfig();
     const conclusionMs = Math.max(0, currentConfig.conclusionMinutes ?? 0) * 60 * 1000;
     const gameEndTimestamp = currentConfig.endTimestamp - conclusionMs;
-    // If game countdown is in the future, stopCalls cannot have been shown yet
-    if (gameEndTimestamp > Date.now() && saved.stopCallsShown) {
+    // If game countdown is in the future and talk not ended, stopCalls cannot have been shown yet
+    if (!saved.endedAt && gameEndTimestamp > Date.now() && saved.stopCallsShown) {
       const reset = { ...saved, stopCallsShown: false };
       appStorage.saveSession(reset);
       return reset;
@@ -133,24 +133,30 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   sessionRef.current = session;
 
   // Global Countdown calculation:
-  // - Prima di "Stop alle telefonate", conta alla rovescia fino alla fine del gioco
-  // - Dopo la comparsa di "Stop alle telefonate", conta alla rovescia fino alla fine del talk
+  // - Prima di "Stop alle telefonate", conta alla rovescia fino alla fine del gioco (si ferma a 0)
+  // - Dopo la comparsa di "Stop alle telefonate" o nelle slide post-gioco, conta alla rovescia fino alla fine del talk
+  //   Una volta arrivato a zero, prosegue in negativo finché non si preme la bandierina di fine talk (session.endedAt).
   const calculateGlobalRemaining = useCallback((): number => {
     if (!config.endTimestamp || config.endTimestamp <= 0) return 0;
     const now = Date.now();
     const conclusionMs = Math.max(0, config.conclusionMinutes ?? 0) * 60 * 1000;
     const gameEndTimestamp = config.endTimestamp - conclusionMs;
 
-    // Se "Stop alle telefonate" è già comparso, countdown sulla fine del talk
-    if (sessionRef.current.stopCallsShown || stopCallsOverlayOpen) {
-      const diffMs = config.endTimestamp - now;
-      return Math.max(0, Math.ceil(diffMs / 1000));
+    const introEndIndex = (config.introEndSlide ? config.introEndSlide - 1 : 10);
+    const isPostGameSlides = sessionRef.current.currentSlideIndex > introEndIndex;
+    const isPostStopCalls = sessionRef.current.stopCallsShown || stopCallsOverlayOpen || isPostGameSlides;
+
+    const effectiveNow = sessionRef.current.endedAt ?? now;
+
+    if (isPostStopCalls) {
+      const diffMs = config.endTimestamp - effectiveNow;
+      return diffMs >= 0 ? Math.ceil(diffMs / 1000) : Math.floor(diffMs / 1000);
     }
 
-    // Altrimenti countdown sulla fine del gioco
-    const diffMs = gameEndTimestamp - now;
+    // Altrimenti countdown sulla fine del gioco (non del gioco: si ferma a 0)
+    const diffMs = gameEndTimestamp - effectiveNow;
     return Math.max(0, Math.ceil(diffMs / 1000));
-  }, [config.endTimestamp, config.conclusionMinutes, stopCallsOverlayOpen]);
+  }, [config.endTimestamp, config.conclusionMinutes, config.introEndSlide, stopCallsOverlayOpen]);
 
   const [globalRemainingSeconds, setGlobalRemainingSeconds] = useState<number>(calculateGlobalRemaining);
 
@@ -184,9 +190,13 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       const conclusionMs = Math.max(0, config.conclusionMinutes ?? 0) * 60 * 1000;
       const gameEndTimestamp = config.endTimestamp - conclusionMs;
 
-      // Trigger "Stop alle telefonate" if game countdown expired and not shown yet AND session is currently active
+      // Trigger "Stop alle telefonate" if game countdown expired and not shown yet AND session is currently active and not ended
       if (now >= gameEndTimestamp) {
-        if (sessionRef.current.startedAt !== null && !sessionRef.current.stopCallsShown) {
+        if (
+          sessionRef.current.startedAt !== null &&
+          !sessionRef.current.stopCallsShown &&
+          !sessionRef.current.endedAt
+        ) {
           setStopCallsOverlayOpen(true);
           const updatedSession = { ...sessionRef.current, stopCallsShown: true };
           sessionRef.current = updatedSession;
@@ -195,23 +205,33 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         }
       }
 
-      // Se "Stop alle telefonate" è comparso, il countdown si calcola sulla fine del talk;
-      // prima di tale momento, si calcola sulla fine del gioco.
-      const isPostStopCalls = sessionRef.current.stopCallsShown || stopCallsOverlayOpen;
-      const targetTimestamp = isPostStopCalls ? config.endTimestamp : gameEndTimestamp;
-      const diffMs = targetTimestamp - now;
-      setGlobalRemainingSeconds(Math.max(0, Math.ceil(diffMs / 1000)));
+      const introEndIndex = (config.introEndSlide ? config.introEndSlide - 1 : 10);
+      const isPostGameSlides = sessionRef.current.currentSlideIndex > introEndIndex;
+      const isPostStopCalls = sessionRef.current.stopCallsShown || stopCallsOverlayOpen || isPostGameSlides;
+
+      const effectiveNow = sessionRef.current.endedAt ?? now;
+
+      if (isPostStopCalls) {
+        // Countdown per la fine del talk: prosegue in negativo una volta arrivato a zero
+        // finché non si preme la bandierina di fine talk
+        const diffMs = config.endTimestamp - effectiveNow;
+        setGlobalRemainingSeconds(diffMs >= 0 ? Math.ceil(diffMs / 1000) : Math.floor(diffMs / 1000));
+      } else {
+        // Countdown per la fine del gioco: non va in negativo, si ferma a 0
+        const diffMs = gameEndTimestamp - effectiveNow;
+        setGlobalRemainingSeconds(Math.max(0, Math.ceil(diffMs / 1000)));
+      }
     };
 
     checkTimer();
     const interval = setInterval(checkTimer, 250);
     return () => clearInterval(interval);
-  }, [config.endTimestamp, config.conclusionMinutes, stopCallsOverlayOpen]);
+  }, [config.endTimestamp, config.conclusionMinutes, config.introEndSlide, stopCallsOverlayOpen]);
 
   // Periodic heartbeat (every 2.5s) to flush live duration into active session record
   useEffect(() => {
     const heartbeat = setInterval(() => {
-      if (!currentSessionIdRef.current || sessionRef.current.startedAt === null) return;
+      if (!currentSessionIdRef.current || sessionRef.current.startedAt === null || sessionRef.current.endedAt) return;
 
       const now = Date.now();
       const isPresentation = currentModeRef.current === "presentation";
@@ -300,7 +320,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
     // Reset stopCallsShown whenever config is updated so new or revised timers trigger
     setSessionState((prev) => {
-      const updated = { ...prev, stopCallsShown: false };
+      const updated = { ...prev, stopCallsShown: false, endedAt: null };
       appStorage.saveSession(updated);
       return updated;
     });
@@ -326,6 +346,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const updated: AppSessionState = {
       ...session,
       startedAt: now,
+      endedAt: null,
       currentSlideIndex: 0,
       mode: "presentation",
       stopCallsShown: false,
@@ -489,8 +510,8 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     setSessionState((prev) => {
       const updated: AppSessionState = {
         ...prev,
-        startedAt: null,
-        stopCallsShown: false,
+        endedAt: now,
+        stopCallsShown: true,
       };
       appStorage.saveSession(updated);
       return updated;

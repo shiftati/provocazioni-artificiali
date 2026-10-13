@@ -17,6 +17,7 @@ export interface AppSessionState {
   mode: AppMode;
   stopCallsShown: boolean;
   startedAt: number | null;
+  endedAt?: number | null;
 }
 
 export type GameStep = "IDLE" | "CHALLENGE" | "PROVOCATION" | "DISCUSSION";

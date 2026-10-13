@@ -52,33 +52,42 @@ export function getDurationPreview(targetTimestamp: number): string {
 
 /**
  * Formats seconds into MM:SS (always two digits each).
+ * Supports negative seconds, returning -MM:SS (e.g. -00:05, -01:23).
  */
 export function formatSecondsToMMSS(secondsTotal: number): string {
-  const clamped = Math.max(0, Math.floor(secondsTotal));
+  const isNegative = secondsTotal < 0;
+  const abs = Math.abs(secondsTotal);
+  const clamped = Math.floor(abs);
   const minutes = Math.floor(clamped / 60);
   const seconds = clamped % 60;
 
   const mm = String(minutes).padStart(2, "0");
   const ss = String(seconds).padStart(2, "0");
-  return `${mm}:${ss}`;
+  return `${isNegative ? "-" : ""}${mm}:${ss}`;
 }
 
 /**
  * Formats seconds into human readable short format: e.g. "25s", "3m 12s", "1h 05m"
+ * Supports negative values with a leading minus sign.
  */
 export function formatDurationSeconds(secondsTotal: number): string {
-  const clamped = Math.max(0, Math.round(secondsTotal));
+  const isNegative = secondsTotal < 0;
+  const clamped = Math.max(0, Math.round(Math.abs(secondsTotal)));
+  let formatted = "";
   if (clamped < 60) {
-    return `${clamped}s`;
+    formatted = `${clamped}s`;
+  } else {
+    const minutes = Math.floor(clamped / 60);
+    const seconds = clamped % 60;
+    if (minutes < 60) {
+      formatted = seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
+    } else {
+      const hours = Math.floor(minutes / 60);
+      const remMinutes = minutes % 60;
+      formatted = `${hours}h ${String(remMinutes).padStart(2, "0")}m`;
+    }
   }
-  const minutes = Math.floor(clamped / 60);
-  const seconds = clamped % 60;
-  if (minutes < 60) {
-    return seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
-  }
-  const hours = Math.floor(minutes / 60);
-  const remMinutes = minutes % 60;
-  return `${hours}h ${String(remMinutes).padStart(2, "0")}m`;
+  return isNegative ? `-${formatted}` : formatted;
 }
 
 /**

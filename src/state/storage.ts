@@ -32,6 +32,7 @@ export const DEFAULT_SESSION: AppSessionState = {
   mode: "presentation",
   stopCallsShown: false,
   startedAt: null,
+  endedAt: null,
 };
 
 export const DEFAULT_GAME_STATE: GameState = {

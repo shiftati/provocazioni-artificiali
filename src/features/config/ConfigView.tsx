@@ -25,7 +25,9 @@ import {
   ArrowRightIcon,
   CloseIcon,
   AnalyticsIcon,
+  DownloadIcon,
 } from "../../components/icons";
+import { usePwaInstall } from "../../hooks/usePwaInstall";
 import styles from "./ConfigView.module.scss";
 
 export const ConfigView: FC = () => {
@@ -41,6 +43,7 @@ export const ConfigView: FC = () => {
     resetAll,
   } = useAppState();
   const { requestFullscreen } = useFullscreen();
+  const { isInstallable, isInstalled, installApp } = usePwaInstall();
 
   // Initialize selected theme
   const [selectedTheme, setSelectedTheme] = useState<AppTheme>(
@@ -187,6 +190,19 @@ export const ConfigView: FC = () => {
             >
               Statistiche & Analytics Talk
             </Button>
+            {isInstallable && !isInstalled && (
+              <Button
+                variant="primary"
+                size="md"
+                onClick={installApp}
+                leftIcon={<DownloadIcon size={18} />}
+              >
+                Installa App (PWA)
+              </Button>
+            )}
+            {isInstalled && (
+              <Badge variant="accent">App PWA Installata</Badge>
+            )}
           </div>
         </header>
 

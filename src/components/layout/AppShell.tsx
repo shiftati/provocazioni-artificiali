@@ -57,18 +57,39 @@ export const AppShell: FC<AppShellProps> = ({ children }) => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isHome, isHeaderExpanded]);
 
+  const [offlineToastVisible, setOfflineToastVisible] = useState(false);
+
   useEffect(() => {
     // Listen for custom SW update event dispatched from main.tsx
     const handleUpdate = () => {
       setSwUpdateAvailable(true);
     };
 
+    const handleOfflineReady = () => {
+      setOfflineToastVisible(true);
+      const timer = setTimeout(() => {
+        setOfflineToastVisible(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    };
+
     window.addEventListener("sw-update-available", handleUpdate);
-    return () => window.removeEventListener("sw-update-available", handleUpdate);
+    window.addEventListener("sw-offline-ready", handleOfflineReady);
+    return () => {
+      window.removeEventListener("sw-update-available", handleUpdate);
+      window.removeEventListener("sw-offline-ready", handleOfflineReady);
+    };
   }, []);
 
   const handleReload = () => {
-    window.location.reload();
+    const updateSW = (
+      window as unknown as { __updateSW?: (reloadPage?: boolean) => Promise<void> }
+    ).__updateSW;
+    if (updateSW) {
+      updateSW(true);
+    } else {
+      window.location.reload();
+    }
   };
 
   return (
@@ -121,6 +142,21 @@ export const AppShell: FC<AppShellProps> = ({ children }) => {
           >
             Aggiorna
           </Button>
+        </aside>
+      )}
+
+      {/* Offline readiness notification */}
+      {offlineToastVisible && (
+        <aside className={styles.offlineReadyBanner} role="status">
+          <span>✅ App salvata in cache: funziona anche offline senza connessione</span>
+          <button
+            type="button"
+            className={styles.dismissToastButton}
+            onClick={() => setOfflineToastVisible(false)}
+            aria-label="Chiudi notifica"
+          >
+            ✕
+          </button>
         </aside>
       )}
     </div>
