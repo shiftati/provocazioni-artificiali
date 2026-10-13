@@ -8,7 +8,7 @@ import {
   type ReactNode,
   type FC,
 } from "react";
-import { appStorage, DEFAULT_GAME_STATE } from "./storage";
+import { appStorage, DEFAULT_GAME_STATE, DEFAULT_SESSION, DEFAULT_STATS } from "./storage";
 import { APP_CONFIG } from "../config/app.config";
 import { getDefaultEndTime, formatDateTime } from "../utils/time";
 import { gameReducer, type GameAction } from "../features/game/game.machine";
@@ -346,24 +346,40 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       }));
     }
 
-    // 2. Reset app live session state
+    // Clear previous live session, game, and stats from local storage
+    appStorage.clearSession();
+
+    // 2. Reset app live session state to beginning
     const updated: AppSessionState = {
-      ...session,
+      ...DEFAULT_SESSION,
       startedAt: now,
       endedAt: null,
       currentSlideIndex: 0,
       mode: "presentation",
       stopCallsShown: false,
     };
+    sessionRef.current = updated;
     setSessionState(updated);
     appStorage.saveSession(updated);
 
-    const updatedStats: AppStats = {
-      ...stats,
+    // Reset game state to clean initial state (equivalent to "Ricomincia da capo")
+    const freshGame: GameState = {
+      ...DEFAULT_GAME_STATE,
+    };
+    gameRef.current = freshGame;
+    setGameState(freshGame);
+    appStorage.saveGame(freshGame);
+
+    // Reset live stats to clean initial state
+    const freshStats: AppStats = {
+      ...DEFAULT_STATS,
       talkStartedAt: now,
     };
-    setStatsState(updatedStats);
-    appStorage.saveStats(updatedStats);
+    setStatsState(freshStats);
+    appStorage.saveStats(freshStats);
+
+    // Reset overlays
+    setStopCallsOverlayOpen(false);
 
     // 3. Create fresh TalkSessionRecord for history
     const newSessionId = `session_${now}`;
@@ -410,7 +426,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     discussionAccumulatedSecondsRef.current = 0;
     isDiscussionPausedRef.current = false;
     currentDiscussionProvStatIdRef.current = null;
-  }, [session, stats, config.endTime, config.endTimestamp, updateActiveSession]);
+  }, [config.endTime, config.endTimestamp, updateActiveSession]);
 
   const finalizeActiveDiscussion = useCallback(
     (now: number) => {

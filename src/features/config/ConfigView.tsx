@@ -69,6 +69,7 @@ export const ConfigView: FC = () => {
   const [hasSavedToast, setHasSavedToast] = useState<boolean>(false);
   const [confirmResetOpen, setConfirmResetOpen] = useState<boolean>(false);
   const [confirmPastOpen, setConfirmPastOpen] = useState<boolean>(false);
+  const [pendingPastAction, setPendingPastAction] = useState<"save" | "start">("save");
 
   const handleThemeChange = (newTheme: AppTheme) => {
     setSelectedTheme(newTheme);
@@ -107,6 +108,7 @@ export const ConfigView: FC = () => {
     if (!parsedTarget) return;
 
     if (parsedTarget.isPast && !skipPastCheck) {
+      setPendingPastAction("save");
       setConfirmPastOpen(true);
       return;
     }
@@ -124,13 +126,8 @@ export const ConfigView: FC = () => {
     setTimeout(() => setHasSavedToast(false), 2500);
   };
 
-  const handleStart = async () => {
+  const proceedStart = async () => {
     if (!parsedTarget) return;
-
-    if (parsedTarget.isPast) {
-      setConfirmPastOpen(true);
-      return;
-    }
 
     const newConfigData = {
       endTime: timeValue,
@@ -147,9 +144,21 @@ export const ConfigView: FC = () => {
     // Request fullscreen on stage canvas/viewport
     await requestFullscreen();
 
-    // Start presentation session
+    // Start presentation session (resets previous talk session, cards and progress like "Ricomincia da capo")
     startTalk(newConfigData);
     navigate("/presentation");
+  };
+
+  const handleStart = async () => {
+    if (!parsedTarget) return;
+
+    if (parsedTarget.isPast) {
+      setPendingPastAction("start");
+      setConfirmPastOpen(true);
+      return;
+    }
+
+    await proceedStart();
   };
 
   const handleResume = async () => {
@@ -463,9 +472,13 @@ export const ConfigView: FC = () => {
           <Button
             variant="primary"
             size="md"
-            onClick={() => {
+            onClick={async () => {
               setConfirmPastOpen(false);
-              handleSave(true);
+              if (pendingPastAction === "start") {
+                await proceedStart();
+              } else {
+                handleSave(true);
+              }
             }}
           >
             Conferma comunque
