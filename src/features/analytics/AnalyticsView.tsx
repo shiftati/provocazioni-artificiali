@@ -18,6 +18,7 @@ import { MultiSessionChart } from "./MultiSessionChart";
 import { SessionEditorModal } from "./SessionEditorModal";
 import { ProvocationEditorModal } from "./ProvocationEditorModal";
 import { JsonImportModal } from "./JsonImportModal";
+import { SessionTimeline } from "./SessionTimeline";
 import {
   DownloadIcon,
   UploadIcon,
@@ -63,8 +64,8 @@ export const AnalyticsView: FC = () => {
     index: number;
   } | null>(null);
 
-  // Tab for tables / charts view
-  const [viewTab, setViewTab] = useState<"charts" | "tables">("charts");
+  // Tab for tables / charts / timeline view
+  const [viewTab, setViewTab] = useState<"charts" | "tables" | "timeline">("charts");
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -366,7 +367,7 @@ export const AnalyticsView: FC = () => {
               alignItems: "center",
             }}
           >
-            <div style={{ display: "flex", gap: "var(--space-2)" }}>
+            <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
               <Button
                 variant={viewTab === "charts" ? "primary" : "ghost"}
                 size="md"
@@ -380,6 +381,13 @@ export const AnalyticsView: FC = () => {
                 onClick={() => setViewTab("tables")}
               >
                 📑 Tabelle Dati
+              </Button>
+              <Button
+                variant={viewTab === "timeline" ? "primary" : "ghost"}
+                size="md"
+                onClick={() => setViewTab("timeline")}
+              >
+                ⏱️ Storico Eventi ({currentViewSession?.events?.length ?? 0})
               </Button>
             </div>
 
@@ -612,6 +620,13 @@ export const AnalyticsView: FC = () => {
                 </div>
               )}
             </div>
+          )}
+
+          {currentViewSession && viewTab === "timeline" && (
+            <SessionTimeline
+              session={currentViewSession}
+              onToast={showToast}
+            />
           )}
         </>
       )}

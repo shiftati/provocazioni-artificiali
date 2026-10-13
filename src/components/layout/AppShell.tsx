@@ -1,9 +1,12 @@
-import { useState, useEffect, type FC, type ReactNode } from "react";
+import { useState, useEffect, useRef, type FC, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { TopBar } from "./TopBar";
 import { StopCallsOverlay } from "../../features/stopCalls/StopCallsOverlay";
 import { useWakeLock } from "../../hooks/useWakeLock";
 import { appStorage } from "../../state/storage";
+import { useAppState } from "../../state/AppStateContext";
+import { SLIDES } from "../../features/presentation/slides.registry";
+import { PROVOCATIONS, PROVOCATION_MAP } from "../../features/game/provocations.registry";
 import { Button } from "../ui/Button";
 import { RefreshIcon, ChevronDownIcon } from "../icons";
 import styles from "./AppShell.module.scss";
@@ -15,10 +18,59 @@ export interface AppShellProps {
 export const AppShell: FC<AppShellProps> = ({ children }) => {
   const location = useLocation();
   const isHome = location.pathname === "/" || location.pathname === "";
+  const { isSessionActive, logSessionEvent, session, game } = useAppState();
   const [swUpdateAvailable, setSwUpdateAvailable] = useState<boolean>(false);
   const [isHeaderExpanded, setIsHeaderExpanded] = useState<boolean>(
     () => !appStorage.getHeaderCollapsed()
   );
+
+  // Track route navigation events during an active session
+  const prevPathRef = useRef(location.pathname);
+  useEffect(() => {
+    const prev = prevPathRef.current;
+    const current = location.pathname;
+    prevPathRef.current = current;
+
+    if (!isSessionActive || prev === current) return;
+
+    if (current === "/analytics") {
+      logSessionEvent("NAVIGATION", "Passo a pagina analytics", { path: "/analytics" });
+    } else if (current === "/" || current === "") {
+      logSessionEvent("NAVIGATION", "Passo a schermata configurazione talk", { path: "/" });
+    } else if ((prev === "/analytics" || prev === "/" || prev === "") && current === "/presentation") {
+      const slideIdx = session.currentSlideIndex;
+      const slideTitle = SLIDES[slideIdx]?.title;
+      logSessionEvent(
+        "NAVIGATION",
+        `Passo a modalità slide (e sono su slide ${slideIdx + 1}${slideTitle ? `: "${slideTitle}"` : ""})`,
+        {
+          path: "/presentation",
+          slideIndex: slideIdx,
+          slideNumber: slideIdx + 1,
+          slideTitle,
+        }
+      );
+    } else if ((prev === "/analytics" || prev === "/" || prev === "") && current === "/game") {
+      const currentProvId = game.currentProvocationId;
+      if (currentProvId) {
+        const provIdx = PROVOCATIONS.findIndex((p) => p.id === currentProvId);
+        const provNum = provIdx >= 0 ? provIdx + 1 : 1;
+        const provTitle = PROVOCATION_MAP.get(currentProvId)?.title;
+        logSessionEvent(
+          "NAVIGATION",
+          `Passo a modalità gioco (e mostro provocazione numero ${provNum}${provTitle ? `: "${provTitle}"` : ""})`,
+          {
+            path: "/game",
+            provocationId: currentProvId,
+            provocationNumber: provNum,
+            provocationTitle: provTitle,
+          }
+        );
+      } else {
+        logSessionEvent("NAVIGATION", "Passo a modalità gioco", { path: "/game" });
+      }
+    }
+  }, [location.pathname, isSessionActive, logSessionEvent, session.currentSlideIndex, game.currentProvocationId]);
 
   // Sync header collapse state to localStorage
   useEffect(() => {

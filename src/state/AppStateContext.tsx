@@ -24,6 +24,8 @@ import type {
   AppTheme,
   TalkSessionRecord,
   ProvocationStat,
+  SessionEvent,
+  SessionEventType,
 } from "../types";
 
 export interface AppStateContextValue {
@@ -49,6 +51,13 @@ export interface AppStateContextValue {
   closeStopCallsOverlay: () => void;
   dispatchGame: (action: GameAction) => void;
   resetAll: () => void;
+  // Event tracking
+  logSessionEvent: (
+    type: SessionEventType,
+    description: string,
+    details?: SessionEvent["details"],
+    timestamp?: number
+  ) => void;
   // Session management
   updateSessionRecord: (session: TalkSessionRecord) => void;
   deleteSessionRecord: (id: string) => void;
@@ -180,6 +189,36 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     []
   );
 
+  const logSessionEvent = useCallback(
+    (
+      type: SessionEventType,
+      description: string,
+      details?: SessionEvent["details"],
+      timestampOverride?: number
+    ) => {
+      const activeId = currentSessionIdRef.current;
+      if (!activeId) return;
+
+      const timestamp = timestampOverride ?? Date.now();
+      const newEvent: SessionEvent = {
+        id: `evt_${timestamp}_${Math.random().toString(36).substring(2, 7)}`,
+        timestamp,
+        type,
+        description,
+        details,
+      };
+
+      updateActiveSession((curr) => {
+        const existingEvents = curr.events || [];
+        return {
+          ...curr,
+          events: [...existingEvents, newEvent],
+        };
+      });
+    },
+    [updateActiveSession]
+  );
+
   // Global timer interval (250ms tick)
   useEffect(() => {
     if (!config.endTimestamp || config.endTimestamp <= 0) {
@@ -204,6 +243,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
           sessionRef.current = updatedSession;
           setSessionState(updatedSession);
           appStorage.saveSession(updatedSession);
+          logSessionEvent("STOP_CALLS", 'Comparsa avviso "Stop alle telefonate"', undefined, now);
         }
       }
 
@@ -409,6 +449,25 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       })),
       provocations: [],
       provocationsCount: 0,
+      events: [
+        {
+          id: `evt_${now}_start`,
+          timestamp: now,
+          type: "SESSION_START",
+          description: "Faccio partire la sessione",
+        },
+        {
+          id: `evt_${now}_slide1`,
+          timestamp: now,
+          type: "SLIDE_VIEW",
+          description: `Mostro slide 1${SLIDES[0]?.title ? ` (${SLIDES[0].title})` : ""}`,
+          details: {
+            slideIndex: 0,
+            slideNumber: 1,
+            slideTitle: SLIDES[0]?.title,
+          },
+        },
+      ],
     };
 
     setSessionsState((prev) => {
@@ -488,6 +547,8 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const endTalk = useCallback(() => {
     const now = Date.now();
 
+    logSessionEvent("SESSION_END", "Concluso talk e terminata sessione", undefined, now);
+
     // Finalize any active provocation discussion
     finalizeActiveDiscussion(now);
 
@@ -546,7 +607,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     setCurrentSessionIdState(null);
     appStorage.saveCurrentSessionId(null);
     currentSessionIdRef.current = null;
-  }, [updateActiveSession, finalizeActiveDiscussion]);
+  }, [updateActiveSession, finalizeActiveDiscussion, logSessionEvent]);
 
   const setSlideIndex = useCallback(
     (index: number) => {
@@ -556,6 +617,20 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
       slideStartTimeRef.current = now;
       currentSlideIndexRef.current = index;
+
+      if (prevIndex !== index) {
+        const slideTitle = SLIDES[index]?.title;
+        logSessionEvent(
+          "SLIDE_VIEW",
+          `Mostro slide ${index + 1}${slideTitle ? ` (${slideTitle})` : ""}`,
+          {
+            slideIndex: index,
+            slideNumber: index + 1,
+            slideTitle,
+          },
+          now
+        );
+      }
 
       // Update slide duration stats in active session
       updateActiveSession((curr) => {
@@ -585,7 +660,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         return updated;
       });
     },
-    [updateActiveSession]
+    [updateActiveSession, logSessionEvent]
   );
 
   const setMode = useCallback(
@@ -617,6 +692,30 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         });
 
         gameStartTimeRef.current = now;
+
+        const currentProvId = gameRef.current.currentProvocationId;
+        if (currentProvId) {
+          const provIdx = PROVOCATIONS.findIndex((p) => p.id === currentProvId);
+          const provNum = provIdx >= 0 ? provIdx + 1 : 1;
+          const provTitle = PROVOCATION_MAP.get(currentProvId)?.title;
+          logSessionEvent(
+            "MODE_CHANGE",
+            `Passo a modalità gioco (e mostro provocazione numero ${provNum}${provTitle ? `: "${provTitle}"` : ""})`,
+            {
+              mode: "game",
+              provocationId: currentProvId,
+              provocationNumber: provNum,
+              provocationTitle: provTitle,
+            },
+            now
+          );
+        } else if (gameRef.current.step === "IDLE") {
+          logSessionEvent("MODE_CHANGE", "Passo a modalità gioco (schermata iniziale)", { mode: "game" }, now);
+        } else if (gameRef.current.step === "CHALLENGE") {
+          logSessionEvent("MODE_CHANGE", "Passo a modalità gioco (sfida 30s)", { mode: "game" }, now);
+        } else {
+          logSessionEvent("MODE_CHANGE", "Passo a modalità gioco", { mode: "game" }, now);
+        }
       } else if (currentMode === "game" && mode === "presentation") {
         // Finalize active provocation discussion if any
         finalizeActiveDiscussion(now);
@@ -631,6 +730,20 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
           gameStartTimeRef.current = null;
         }
         slideStartTimeRef.current = now;
+
+        const currentSlideIdx = currentSlideIndexRef.current;
+        const slideTitle = SLIDES[currentSlideIdx]?.title;
+        logSessionEvent(
+          "MODE_CHANGE",
+          `Passo a modalità slide (e sono su slide ${currentSlideIdx + 1}${slideTitle ? `: "${slideTitle}"` : ""})`,
+          {
+            mode: "presentation",
+            slideIndex: currentSlideIdx,
+            slideNumber: currentSlideIdx + 1,
+            slideTitle,
+          },
+          now
+        );
       }
 
       currentModeRef.current = mode;
@@ -641,7 +754,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         return updated;
       });
     },
-    [updateActiveSession, finalizeActiveDiscussion]
+    [updateActiveSession, finalizeActiveDiscussion, logSessionEvent]
   );
 
   const closeStopCallsOverlay = useCallback(() => {
@@ -668,6 +781,13 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     currentSlideIndexRef.current = targetSlideIndex;
     currentModeRef.current = "presentation";
 
+    logSessionEvent(
+      "STOP_CALLS",
+      `Chiuso avviso "Stop alle telefonate" (passo a slide ${targetSlideIndex + 1})`,
+      { slideIndex: targetSlideIndex, slideNumber: targetSlideIndex + 1 },
+      now
+    );
+
     setSessionState((prev) => {
       const updated: AppSessionState = {
         ...prev,
@@ -678,7 +798,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       appStorage.saveSession(updated);
       return updated;
     });
-  }, [config.introEndSlide, updateActiveSession, finalizeActiveDiscussion]);
+  }, [config.introEndSlide, updateActiveSession, finalizeActiveDiscussion, logSessionEvent]);
 
   const dispatchGame = useCallback(
     (action: GameAction) => {
@@ -693,6 +813,27 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       // 1. When entering CHALLENGE or PROVOCATION step
       if (action.type === "PLAY") {
         provocationDecisionStartTimeRef.current = now;
+
+        if (prev.step === "IDLE") {
+          if (prev.isFirstLoop) {
+            const nextId = next.currentProvocationId;
+            const provIdx = nextId ? PROVOCATIONS.findIndex((p) => p.id === nextId) : -1;
+            const provNum = provIdx >= 0 ? provIdx + 1 : 1;
+            const provDef = nextId ? PROVOCATION_MAP.get(nextId) : null;
+            logSessionEvent(
+              "PROVOCATION_VIEW",
+              `Mostro provocazione numero ${provNum}${provDef?.title ? `: "${provDef.title}"` : ""}`,
+              {
+                provocationId: nextId ?? undefined,
+                provocationNumber: provNum,
+                provocationTitle: provDef?.title,
+              },
+              now
+            );
+          } else {
+            logSessionEvent("CHALLENGE_START", "Avviata sfida 30 secondi", undefined, now);
+          }
+        }
       }
 
       // 2. When accepting a provocation
@@ -717,6 +858,21 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
           ? `custom_${now}`
           : next.currentProvocationId ?? `prov_${now}`;
         const provDef = wasFromChallenge ? null : PROVOCATION_MAP.get(provId);
+        const provIdx = PROVOCATIONS.findIndex((p) => p.id === provId);
+        const provNum = provIdx >= 0 ? provIdx + 1 : undefined;
+
+        logSessionEvent(
+          "PROVOCATION_ACCEPT",
+          wasFromChallenge
+            ? "Accetto provocazione (da sfida 30s)"
+            : `Accetto provocazione${provNum ? ` numero ${provNum}` : ""}${provDef?.title ? `: "${provDef.title}"` : ""}`,
+          {
+            provocationId: provId,
+            provocationNumber: provNum,
+            provocationTitle: provDef?.title,
+          },
+          now
+        );
 
         const newProvStat: ProvocationStat = {
           id: `prov_${now}`,
@@ -771,19 +927,37 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
               (now - discussionStartTimeRef.current) / 1000;
           }
           isDiscussionPausedRef.current = true;
+          logSessionEvent("DISCUSSION_PAUSE", "Pausa discussione", undefined, now);
         } else {
           // Resuming
           discussionStartTimeRef.current = now;
           isDiscussionPausedRef.current = false;
+          logSessionEvent("DISCUSSION_RESUME", "Ripresa discussione", undefined, now);
         }
       }
 
       // 4. Finishing discussion -> NEXT_PROVOCATION (only if previous step was DISCUSSION)
       if (action.type === "NEXT_PROVOCATION" && prev.step === "DISCUSSION") {
         finalizeActiveDiscussion(now);
+        logSessionEvent("DISCUSSION_END", "Conclusa discussione provocazione", undefined, now);
       }
 
       if (action.type === "SKIP_PROVOCATION") {
+        const nextId = next.currentProvocationId;
+        const provIdx = nextId ? PROVOCATIONS.findIndex((p) => p.id === nextId) : -1;
+        const provNum = provIdx >= 0 ? provIdx + 1 : undefined;
+        const provDef = nextId ? PROVOCATION_MAP.get(nextId) : null;
+        logSessionEvent(
+          "PROVOCATION_SKIP",
+          `Cambio provocazione${provNum ? ` (mostro provocazione numero ${provNum}${provDef?.title ? `: "${provDef.title}"` : ""})` : ""}`,
+          {
+            provocationId: nextId ?? undefined,
+            provocationNumber: provNum,
+            provocationTitle: provDef?.title,
+          },
+          now
+        );
+
         setStatsState((prevStats) => {
           const updatedStats: AppStats = {
             ...prevStats,
@@ -793,8 +967,29 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
           return updatedStats;
         });
       }
+
+      if (action.type === "CHALLENGE_TIMEOUT") {
+        const nextId = next.currentProvocationId;
+        const provIdx = nextId ? PROVOCATIONS.findIndex((p) => p.id === nextId) : -1;
+        const provNum = provIdx >= 0 ? provIdx + 1 : undefined;
+        const provDef = nextId ? PROVOCATION_MAP.get(nextId) : null;
+        logSessionEvent(
+          "CHALLENGE_TIMEOUT",
+          `Tempo sfida scaduto${provNum ? ` (mostro provocazione numero ${provNum}${provDef?.title ? `: "${provDef.title}"` : ""})` : ""}`,
+          {
+            provocationId: nextId ?? undefined,
+            provocationNumber: provNum,
+            provocationTitle: provDef?.title,
+          },
+          now
+        );
+      }
+
+      if (action.type === "RESET_GAME") {
+        logSessionEvent("MODE_CHANGE", "Reset stato gioco", undefined, now);
+      }
     },
-    [updateActiveSession]
+    [updateActiveSession, finalizeActiveDiscussion, logSessionEvent]
   );
 
   const resetAll = useCallback(() => {
@@ -914,6 +1109,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         closeStopCallsOverlay,
         dispatchGame,
         resetAll,
+        logSessionEvent,
         updateSessionRecord,
         deleteSessionRecord,
         clearAllSessionsRecords,

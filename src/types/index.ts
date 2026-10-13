@@ -79,6 +79,40 @@ export interface ProvocationStat {
   wasSkippedFirst?: boolean;
 }
 
+export type SessionEventType =
+  | "SESSION_START"
+  | "SLIDE_VIEW"
+  | "MODE_CHANGE"
+  | "NAVIGATION"
+  | "PROVOCATION_VIEW"
+  | "PROVOCATION_ACCEPT"
+  | "PROVOCATION_SKIP"
+  | "CHALLENGE_START"
+  | "CHALLENGE_TIMEOUT"
+  | "DISCUSSION_PAUSE"
+  | "DISCUSSION_RESUME"
+  | "DISCUSSION_END"
+  | "STOP_CALLS"
+  | "SESSION_END";
+
+export interface SessionEvent {
+  id: string;
+  timestamp: number; // epoch ms
+  type: SessionEventType;
+  description: string;
+  details?: {
+    slideIndex?: number;
+    slideNumber?: number;
+    slideTitle?: string;
+    mode?: AppMode;
+    provocationId?: string;
+    provocationNumber?: number;
+    provocationTitle?: string;
+    path?: string;
+    [key: string]: unknown;
+  };
+}
+
 export interface TalkSessionRecord {
   id: string;
   name: string;
@@ -95,4 +129,6 @@ export interface TalkSessionRecord {
   conclusionMinutes?: number;
   introEndSlide?: number;       // ultima slide dell'introduzione (1-based, default 11)
   gameDurationSeconds?: number; // total time spent in game mode (between intro and conclusione)
+  events?: SessionEvent[];      // cronologia degli eventi registrati nella sessione
 }
+

@@ -159,3 +159,32 @@ export function deduplicateProvocations<
   }
   return result;
 }
+
+/**
+ * Formats epoch timestamp into time string with seconds: "HH:mm:ss".
+ */
+export function formatTimeWithSeconds(timestamp: number): string {
+  if (!timestamp) return "-";
+  const date = new Date(timestamp);
+  const h = String(date.getHours()).padStart(2, "0");
+  const m = String(date.getMinutes()).padStart(2, "0");
+  const s = String(date.getSeconds()).padStart(2, "0");
+  return `${h}:${m}:${s}`;
+}
+
+/**
+ * Formats relative elapsed time from a base timestamp into "+mm:ss" or "+hh:mm:ss".
+ */
+export function formatRelativeTime(timestamp: number, baseTimestamp: number): string {
+  if (!timestamp || !baseTimestamp) return "+00:00";
+  const diffSec = Math.max(0, Math.floor((timestamp - baseTimestamp) / 1000));
+  const hours = Math.floor(diffSec / 3600);
+  const mins = Math.floor((diffSec % 3600) / 60);
+  const secs = diffSec % 60;
+
+  if (hours > 0) {
+    return `+${hours}h ${String(mins).padStart(2, "0")}m ${String(secs).padStart(2, "0")}s`;
+  }
+  return `+${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+}
+
