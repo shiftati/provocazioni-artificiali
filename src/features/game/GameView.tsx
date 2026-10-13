@@ -25,8 +25,19 @@ const KLIPPY_SAW_IMAGE = `${BASE_URL}images/slides/8-klippy-saw.jpg`;
 
 export const GameView: FC = () => {
   const navigate = useNavigate();
-  const { game, dispatchGame, setMode, stopCallsOverlayOpen } = useAppState();
+  const {
+    game,
+    dispatchGame,
+    setMode,
+    session,
+    isSessionActive,
+    stopCallsOverlayOpen,
+  } = useAppState();
   const allProvocationIds = PROVOCATIONS.map((p) => p.id);
+
+  const isStopCallsOverlayVisible =
+    stopCallsOverlayOpen ||
+    (Boolean(session.stopCallsShown) && isSessionActive && !session.endedAt);
 
   // Keyboard navigation:
   // - onNext:
@@ -34,7 +45,11 @@ export const GameView: FC = () => {
   //   - CHALLENGE (30s): accetta provocazione
   //   - PROVOCATION (scheda predefinita): accetta provocazione
   //   - DISCUSSION (5m): prossima provocazione
-  // - onPrev (Left arrow / PageUp): returns to presentation slides
+  // - onPrev (Left arrow / PageUp):
+  //   - PROVOCATION: cambia provocazione
+  //   - DISCUSSION (5m): pausa / riprendi
+  //   - CHALLENGE (30s): salta
+  //   - IDLE: torna alle slide di presentazione
   useKeyboardNavigation({
     onNext: () => {
       if (game.step === "IDLE") {
@@ -46,10 +61,18 @@ export const GameView: FC = () => {
       }
     },
     onPrev: () => {
-      setMode("presentation");
-      navigate("/presentation");
+      if (game.step === "PROVOCATION") {
+        dispatchGame({ type: "SKIP_PROVOCATION", allProvocationIds });
+      } else if (game.step === "DISCUSSION") {
+        dispatchGame({ type: "TOGGLE_PAUSE_DISCUSSION" });
+      } else if (game.step === "CHALLENGE") {
+        dispatchGame({ type: "CHALLENGE_TIMEOUT", allProvocationIds });
+      } else {
+        setMode("presentation");
+        navigate("/presentation");
+      }
     },
-    enabled: !stopCallsOverlayOpen,
+    enabled: !isStopCallsOverlayVisible,
   });
 
   // Challenge timer (30s)

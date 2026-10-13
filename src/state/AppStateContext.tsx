@@ -775,7 +775,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
     // Pass to slide + 1 after the introEndSlide (1-based introEndSlide corresponds to index introEndSlide)
     const introEnd = config.introEndSlide ?? 11;
-    const targetSlideIndex = Math.min(Math.max(0, introEnd), SLIDES.length - 1);
+    const targetSlideIndex = Math.min(Math.max(sessionRef.current.currentSlideIndex, introEnd), SLIDES.length - 1);
 
     slideStartTimeRef.current = now;
     currentSlideIndexRef.current = targetSlideIndex;

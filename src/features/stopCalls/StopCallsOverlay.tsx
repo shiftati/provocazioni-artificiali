@@ -12,7 +12,7 @@ const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
 const STOP_CALLS_BG = `${BASE_URL}images/stop-alle-telefonate.jpg`;
 
 export const StopCallsOverlay: FC = () => {
-  const { session: _session, stopCallsOverlayOpen, closeStopCallsOverlay, isSessionActive } = useAppState();
+  const { session, stopCallsOverlayOpen, closeStopCallsOverlay, isSessionActive } = useAppState();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -26,8 +26,18 @@ export const StopCallsOverlay: FC = () => {
     location.pathname === "" ||
     location.pathname.startsWith("/replay");
 
+  const isGameRoute = location.pathname === "/game";
+  const shouldShowOnGame =
+    isGameRoute && Boolean(session.stopCallsShown) && isSessionActive && !session.endedAt;
+
+  const isVisible =
+    (stopCallsOverlayOpen || shouldShowOnGame) &&
+    isSessionActive &&
+    !session.endedAt &&
+    !isExcludedRoute;
+
   useEffect(() => {
-    if (!stopCallsOverlayOpen || !isSessionActive || isExcludedRoute) return;
+    if (!isVisible) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (
@@ -44,9 +54,9 @@ export const StopCallsOverlay: FC = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [stopCallsOverlayOpen, isSessionActive, isExcludedRoute, handleProceed]);
+  }, [isVisible, handleProceed]);
 
-  if (!stopCallsOverlayOpen || !isSessionActive || isExcludedRoute) return null;
+  if (!isVisible) return null;
 
   return (
     <div
