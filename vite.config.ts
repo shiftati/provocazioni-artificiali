@@ -23,6 +23,7 @@ export default defineConfig({
         "fonts/*.woff2",
         "images/**/*",
         "logo/*",
+        "audio/*",
       ],
       manifest: {
         name: "Shiftati di Testa — Codemotion",
@@ -58,9 +59,9 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // Precache all assets (js, css, html, slides images, fonts, icons) so the app works 100% offline
+        // Precache all assets (js, css, html, slides images, audio, fonts, icons) so the app works 100% offline
         globPatterns: [
-          "**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2,webmanifest}",
+          "**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2,webmanifest,mp3,wav,ogg}",
         ],
         maximumFileSizeToCacheInBytes: 15 * 1024 * 1024,
         cleanupOutdatedCaches: true,

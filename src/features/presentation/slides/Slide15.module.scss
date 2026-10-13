@@ -1,0 +1,304 @@
+.slideContainer {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: var(--space-8) var(--space-16);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: radial-gradient(circle at 50% 20%, rgba(30, 102, 250, 0.08) 0%, transparent 65%), var(--color-stage-bg, #071526);
+  position: relative;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: var(--space-3);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--color-decal-bg);
+  color: var(--color-accent);
+  padding: var(--space-1) var(--space-4);
+  border: 2px solid #000000;
+  box-shadow: 3px 3px 0 #000000;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.talkMeta {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-text-subtle);
+  background-color: var(--color-decal-bg);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-4) 0;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-12);
+  width: 100%;
+  max-width: 1540px;
+}
+
+.profileCard {
+  background-color: var(--color-surface, #0b1726);
+  border: 4px solid #000000;
+  border-radius: 0;
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-6);
+  transition: transform var(--duration-fast) var(--ease);
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.cardDaniel {
+  box-shadow: var(--shadow-box-offset-lg);
+}
+
+.cardStefano {
+  box-shadow: var(--shadow-box-offset-mint-lg);
+}
+
+.profileHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.avatarWrapper {
+  width: 130px;
+  height: 130px;
+  border-radius: var(--radius-sm);
+  border: 3px solid #000000;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--color-decal-bg);
+}
+
+.avatarDaniel {
+  box-shadow: 4px 4px 0 var(--color-accent);
+}
+
+.avatarStefano {
+  box-shadow: 4px 4px 0 var(--color-mint);
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.name {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.websiteLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-mint);
+  text-decoration: none;
+  word-break: break-all;
+  transition: color var(--duration-fast) var(--ease);
+
+  &:hover {
+    color: var(--color-mint-hover);
+    text-decoration: underline;
+  }
+}
+
+.qrSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  background-color: var(--color-decal-bg, #000000);
+  border: 2px solid #000000;
+  border-radius: var(--radius-xs);
+  padding: var(--space-5);
+}
+
+.qrCard {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  padding: var(--space-3);
+  border: 3px solid #000000;
+  box-shadow: 4px 4px 0 #000000;
+  transition: transform var(--duration-fast) var(--ease), box-shadow var(--duration-fast) var(--ease);
+  cursor: pointer;
+
+  &:hover {
+    transform: scale(1.02);
+    box-shadow: 6px 6px 0 var(--color-accent);
+  }
+}
+
+.qrImg {
+  width: 190px;
+  height: 190px;
+  display: block;
+}
+
+.qrBadge {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+/* Audio controls in bottom right */
+.audioControls {
+  position: absolute;
+  bottom: var(--space-6);
+  right: var(--space-8);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background-color: var(--color-decal-bg);
+  border: 2px solid #000000;
+  box-shadow: 4px 4px 0 #000000;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-xs);
+  z-index: 50;
+  user-select: none;
+}
+
+.audioStatus {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.audioEqualizer {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  width: 14px;
+  height: 14px;
+
+  span {
+    flex: 1;
+    background-color: var(--color-text-subtle);
+    height: 30%;
+    border-radius: 1px;
+    transition: height 0.2s ease;
+  }
+
+  &.isPlaying span {
+    background-color: var(--color-mint);
+    animation: eqBounce 0.7s ease-in-out infinite alternate;
+
+    &:nth-child(1) {
+      animation-delay: 0s;
+    }
+    &:nth-child(2) {
+      animation-delay: 0.25s;
+    }
+    &:nth-child(3) {
+      animation-delay: 0.5s;
+    }
+  }
+}
+
+@keyframes eqBounce {
+  0% {
+    height: 25%;
+  }
+  100% {
+    height: 100%;
+  }
+}
+
+.audioTrackName {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--color-text-subtle);
+  font-weight: 600;
+}
+
+.audioButtonGroup {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.audioBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease);
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-surface-active);
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  &.audioBtnActive {
+    background-color: var(--color-surface-active);
+    color: var(--color-mint);
+    border-color: var(--color-mint);
+    box-shadow: 0 0 0 1px var(--color-mint);
+  }
+}
