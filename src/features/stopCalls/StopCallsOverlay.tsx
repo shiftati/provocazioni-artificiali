@@ -12,7 +12,7 @@ const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
 const STOP_CALLS_BG = `${BASE_URL}images/${encodeURI("Stop alle telefonate.jpg")}`;
 
 export const StopCallsOverlay: FC = () => {
-  const { session, stopCallsOverlayOpen, closeStopCallsOverlay } = useAppState();
+  const { session: _session, stopCallsOverlayOpen, closeStopCallsOverlay, isSessionActive } = useAppState();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -36,7 +36,7 @@ export const StopCallsOverlay: FC = () => {
   }, [stopCallsOverlayOpen]);
 
   const isConfigRoute = location.pathname === "/" || location.pathname === "";
-  if (!stopCallsOverlayOpen || session.startedAt === null || isConfigRoute) return null;
+  if (!stopCallsOverlayOpen || !isSessionActive || isConfigRoute) return null;
 
   return (
     <div

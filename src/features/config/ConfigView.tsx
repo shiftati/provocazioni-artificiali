@@ -9,6 +9,7 @@ import {
 } from "../../utils/time";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
+import { IconButton } from "../../components/ui/IconButton";
 import { TimeInput } from "../../components/ui/TimeInput";
 import { NumberInput } from "../../components/ui/NumberInput";
 import { SelectInput } from "../../components/ui/SelectInput";
@@ -26,6 +27,7 @@ import {
   CloseIcon,
   AnalyticsIcon,
   DownloadIcon,
+  FinishIcon,
 } from "../../components/icons";
 import { usePwaInstall } from "../../hooks/usePwaInstall";
 import styles from "./ConfigView.module.scss";
@@ -40,7 +42,9 @@ export const ConfigView: FC = () => {
     setTheme,
     updateConfig,
     startTalk,
+    endTalk,
     resetAll,
+    isSessionActive,
   } = useAppState();
   const { requestFullscreen } = useFullscreen();
   const { isInstallable, isInstalled, installApp } = usePwaInstall();
@@ -69,7 +73,9 @@ export const ConfigView: FC = () => {
   const [hasSavedToast, setHasSavedToast] = useState<boolean>(false);
   const [confirmResetOpen, setConfirmResetOpen] = useState<boolean>(false);
   const [confirmPastOpen, setConfirmPastOpen] = useState<boolean>(false);
-  const [pendingPastAction, setPendingPastAction] = useState<"save" | "start">("save");
+  const [pendingPastAction, setPendingPastAction] = useState<"save" | "start">(
+    "save",
+  );
 
   const handleThemeChange = (newTheme: AppTheme) => {
     setSelectedTheme(newTheme);
@@ -99,10 +105,7 @@ export const ConfigView: FC = () => {
     return `Fine gioco: ${gameEndTimeStr} (Stop alle telefonate a -${cleanConclusionMin} min) • Fine intro: Slide #${introEndSlide} • Fine talk: ${timeValue} • ${getDurationPreview(talkEndMs)}`;
   }, [parsedTarget, conclusionMinutes, introEndSlide, timeValue]);
 
-  const hasActiveSession =
-    session.startedAt !== null ||
-    session.currentSlideIndex > 0 ||
-    game.discussedCount > 0;
+  const hasActiveSession = isSessionActive;
 
   const handleSave = (skipPastCheck = false) => {
     if (!parsedTarget) return;
@@ -170,6 +173,11 @@ export const ConfigView: FC = () => {
     }
   };
 
+  const handleEndSession = () => {
+    endTalk();
+    navigate("/analytics");
+  };
+
   const handleResetConfirm = () => {
     resetAll();
     setTimeValue(getDefaultEndTime());
@@ -201,7 +209,7 @@ export const ConfigView: FC = () => {
             </Button>
             {isInstallable && !isInstalled && (
               <Button
-                variant="primary"
+                variant="secondary"
                 size="md"
                 onClick={installApp}
                 leftIcon={<DownloadIcon size={18} />}
@@ -209,179 +217,188 @@ export const ConfigView: FC = () => {
                 Installa App (PWA)
               </Button>
             )}
-            {isInstalled && (
-              <Badge variant="accent">App PWA Installata</Badge>
-            )}
+            {isInstalled && <Badge variant="accent">App PWA Installata</Badge>}
           </div>
         </header>
 
-      <div className={styles.cardGrid}>
-        {/* Active Session block */}
-        {hasActiveSession && (
-          <Card raised className={styles.sessionCard}>
-            <div className={styles.cardHeading}>
-              <span>Sessione in corso</span>
-              <div
-                style={{
-                  display: "flex",
-                  gap: "var(--space-2)",
-                  alignItems: "center",
-                }}
-              >
+        <div className={styles.cardGrid}>
+          {/* Active Session block */}
+          {hasActiveSession && (
+            <Card raised className={styles.sessionCard}>
+              <div className={styles.cardHeading}>
+                <span>Sessione in corso</span>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "var(--space-2)",
+                    alignItems: "center",
+                  }}
+                >
+                  <Button
+                    variant="ghost"
+                    size="md"
+                    onClick={() => navigate("/analytics")}
+                    leftIcon={<AnalyticsIcon size={16} />}
+                  >
+                    Analytics
+                  </Button>
+                  <Badge variant="accent">Attiva</Badge>
+                </div>
+              </div>
+
+              <div className={styles.sessionStats}>
+                <div className={styles.statItem}>
+                  <span className={styles.statValue}>
+                    {session.currentSlideIndex + 1}
+                  </span>
+                  <span className={styles.statLabel}>Slide attuale</span>
+                </div>
+                <div className={styles.statItem}>
+                  <span className={styles.statValue}>
+                    {game.discussedCount}
+                  </span>
+                  <span className={styles.statLabel}>Provocazioni</span>
+                </div>
+                <div className={styles.statItem}>
+                  <span
+                    className={styles.statValue}
+                    style={{ textTransform: "capitalize" }}
+                  >
+                    {session.mode === "game" ? "Gioco" : "Slide"}
+                  </span>
+                  <span className={styles.statLabel}>Modalità</span>
+                </div>
+              </div>
+
+              <div className={styles.actionsRow}>
                 <Button
                   variant="ghost"
                   size="md"
-                  onClick={() => navigate("/analytics")}
-                  leftIcon={<AnalyticsIcon size={16} />}
+                  onClick={() => setConfirmResetOpen(true)}
+                  leftIcon={<RefreshIcon size={18} />}
                 >
-                  Analytics
+                  Ricomincia da capo
                 </Button>
-                <Badge variant="accent">Attiva</Badge>
+                <IconButton
+                  aria-label="Concludi talk e sessione"
+                  size="lg"
+                  onClick={handleEndSession}
+                  title="Concludi sessione talk"
+                  style={{ color: "var(--color-mint)" }}
+                >
+                  <FinishIcon size={24} />
+                </IconButton>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={handleResume}
+                  rightIcon={<ArrowRightIcon size={20} />}
+                >
+                  Riprendi Talk
+                </Button>
               </div>
+            </Card>
+          )}
+
+          {/* Configuration block */}
+          <Card className={styles.configCard}>
+            <div className={styles.cardHeading}>
+              <span>Configurazione Talk</span>
+              {hasSavedToast && (
+                <span className={styles.savedToast}>
+                  <CheckIcon size={18} /> Salvato
+                </span>
+              )}
             </div>
 
-            <div className={styles.sessionStats}>
-              <div className={styles.statItem}>
-                <span className={styles.statValue}>
-                  {session.currentSlideIndex + 1}
-                </span>
-                <span className={styles.statLabel}>Slide attuale</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statValue}>{game.discussedCount}</span>
-                <span className={styles.statLabel}>Provocazioni</span>
-              </div>
-              <div className={styles.statItem}>
-                <span
-                  className={styles.statValue}
-                  style={{ textTransform: "capitalize" }}
-                >
-                  {session.mode === "game" ? "Gioco" : "Slide"}
-                </span>
-                <span className={styles.statLabel}>Modalità</span>
-              </div>
+            {/* Theme selector */}
+            <div className={styles.themeSection}>
+              <label className={styles.themeLabel} id="theme-selector-label">
+                Tema interfaccia
+              </label>
+              <SegmentedControl<AppTheme>
+                options={[
+                  { value: "dark", label: "🌙 Dark" },
+                  { value: "light", label: "☀️ Light" },
+                ]}
+                value={selectedTheme}
+                onChange={handleThemeChange}
+                ariaLabel="Seleziona tema dell'applicazione"
+              />
+              <span className={styles.themeHint}>
+                {selectedTheme === "light"
+                  ? "Tema Light attivo: cornice blu chiaro (#1e66fa) e accenti arancioni."
+                  : "Tema Dark attivo: visual ad alto contrasto per ambienti bui e proiettori."}
+              </span>
+            </div>
+
+            <TimeInput
+              label="Orario previsto per la fine del talk"
+              value={timeValue}
+              onChange={(e) => setTimeValue(e.target.value)}
+              hint="Inserisci l'ora di fine (formato HH:mm). Il countdown calcolerà la durata residua esatta senza drift."
+              error={
+                parsedTarget?.isPast ? "Orario nel passato per oggi" : undefined
+              }
+            />
+
+            <NumberInput
+              id="talk-conclusion-minutes"
+              label="Minuti dedicati alla conclusione"
+              value={conclusionMinutes}
+              onChange={(e) =>
+                setConclusionMinutes(
+                  Math.max(0, parseInt(e.target.value, 10) || 0),
+                )
+              }
+              min={0}
+              max={180}
+              step={1}
+              suffix="min"
+              hint="Numero di minuti dalla fine del gioco alla fine della presentazione. Triggera lo 'Stop alle telefonate'."
+            />
+
+            <SelectInput
+              id="talk-intro-end-slide"
+              label="Slide di fine intro"
+              value={introEndSlide}
+              onChange={(e) =>
+                setIntroEndSlide(parseInt(e.target.value, 10) || 11)
+              }
+              options={SLIDES.map((s, idx) => ({
+                value: idx + 1,
+                label: `${idx + 1}: ${s.title}`,
+              }))}
+              hint={`La slide selezionata è l'ultima slide dell'introduzione (default #11). Lo 'Stop alle telefonate' passerà alla slide successiva (#${introEndSlide + 1}${SLIDES[introEndSlide] ? `: ${SLIDES[introEndSlide].title}` : ""}).`}
+            />
+
+            <div className={styles.previewText} aria-live="polite">
+              {durationPreview}
             </div>
 
             <div className={styles.actionsRow}>
               <Button
-                variant="ghost"
-                size="md"
-                onClick={() => setConfirmResetOpen(true)}
-                leftIcon={<RefreshIcon size={18} />}
+                variant="secondary"
+                size="lg"
+                onClick={() => handleSave(false)}
+                disabled={!timeValue}
               >
-                Ricomincia da capo
+                Salva configurazione
               </Button>
+
               <Button
                 variant="primary"
                 size="lg"
-                onClick={handleResume}
-                rightIcon={<ArrowRightIcon size={20} />}
+                onClick={handleStart}
+                disabled={!timeValue}
+                leftIcon={<PlayIcon size={20} />}
               >
-                Riprendi Talk
+                Inizia Talk
               </Button>
             </div>
           </Card>
-        )}
-
-        {/* Configuration block */}
-        <Card className={styles.configCard}>
-          <div className={styles.cardHeading}>
-            <span>Configurazione Talk</span>
-            {hasSavedToast && (
-              <span className={styles.savedToast}>
-                <CheckIcon size={18} /> Salvato
-              </span>
-            )}
-          </div>
-
-          {/* Theme selector */}
-          <div className={styles.themeSection}>
-            <label className={styles.themeLabel} id="theme-selector-label">
-              Tema interfaccia
-            </label>
-            <SegmentedControl<AppTheme>
-              options={[
-                { value: "dark", label: "🌙 Dark" },
-                { value: "light", label: "☀️ Light" },
-              ]}
-              value={selectedTheme}
-              onChange={handleThemeChange}
-              ariaLabel="Seleziona tema dell'applicazione"
-            />
-            <span className={styles.themeHint}>
-              {selectedTheme === "light"
-                ? "Tema Light attivo: cornice blu chiaro (#1e66fa) e accenti arancioni."
-                : "Tema Dark attivo: visual ad alto contrasto per ambienti bui e proiettori."}
-            </span>
-          </div>
-
-          <TimeInput
-            label="Orario previsto per la fine del talk"
-            value={timeValue}
-            onChange={(e) => setTimeValue(e.target.value)}
-            hint="Inserisci l'ora di fine (formato HH:mm). Il countdown calcolerà la durata residua esatta senza drift."
-            error={
-              parsedTarget?.isPast ? "Orario nel passato per oggi" : undefined
-            }
-          />
-
-          <NumberInput
-            id="talk-conclusion-minutes"
-            label="Minuti dedicati alla conclusione"
-            value={conclusionMinutes}
-            onChange={(e) =>
-              setConclusionMinutes(
-                Math.max(0, parseInt(e.target.value, 10) || 0),
-              )
-            }
-            min={0}
-            max={180}
-            step={1}
-            suffix="min"
-            hint="Numero di minuti dalla fine del gioco alla fine della presentazione. Triggera lo 'Stop alle telefonate'."
-          />
-
-          <SelectInput
-            id="talk-intro-end-slide"
-            label="Slide di fine intro"
-            value={introEndSlide}
-            onChange={(e) =>
-              setIntroEndSlide(parseInt(e.target.value, 10) || 11)
-            }
-            options={SLIDES.map((s, idx) => ({
-              value: idx + 1,
-              label: `${idx + 1}: ${s.title}`,
-            }))}
-            hint={`La slide selezionata è l'ultima slide dell'introduzione (default #11). Lo 'Stop alle telefonate' passerà alla slide successiva (#${introEndSlide + 1}${SLIDES[introEndSlide] ? `: ${SLIDES[introEndSlide].title}` : ""}).`}
-          />
-
-          <div className={styles.previewText} aria-live="polite">
-            {durationPreview}
-          </div>
-
-          <div className={styles.actionsRow}>
-            <Button
-              variant="secondary"
-              size="lg"
-              onClick={() => handleSave(false)}
-              disabled={!timeValue}
-            >
-              Salva configurazione
-            </Button>
-
-            <Button
-              variant="primary"
-              size="lg"
-              onClick={handleStart}
-              disabled={!timeValue}
-              leftIcon={<PlayIcon size={20} />}
-            >
-              Inizia Talk
-            </Button>
-          </div>
-        </Card>
+        </div>
       </div>
-    </div>
 
       {/* Confirmation Modal: Reset session */}
       <Modal

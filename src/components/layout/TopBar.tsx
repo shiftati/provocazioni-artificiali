@@ -26,7 +26,7 @@ export interface TopBarProps {
 export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { globalRemainingSeconds, session, config, setMode } = useAppState();
+  const { globalRemainingSeconds, session, config, setMode, isSessionActive } = useAppState();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   const { isInstallable, isInstalled, installApp } = usePwaInstall();
 
@@ -78,18 +78,20 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
       </div>
 
       <div className={styles.rightSection}>
-        <div className={styles.countdownWrapper} title={countdownTitle}>
-          <ClockIcon size={20} style={{ color: "var(--color-accent)" }} />
-          <span className={styles.countdownPhase}>
-            {isPostStopCalls ? "Talk" : "Gioco"}
-          </span>
-          <CountdownDisplay
-            remainingSeconds={globalRemainingSeconds}
-            size="sm"
-            ariaLabel={countdownAriaLabel}
-            pulseOnDanger={!isTalkEnded}
-          />
-        </div>
+        {isSessionActive && (
+          <div className={styles.countdownWrapper} title={countdownTitle}>
+            <ClockIcon size={20} style={{ color: "var(--color-accent)" }} />
+            <span className={styles.countdownPhase}>
+              {isPostStopCalls ? "Talk" : "Gioco"}
+            </span>
+            <CountdownDisplay
+              remainingSeconds={globalRemainingSeconds}
+              size="sm"
+              ariaLabel={countdownAriaLabel}
+              pulseOnDanger={!isTalkEnded}
+            />
+          </div>
+        )}
 
         <IconButton
           aria-label={isFullscreen ? "Esci da schermo intero" : "Attiva schermo intero"}

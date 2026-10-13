@@ -35,6 +35,7 @@ export interface AppStateContextValue {
   globalRemainingSeconds: number;
   isGlobalExpired: boolean;
   stopCallsOverlayOpen: boolean;
+  isSessionActive: boolean;
   // Sessions & Analytics
   sessions: TalkSessionRecord[];
   currentSessionId: string | null;
@@ -322,9 +323,13 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       }));
     }
 
-    // Reset stopCallsShown whenever config is updated so new or revised timers trigger
+    // Reset stopCallsShown whenever config is updated only if an active session is running
     setSessionState((prev) => {
-      const updated = { ...prev, stopCallsShown: false, endedAt: null };
+      const isRunning = Boolean(currentSessionIdRef.current && prev.startedAt && !prev.endedAt);
+      const updated = {
+        ...prev,
+        stopCallsShown: isRunning ? false : prev.stopCallsShown,
+      };
       appStorage.saveSession(updated);
       return updated;
     });
@@ -877,6 +882,12 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const activeSessionRecord =
     sessions.find((s) => s.id === currentSessionId) ?? null;
 
+  const isSessionActive = Boolean(
+    session.startedAt !== null &&
+    session.endedAt === null &&
+    currentSessionId !== null
+  );
+
   const isGlobalExpired = config.endTimestamp > 0 && Date.now() >= config.endTimestamp;
 
   return (
@@ -890,6 +901,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         globalRemainingSeconds,
         isGlobalExpired,
         stopCallsOverlayOpen,
+        isSessionActive,
         sessions,
         currentSessionId,
         activeSessionRecord,

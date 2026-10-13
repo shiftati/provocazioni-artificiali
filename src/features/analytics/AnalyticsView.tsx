@@ -35,7 +35,6 @@ export const AnalyticsView: FC = () => {
   const {
     sessions,
     currentSessionId,
-    activeSessionRecord,
     config,
     updateSessionRecord,
     deleteSessionRecord,
@@ -43,6 +42,7 @@ export const AnalyticsView: FC = () => {
     importSessionsRecords,
     loadSampleSessions,
     session: liveSessionState,
+    isSessionActive,
   } = useAppState();
 
   // Selected session ID to display in detail
@@ -180,8 +180,7 @@ export const AnalyticsView: FC = () => {
     showToast(`Importate ${importedList.length} sessioni con successo!`);
   };
 
-  const isTalkRunning =
-    liveSessionState.startedAt !== null || activeSessionRecord !== null;
+  const isTalkRunning = isSessionActive;
 
   return (
     <div className={styles.container}>

@@ -30,8 +30,6 @@ export const AppShell: FC<AppShellProps> = ({ children }) => {
 
   // Keyboard shortcut to toggle header ('h' or 'H', or Escape to collapse)
   useEffect(() => {
-    if (isHome) return;
-
     const handleKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       if (
@@ -55,7 +53,7 @@ export const AppShell: FC<AppShellProps> = ({ children }) => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isHome, isHeaderExpanded]);
+  }, [isHeaderExpanded]);
 
   const [offlineToastVisible, setOfflineToastVisible] = useState(false);
 
@@ -95,19 +93,17 @@ export const AppShell: FC<AppShellProps> = ({ children }) => {
   return (
     <div className={styles.shell}>
       {/* Collapsible header */}
-      {!isHome && (
-        <div
-          className={`${styles.topBarWrapper} ${
-            isHeaderExpanded ? styles.topBarExpanded : styles.topBarCollapsed
-          }`}
-          aria-hidden={!isHeaderExpanded}
-        >
-          <TopBar onCollapse={() => setIsHeaderExpanded(false)} />
-        </div>
-      )}
+      <div
+        className={`${styles.topBarWrapper} ${
+          isHeaderExpanded ? styles.topBarExpanded : styles.topBarCollapsed
+        }`}
+        aria-hidden={!isHeaderExpanded}
+      >
+        <TopBar onCollapse={() => setIsHeaderExpanded(false)} />
+      </div>
 
       {/* Discrete button in top right to expand header when hidden */}
-      {!isHome && !isHeaderExpanded && (
+      {!isHeaderExpanded && (
         <button
           type="button"
           className={styles.expandHeaderButton}
@@ -121,7 +117,7 @@ export const AppShell: FC<AppShellProps> = ({ children }) => {
 
       <main
         className={`${styles.mainContent} ${
-          isHome || !isHeaderExpanded ? styles.mainContentFull : styles.mainContentWithHeader
+          !isHeaderExpanded ? styles.mainContentFull : styles.mainContentWithHeader
         }`}
       >
         {children}
