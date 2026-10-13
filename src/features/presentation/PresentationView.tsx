@@ -17,7 +17,6 @@ export const PresentationView: FC = () => {
   const currentIndex = Math.min(Math.max(0, session.currentSlideIndex), totalSlides - 1);
   const introEndSlideIndex = (config.introEndSlide ? config.introEndSlide - 1 : 10);
   const isIntroEndSlide = currentIndex === introEndSlideIndex;
-  const isFirstSlideAfterGame = currentIndex === introEndSlideIndex + 1;
   const isLastSlide = currentIndex === totalSlides - 1;
 
   // Finalize session and navigate to analytics
@@ -57,16 +56,10 @@ export const PresentationView: FC = () => {
   }, [isIntroEndSlide, isLastSlide, handleEndSession, currentIndex, totalSlides, setSlideIndex, setMode, navigate]);
 
   const handlePrev = useCallback(() => {
-    if (isFirstSlideAfterGame) {
-      setMode("game");
-      navigate("/game");
-      return;
-    }
-
     if (currentIndex > 0) {
       setSlideIndex(currentIndex - 1);
     }
-  }, [isFirstSlideAfterGame, currentIndex, setMode, navigate, setSlideIndex]);
+  }, [currentIndex, setSlideIndex]);
 
   // Keyboard navigation
   useKeyboardNavigation({
@@ -92,11 +85,7 @@ export const PresentationView: FC = () => {
             size="md"
             onClick={handlePrev}
             disabled={currentIndex === 0}
-            title={
-              isFirstSlideAfterGame
-                ? "Torna al Gioco (Freccia Sinistra / PageUp)"
-                : "Slide precedente (Freccia Sinistra / PageUp)"
-            }
+            title="Slide precedente (Freccia Sinistra / PageUp)"
           >
             <ArrowLeftIcon size={20} />
           </IconButton>
