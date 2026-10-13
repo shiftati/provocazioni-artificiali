@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { useAppState } from "../../state/AppStateContext";
+import styles from "./LogoPlaceholder.module.scss";
 
 export interface LogoPlaceholderProps {
   className?: string;
@@ -31,33 +32,24 @@ export const LogoPlaceholder: FC<LogoPlaceholderProps> = ({
 
   return (
     <div
-      className={className}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "var(--space-3)",
-        userSelect: "none",
-      }}
+      className={`${styles.logoContainer} ${className ?? ""}`.trim()}
     >
       {/* Codemotion Logo */}
       <img
         src={codemotionSrc}
         alt="Codemotion"
         height={codemotionHeight}
+        className={styles.codemotionLogo}
         style={{
           height: `${codemotionHeight}px`,
-          width: "auto",
-          display: "block",
-          objectFit: "contain",
         }}
       />
 
       {/* Divider */}
       <span
+        className={styles.logoDivider}
         style={{
-          width: "1px",
           height: `${dividerHeight}px`,
-          backgroundColor: "var(--color-border)",
         }}
         aria-hidden="true"
       />
@@ -67,11 +59,9 @@ export const LogoPlaceholder: FC<LogoPlaceholderProps> = ({
         src={shiftatiSrc}
         alt="Shiftati di Testa"
         height={shiftatiHeight}
+        className={styles.shiftatiLogo}
         style={{
           height: `${shiftatiHeight}px`,
-          width: "auto",
-          display: "block",
-          objectFit: "contain",
         }}
       />
     </div>

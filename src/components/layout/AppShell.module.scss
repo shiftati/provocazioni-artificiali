@@ -35,10 +35,14 @@
 }
 
 .topBarExpanded {
-  max-height: 68px;
+  max-height: var(--topbar-height, 68px);
   opacity: 1;
   transform: translateY(0);
   visibility: visible;
+
+  @media (max-width: 640px) {
+    max-height: 56px;
+  }
 }
 
 .expandHeaderButton {
@@ -88,7 +92,11 @@
 }
 
 .mainContentWithHeader {
-  height: calc(100% - 68px);
+  height: calc(100% - var(--topbar-height, 68px));
+
+  @media (max-width: 640px) {
+    height: calc(100% - 56px);
+  }
 }
 
 .updateBanner {

@@ -369,14 +369,8 @@ export const AnalyticsView: FC = () => {
           {currentViewSession && <KPIStatsCards session={currentViewSession} />}
 
           {/* View toggle (Charts vs Tabular Details) */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
+          <div className={styles.viewTabsRow}>
+            <div className={styles.viewTabsList}>
               <Button
                 variant={viewTab === "charts" ? "primary" : "ghost"}
                 size="md"
@@ -405,7 +399,7 @@ export const AnalyticsView: FC = () => {
                 variant="ghost"
                 size="md"
                 onClick={() => setConfirmClearAllOpen(true)}
-                style={{ color: "var(--color-danger)", fontSize: "0.85rem" }}
+                className={styles.clearAllBtn}
               >
                 Elimina tutte le sessioni
               </Button>

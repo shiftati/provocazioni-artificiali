@@ -1,0 +1,56 @@
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.codemotionLogo {
+  width: auto;
+  display: block;
+  object-fit: contain;
+  transition: height var(--duration-fast) var(--ease);
+}
+
+.logoDivider {
+  width: 1px;
+  background-color: var(--color-border);
+  display: block;
+}
+
+.shiftatiLogo {
+  width: auto;
+  display: block;
+  object-fit: contain;
+  transition: height var(--duration-fast) var(--ease);
+}
+
+@media (max-width: 768px) {
+  .logoContainer {
+    gap: var(--space-2);
+  }
+
+  .codemotionLogo {
+    height: 20px !important;
+  }
+
+  .logoDivider {
+    height: 18px !important;
+  }
+
+  .shiftatiLogo {
+    height: 24px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .codemotionLogo,
+  .logoDivider {
+    display: none !important;
+  }
+
+  .shiftatiLogo {
+    height: 22px !important;
+  }
+}

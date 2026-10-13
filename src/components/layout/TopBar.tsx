@@ -89,6 +89,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
           isActive={isPresentation}
           onClick={() => handleModeChange("presentation")}
           title="Modalità Slide"
+          className={styles.topBarBtn}
         >
           <SlidesIcon size={20} />
         </IconButton>
@@ -97,6 +98,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
           isActive={isGame}
           onClick={() => handleModeChange("game")}
           title="Modalità Gioco"
+          className={styles.topBarBtn}
         >
           <GameIcon size={20} />
         </IconButton>
@@ -118,22 +120,13 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
           </div>
         )}
 
-        {/* {isInstallable && !isInstalled && (
-          <IconButton
-            aria-label="Installa app sul dispositivo"
-            onClick={() => installApp()}
-            title="Installa App sul dispositivo (PWA)"
-          >
-            <DownloadIcon size={20} />
-          </IconButton>
-        )} */}
-
         <IconButton
           aria-label={
             isFullscreen ? "Esci da schermo intero" : "Attiva schermo intero"
           }
           onClick={() => toggleFullscreen()}
           title={isFullscreen ? "Esci da schermo intero" : "Schermo intero"}
+          className={`${styles.topBarBtn} ${styles.fullscreenBtn}`}
         >
           {isFullscreen ? (
             <ExitFullscreenIcon size={20} />
@@ -150,6 +143,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
           title={
             theme === "dark" ? "Passa a tema chiaro" : "Passa a tema scuro"
           }
+          className={styles.topBarBtn}
         >
           {theme === "dark" ? <SunIcon size={20} /> : <MoonIcon size={20} />}
         </IconButton>
@@ -159,6 +153,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
           isActive={isAnalytics}
           onClick={() => navigate("/analytics")}
           title="Statistiche & Analytics (A)"
+          className={styles.topBarBtn}
         >
           <AnalyticsIcon size={20} />
         </IconButton>
@@ -168,6 +163,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
           isActive={isHome}
           onClick={() => navigate("/")}
           title="Configurazione talk"
+          className={styles.topBarBtn}
         >
           <SettingsIcon size={20} />
         </IconButton>
@@ -177,6 +173,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
             aria-label="Nascondi intestazione"
             onClick={onCollapse}
             title="Nascondi intestazione (H)"
+            className={`${styles.topBarBtn} ${styles.collapseBtn}`}
           >
             <ChevronUpIcon size={20} />
           </IconButton>

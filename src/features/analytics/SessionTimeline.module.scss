@@ -3,6 +3,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
+
+  @media (max-width: 768px) {
+    margin-top: var(--space-4);
+    gap: var(--space-4);
+  }
 }
 
 .timelineHeader {
@@ -15,6 +20,13 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-5) var(--space-6);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--space-4);
+    gap: var(--space-3);
+  }
 }
 
 .timelineHeaderLeft {
@@ -27,6 +39,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  flex-wrap: wrap;
 }
 
 .timelineTitle {
@@ -34,6 +47,10 @@
   font-weight: 700;
   color: var(--color-text);
   margin: 0;
+
+  @media (max-width: 640px) {
+    font-size: 1.15rem;
+  }
 }
 
 .eventsCountBadge {
@@ -52,6 +69,10 @@
   font-size: 0.9rem;
   color: var(--color-text-muted);
   margin: 0;
+
+  @media (max-width: 640px) {
+    font-size: 0.8rem;
+  }
 }
 
 .timelineHeaderActions {
@@ -59,6 +80,25 @@
   align-items: center;
   gap: var(--space-2);
   flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    width: 100%;
+
+    button {
+      flex: 1 1 auto;
+      justify-content: center;
+      font-size: 0.85rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: stretch;
+
+    button {
+      width: 100%;
+    }
+  }
 }
 
 .filterBar {
@@ -71,6 +111,12 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-3) var(--space-4);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
 }
 
 .filterChips {
@@ -78,6 +124,10 @@
   align-items: center;
   gap: var(--space-2);
   flex-wrap: wrap;
+
+  @media (max-width: 640px) {
+    gap: var(--space-1);
+  }
 }
 
 .filterChip {
@@ -106,6 +156,12 @@
     border-color: var(--color-brand-blue);
     box-shadow: 0 2px 8px rgba(30, 102, 250, 0.35);
   }
+
+  @media (max-width: 640px) {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.8rem;
+    gap: var(--space-1);
+  }
 }
 
 .chipCount {
@@ -123,6 +179,11 @@
   align-items: center;
   position: relative;
   min-width: 240px;
+
+  @media (max-width: 768px) {
+    min-width: 0;
+    width: 100%;
+  }
 }
 
 .searchInput {
@@ -179,6 +240,14 @@
     );
     opacity: 0.5;
   }
+
+  @media (max-width: 640px) {
+    padding-left: 28px;
+
+    &::before {
+      left: 11px;
+    }
+  }
 }
 
 .timelineItem {
@@ -196,6 +265,13 @@
     transform: translateX(3px);
     border-color: var(--color-brand-blue);
     background: var(--color-surface-raised);
+  }
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
   }
 }
 
@@ -244,6 +320,14 @@
     border-color: var(--color-brand-orange);
     background: rgba(255, 85, 0, 0.15);
   }
+
+  @media (max-width: 640px) {
+    left: -22px;
+    top: 12px;
+    width: 22px;
+    height: 22px;
+    font-size: 0.72rem;
+  }
 }
 
 .eventTimeCol {
@@ -252,6 +336,13 @@
   gap: var(--space-1);
   min-width: 90px;
   flex-shrink: 0;
+
+  @media (max-width: 640px) {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+  }
 }
 
 .exactTime {
@@ -279,6 +370,10 @@
   flex-direction: column;
   gap: var(--space-1);
   min-width: 0;
+
+  @media (max-width: 640px) {
+    width: 100%;
+  }
 }
 
 .eventDescription {
@@ -287,6 +382,10 @@
   color: var(--color-text);
   margin: 0;
   word-break: break-word;
+
+  @media (max-width: 640px) {
+    font-size: 0.9rem;
+  }
 }
 
 .eventMetaTags {
@@ -314,6 +413,13 @@
   margin-left: auto;
   align-self: center;
   flex-shrink: 0;
+
+  @media (max-width: 640px) {
+    margin-left: 0;
+    align-self: flex-start;
+    margin-top: var(--space-1);
+    width: 100%;
+  }
 }
 
 .playEventBtn {
@@ -334,6 +440,12 @@
     background: var(--color-brand-blue);
     color: #ffffff;
     box-shadow: 0 2px 8px rgba(30, 102, 250, 0.3);
+  }
+
+  @media (max-width: 640px) {
+    width: 100%;
+    justify-content: center;
+    padding: 6px 12px;
   }
 }
 
@@ -364,5 +476,9 @@
     max-width: 500px;
     font-size: 0.9rem;
     line-height: 1.5;
+  }
+
+  @media (max-width: 640px) {
+    padding: var(--space-8) var(--space-4);
   }
 }

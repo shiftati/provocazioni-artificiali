@@ -1,6 +1,6 @@
 .topBar {
   width: 100%;
-  height: 68px;
+  height: var(--topbar-height, 68px);
   background-color: var(--color-surface);
   border-bottom: 2px solid var(--color-frame);
   padding: 0 var(--space-6);
@@ -11,13 +11,16 @@
   user-select: none;
   flex-shrink: 0;
   transition: background-color var(--duration-base) var(--ease),
-              border-color var(--duration-base) var(--ease);
+              border-color var(--duration-base) var(--ease),
+              height var(--duration-base) var(--ease),
+              padding var(--duration-base) var(--ease);
 }
 
 .leftSection {
   display: flex;
   align-items: center;
   gap: var(--space-4);
+  flex-shrink: 0;
 }
 
 .centerSection {
@@ -25,12 +28,14 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-4);
+  flex-shrink: 0;
 }
 
 .rightSection {
   display: flex;
   align-items: center;
   gap: var(--space-4);
+  flex-shrink: 0;
 }
 
 .countdownWrapper {
@@ -42,6 +47,8 @@
   border-radius: var(--radius-sm);
   padding: var(--space-1) var(--space-4);
   color: var(--color-decal-text);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .countdownPhase {
@@ -53,5 +60,86 @@
   color: var(--color-text-muted);
   user-select: none;
   padding-right: var(--space-1);
-  padding-top:1px;
+  padding-top: 1px;
+}
+
+.topBarBtn {
+  flex-shrink: 0;
+}
+
+/* Tablet / Medium screens */
+@media (max-width: 900px) {
+  .topBar {
+    padding: 0 var(--space-4);
+  }
+
+  .leftSection,
+  .centerSection,
+  .rightSection {
+    gap: var(--space-2);
+  }
+
+  .countdownWrapper {
+    padding: var(--space-1) var(--space-2);
+    gap: var(--space-1);
+  }
+
+  .topBarBtn {
+    width: 38px !important;
+    height: 38px !important;
+  }
+}
+
+/* Mobile screens */
+@media (max-width: 640px) {
+  .topBar {
+    height: 56px;
+    padding: 0 var(--space-2);
+  }
+
+  .leftSection,
+  .centerSection,
+  .rightSection {
+    gap: 4px;
+  }
+
+  .countdownPhase {
+    display: none;
+  }
+
+  .countdownWrapper {
+    padding: 2px 6px;
+    gap: 3px;
+  }
+
+  .topBarBtn {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .fullscreenBtn {
+    display: none !important;
+  }
+}
+
+/* Very narrow mobile screens */
+@media (max-width: 420px) {
+  .topBar {
+    padding: 0 4px;
+  }
+
+  .leftSection,
+  .centerSection,
+  .rightSection {
+    gap: 3px;
+  }
+
+  .topBarBtn {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .collapseBtn {
+    display: none !important;
+  }
 }
