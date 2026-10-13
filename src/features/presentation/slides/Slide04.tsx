@@ -4,7 +4,7 @@ import { ImageSlide } from "../layouts/ImageSlide";
 export const Slide04: FC = () => {
   return (
     <ImageSlide
-      imageName="4. Macchinetta caffe.png"
+      imageName="4-macchinetta-caffe.png"
       title="Macchinetta del caffè"
     />
   );

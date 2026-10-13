@@ -35,8 +35,8 @@ const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 
-const KLIPPY_SAW_IMAGE = `${BASE_URL}images/slides/${encodeURI("8. Klippy saw.jpg")}`;
-const STOP_CALLS_BG = `${BASE_URL}images/${encodeURI("Stop alle telefonate.jpg")}`;
+const KLIPPY_SAW_IMAGE = `${BASE_URL}images/slides/8-klippy-saw.jpg`;
+const STOP_CALLS_BG = `${BASE_URL}images/stop-alle-telefonate.jpg`;
 
 export const SessionReplayView: FC = () => {
   const { sessionId } = useParams<{ sessionId?: string }>();
