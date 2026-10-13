@@ -25,23 +25,31 @@ const KLIPPY_SAW_IMAGE = `${BASE_URL}images/slides/8-klippy-saw.jpg`;
 
 export const GameView: FC = () => {
   const navigate = useNavigate();
-  const { game, dispatchGame, setMode } = useAppState();
+  const { game, dispatchGame, setMode, stopCallsOverlayOpen } = useAppState();
   const allProvocationIds = PROVOCATIONS.map((p) => p.id);
 
   // Keyboard navigation:
-  // - onNext in IDLE starts game
-  // - onPrev (Left arrow / PageUp) returns to presentation slides
+  // - onNext:
+  //   - IDLE: inizia il gioco
+  //   - CHALLENGE (30s): accetta provocazione
+  //   - PROVOCATION (scheda predefinita): accetta provocazione
+  //   - DISCUSSION (5m): prossima provocazione
+  // - onPrev (Left arrow / PageUp): returns to presentation slides
   useKeyboardNavigation({
     onNext: () => {
       if (game.step === "IDLE") {
         dispatchGame({ type: "PLAY", allProvocationIds });
+      } else if (game.step === "CHALLENGE" || game.step === "PROVOCATION") {
+        dispatchGame({ type: "ACCEPT_PROVOCATION", allProvocationIds });
+      } else if (game.step === "DISCUSSION") {
+        dispatchGame({ type: "NEXT_PROVOCATION" });
       }
     },
     onPrev: () => {
       setMode("presentation");
       navigate("/presentation");
     },
-    enabled: true,
+    enabled: !stopCallsOverlayOpen,
   });
 
   // Challenge timer (30s)

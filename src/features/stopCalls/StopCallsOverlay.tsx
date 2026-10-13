@@ -1,4 +1,4 @@
-import { useEffect, type FC } from "react";
+import { useEffect, useCallback, type FC } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { ArrowRightIcon } from "../../components/icons";
@@ -16,29 +16,36 @@ export const StopCallsOverlay: FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleProceed = () => {
+  const handleProceed = useCallback(() => {
     closeStopCallsOverlay();
     navigate("/presentation");
-  };
+  }, [closeStopCallsOverlay, navigate]);
+
+  const isExcludedRoute =
+    location.pathname === "/" ||
+    location.pathname === "" ||
+    location.pathname.startsWith("/replay");
 
   useEffect(() => {
-    if (!stopCallsOverlayOpen) return;
+    if (!stopCallsOverlayOpen || !isSessionActive || isExcludedRoute) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Enter" || event.key === " " || event.key === "ArrowRight") {
+      if (
+        event.key === "ArrowRight" ||
+        event.key === "PageDown" ||
+        event.key === "Enter" ||
+        event.key === " "
+      ) {
         event.preventDefault();
+        event.stopPropagation();
         handleProceed();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [stopCallsOverlayOpen]);
+  }, [stopCallsOverlayOpen, isSessionActive, isExcludedRoute, handleProceed]);
 
-  const isExcludedRoute =
-    location.pathname === "/" ||
-    location.pathname === "" ||
-    location.pathname.startsWith("/replay");
   if (!stopCallsOverlayOpen || !isSessionActive || isExcludedRoute) return null;
 
   return (
