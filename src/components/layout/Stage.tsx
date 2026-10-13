@@ -1,5 +1,6 @@
 import type { FC, ReactNode } from "react";
 import { useStageScale } from "../../hooks/useStageScale";
+import { StopCallsOverlay } from "../../features/stopCalls/StopCallsOverlay";
 import styles from "./Stage.module.scss";
 
 export interface StageProps {
@@ -25,6 +26,7 @@ export const Stage: FC<StageProps> = ({ children, className = "" }) => {
         }}
       >
         {children}
+        <StopCallsOverlay />
       </div>
     </div>
   );

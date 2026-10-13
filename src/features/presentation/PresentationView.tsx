@@ -78,42 +78,44 @@ export const PresentationView: FC = () => {
       </Stage>
 
       {/* Discrete bottom navigation controls */}
-      <nav className={styles.navControls} aria-label="Controlli slide">
-        <IconButton
-          aria-label="Slide precedente"
-          size="md"
-          onClick={handlePrev}
-          disabled={currentIndex === 0}
-          title="Slide precedente (Freccia Sinistra / PageUp)"
-        >
-          <ArrowLeftIcon size={20} />
-        </IconButton>
-
-        <span className={styles.slideCounter} aria-live="polite">
-          {currentIndex + 1} / {totalSlides}
-        </span>
-
-        {isLastSlide ? (
+      {!stopCallsOverlayOpen && (
+        <nav className={styles.navControls} aria-label="Controlli slide">
           <IconButton
-            aria-label="Concludi talk e sessione"
+            aria-label="Slide precedente"
             size="md"
-            onClick={handleEndSession}
-            title="Concludi sessione talk"
-            style={{ color: "var(--color-mint)" }}
+            onClick={handlePrev}
+            disabled={currentIndex === 0}
+            title="Slide precedente (Freccia Sinistra / PageUp)"
           >
-            <FinishIcon size={22} />
+            <ArrowLeftIcon size={20} />
           </IconButton>
-        ) : (
-          <IconButton
-            aria-label="Slide successiva"
-            size="md"
-            onClick={handleOnScreenNext}
-            title="Slide successiva (Pulsante a video avanza alla slide successiva)"
-          >
-            <ArrowRightIcon size={20} />
-          </IconButton>
-        )}
-      </nav>
+
+          <span className={styles.slideCounter} aria-live="polite">
+            {currentIndex + 1} / {totalSlides}
+          </span>
+
+          {isLastSlide ? (
+            <IconButton
+              aria-label="Concludi talk e sessione"
+              size="md"
+              onClick={handleEndSession}
+              title="Concludi sessione talk"
+              style={{ color: "var(--color-mint)" }}
+            >
+              <FinishIcon size={22} />
+            </IconButton>
+          ) : (
+            <IconButton
+              aria-label="Slide successiva"
+              size="md"
+              onClick={handleOnScreenNext}
+              title="Slide successiva (Pulsante a video avanza alla slide successiva)"
+            >
+              <ArrowRightIcon size={20} />
+            </IconButton>
+          )}
+        </nav>
+      )}
     </div>
   );
 };

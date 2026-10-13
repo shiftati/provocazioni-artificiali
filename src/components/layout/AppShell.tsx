@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, type FC, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { TopBar } from "./TopBar";
-import { StopCallsOverlay } from "../../features/stopCalls/StopCallsOverlay";
 import { useWakeLock } from "../../hooks/useWakeLock";
 import { appStorage } from "../../state/storage";
 import { useAppState } from "../../state/AppStateContext";
@@ -17,7 +16,6 @@ export interface AppShellProps {
 
 export const AppShell: FC<AppShellProps> = ({ children }) => {
   const location = useLocation();
-  const isHome = location.pathname === "/" || location.pathname === "";
   const { isSessionActive, logSessionEvent, session, game } = useAppState();
   const [swUpdateAvailable, setSwUpdateAvailable] = useState<boolean>(false);
   const [isHeaderExpanded, setIsHeaderExpanded] = useState<boolean>(
@@ -174,9 +172,6 @@ export const AppShell: FC<AppShellProps> = ({ children }) => {
       >
         {children}
       </main>
-
-      {/* Global "Stop alle telefonate" overlay triggers during presentation/game */}
-      {!isHome && <StopCallsOverlay />}
 
       {/* Offline PWA update banner */}
       {swUpdateAvailable && (

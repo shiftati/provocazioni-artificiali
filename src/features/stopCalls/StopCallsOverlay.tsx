@@ -35,8 +35,11 @@ export const StopCallsOverlay: FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [stopCallsOverlayOpen]);
 
-  const isConfigRoute = location.pathname === "/" || location.pathname === "";
-  if (!stopCallsOverlayOpen || !isSessionActive || isConfigRoute) return null;
+  const isExcludedRoute =
+    location.pathname === "/" ||
+    location.pathname === "" ||
+    location.pathname.startsWith("/replay");
+  if (!stopCallsOverlayOpen || !isSessionActive || isExcludedRoute) return null;
 
   return (
     <div
