@@ -592,21 +592,45 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       };
     });
 
-    // 4. Mark live session as ended
-    setSessionState((prev) => {
-      const updated: AppSessionState = {
-        ...prev,
-        endedAt: now,
-        stopCallsShown: true,
-      };
-      appStorage.saveSession(updated);
-      return updated;
-    });
+    // 4. Mark live session as ended & reset slide and game
+    const updated: AppSessionState = {
+      ...DEFAULT_SESSION,
+      startedAt: sessionRef.current.startedAt,
+      endedAt: now,
+      currentSlideIndex: 0,
+      mode: "presentation",
+      stopCallsShown: false,
+    };
+    sessionRef.current = updated;
+    setSessionState(updated);
+    appStorage.saveSession(updated);
 
-    // 5. Clear active session ID
+    // Reset game state to clean initial state
+    const freshGame: GameState = {
+      ...DEFAULT_GAME_STATE,
+    };
+    gameRef.current = freshGame;
+    setGameState(freshGame);
+    appStorage.saveGame(freshGame);
+
+    // Reset live stats to clean initial state
+    const freshStats: AppStats = {
+      ...DEFAULT_STATS,
+    };
+    setStatsState(freshStats);
+    appStorage.saveStats(freshStats);
+
+    // Reset overlay
+    setStopCallsOverlayOpen(false);
+
+    // 5. Clear active session ID & tracking refs
     setCurrentSessionIdState(null);
     appStorage.saveCurrentSessionId(null);
     currentSessionIdRef.current = null;
+
+    currentSlideIndexRef.current = 0;
+    currentModeRef.current = "presentation";
+    slideStartTimeRef.current = now;
   }, [updateActiveSession, finalizeActiveDiscussion, logSessionEvent]);
 
   const setSlideIndex = useCallback(
@@ -1027,6 +1051,18 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     setCurrentSessionIdState(null);
     appStorage.saveCurrentSessionId(null);
     currentSessionIdRef.current = null;
+
+    // Reset tracking refs
+    currentSlideIndexRef.current = 0;
+    currentModeRef.current = "presentation";
+    slideStartTimeRef.current = now;
+    provocationDecisionStartTimeRef.current = null;
+    lastAcceptedProvocationIdRef.current = null;
+    lastAcceptanceTimeRef.current = 0;
+    discussionStartTimeRef.current = null;
+    discussionAccumulatedSecondsRef.current = 0;
+    isDiscussionPausedRef.current = false;
+    currentDiscussionProvStatIdRef.current = null;
   }, [theme, updateActiveSession]);
 
   // Session management handlers
