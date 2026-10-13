@@ -6,12 +6,14 @@ export type IconButtonSize = "sm" | "md" | "lg" | "xl";
 export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   "aria-label": string;
   size?: IconButtonSize;
+  isActive?: boolean;
   children: ReactNode;
 }
 
 export const IconButton: FC<IconButtonProps> = ({
   size = "md",
   className = "",
+  isActive,
   children,
   ...props
 }) => {
@@ -24,10 +26,13 @@ export const IconButton: FC<IconButtonProps> = ({
       ? styles.sizeXl
       : styles.sizeMd;
 
+  const activeClass = isActive ? styles.active : "";
+
   return (
     <button
       type="button"
-      className={`${styles.iconButton} ${sizeClass} ${className}`}
+      aria-pressed={isActive}
+      className={`${styles.iconButton} ${sizeClass} ${activeClass} ${className}`.trim()}
       {...props}
     >
       {children}

@@ -18,6 +18,14 @@
     transform: translateY(-1px);
   }
 
+  &.active,
+  &[aria-pressed="true"] {
+    background-color: var(--color-surface-active);
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
+  }
+
   &:active:not(:disabled) {
     transform: translateY(1px);
   }

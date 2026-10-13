@@ -21,3 +21,5 @@ export * from "./TrashIcon";
 export * from "./EditIcon";
 export * from "./CopyIcon";
 export * from "./FinishIcon";
+export * from "./SlidesIcon";
+export * from "./GameIcon";

@@ -1,7 +1,6 @@
 import type { FC } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { LogoPlaceholder } from "./LogoPlaceholder";
-import { SegmentedControl } from "../ui/SegmentedControl";
 import { CountdownDisplay } from "../ui/CountdownDisplay";
 import { IconButton } from "../ui/IconButton";
 import {
@@ -12,6 +11,8 @@ import {
   ChevronUpIcon,
   AnalyticsIcon,
   DownloadIcon,
+  SlidesIcon,
+  GameIcon,
 } from "../icons";
 import { useAppState } from "../../state/AppStateContext";
 import { useFullscreen } from "../../hooks/useFullscreen";
@@ -30,7 +31,10 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   const { isInstallable, isInstalled, installApp } = usePwaInstall();
 
-  const currentMode = location.pathname.includes("/game") ? "game" : "presentation";
+  const isPresentation = location.pathname === "/presentation";
+  const isGame = location.pathname === "/game";
+  const isAnalytics = location.pathname === "/analytics";
+  const isHome = location.pathname === "/";
 
   const handleModeChange = (mode: "presentation" | "game") => {
     setMode(mode);
@@ -66,15 +70,22 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
       </div>
 
       <div className={styles.centerSection}>
-        <SegmentedControl
-          options={[
-            { value: "presentation", label: "Slide" },
-            { value: "game", label: "Gioco" },
-          ]}
-          value={currentMode}
-          onChange={handleModeChange}
-          ariaLabel="Passa tra modalità Slide e Gioco"
-        />
+        <IconButton
+          aria-label="Modalità Slide"
+          isActive={isPresentation}
+          onClick={() => handleModeChange("presentation")}
+          title="Modalità Slide"
+        >
+          <SlidesIcon size={20} />
+        </IconButton>
+        <IconButton
+          aria-label="Modalità Gioco"
+          isActive={isGame}
+          onClick={() => handleModeChange("game")}
+          title="Modalità Gioco"
+        >
+          <GameIcon size={20} />
+        </IconButton>
       </div>
 
       <div className={styles.rightSection}>
@@ -103,6 +114,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
 
         <IconButton
           aria-label="Statistiche e Analytics talk"
+          isActive={isAnalytics}
           onClick={() => navigate("/analytics")}
           title="Statistiche & Analytics (A)"
         >
@@ -121,6 +133,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
 
         <IconButton
           aria-label="Impostazioni talk"
+          isActive={isHome}
           onClick={() => navigate("/")}
           title="Configurazione talk"
         >
