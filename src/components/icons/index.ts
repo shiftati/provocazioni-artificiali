@@ -23,3 +23,5 @@ export * from "./CopyIcon";
 export * from "./FinishIcon";
 export * from "./SlidesIcon";
 export * from "./GameIcon";
+export * from "./SunIcon";
+export * from "./MoonIcon";

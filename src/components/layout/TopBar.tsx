@@ -13,6 +13,8 @@ import {
   DownloadIcon,
   SlidesIcon,
   GameIcon,
+  SunIcon,
+  MoonIcon,
 } from "../icons";
 import { useAppState } from "../../state/AppStateContext";
 import { useFullscreen } from "../../hooks/useFullscreen";
@@ -27,7 +29,7 @@ export interface TopBarProps {
 export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { globalRemainingSeconds, session, config, setMode, isSessionActive } = useAppState();
+  const { globalRemainingSeconds, session, config, setMode, isSessionActive, theme, setTheme } = useAppState();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   const { isInstallable, isInstalled, installApp } = usePwaInstall();
 
@@ -130,6 +132,14 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
             <DownloadIcon size={20} />
           </IconButton>
         )}
+
+        <IconButton
+          aria-label={theme === "dark" ? "Passa a tema chiaro" : "Passa a tema scuro"}
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          title={theme === "dark" ? "Passa a tema chiaro" : "Passa a tema scuro"}
+        >
+          {theme === "dark" ? <SunIcon size={20} /> : <MoonIcon size={20} />}
+        </IconButton>
 
         <IconButton
           aria-label="Impostazioni talk"

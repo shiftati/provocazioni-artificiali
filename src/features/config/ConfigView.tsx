@@ -1,4 +1,4 @@
-import { useState, useMemo, type FC } from "react";
+import { useState, useMemo, useEffect, type FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppState } from "../../state/AppStateContext";
 import { useFullscreen } from "../../hooks/useFullscreen";
@@ -53,6 +53,10 @@ export const ConfigView: FC = () => {
   const [selectedTheme, setSelectedTheme] = useState<AppTheme>(
     () => config.theme || theme || "dark",
   );
+
+  useEffect(() => {
+    setSelectedTheme(theme);
+  }, [theme]);
 
   // Initialize input with stored config endTime or a default calculated time
   const [timeValue, setTimeValue] = useState<string>(() => {
