@@ -28,8 +28,7 @@ export const Slide01: FC = () => {
       aria-label="Slide 1 - Provocazioni Artificiali"
     >
       {/* Decorative lens flare glows matching reference art */}
-      <div className={styles.flareRight} aria-hidden="true" />
-      <div className={styles.flareLeft} aria-hidden="true" />
+      <div className={styles.titleFlash} aria-hidden="true" />
 
       {/* Replay button for rehearsing */}
       <button
@@ -46,31 +45,28 @@ export const Slide01: FC = () => {
       <header className={styles.headerGroup}>
         {/* 1. Titolo */}
         <h1 className={styles.title}>
-          <span className={styles.titleLine}>Provocazioni</span>
-          <span className={styles.titleLine}>Artificiali</span>
+          <span className={`${styles.titleLine} ${styles.titleLine1}`}>
+            Provocazioni
+          </span>
+          <span className={`${styles.titleLine} ${styles.titleLine2}`}>
+            Artificiali
+          </span>
         </h1>
 
         {/* 2. Sottotitolo */}
         <p className={styles.subtitle}>
-          ...un talk così “shiftato” che ti verrà<br />
+          ...un talk così “shiftato” che ti verrà
+          <br />
           la voglia di rubarci il microfono!
         </p>
       </header>
 
       {/* 3. Le due persone */}
       {/* In basso a sinistra: Stefano (intro-ste.png) */}
-      <img
-        src={steImg}
-        alt="Stefano Bruno"
-        className={styles.speakerLeft}
-      />
+      <img src={steImg} alt="Stefano Bruno" className={styles.speakerLeft} />
 
       {/* In basso a destra: Daniel (intro-daniel.png) */}
-      <img
-        src={danielImg}
-        alt="Daniel Zotti"
-        className={styles.speakerRight}
-      />
+      <img src={danielImg} alt="Daniel Zotti" className={styles.speakerRight} />
 
       {/* 4. Graffetta (Klippy): al centro dal basso */}
       <div className={styles.klippyWrapper}>

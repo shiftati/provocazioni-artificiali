@@ -12,43 +12,35 @@
   user-select: none;
 }
 
-/* Sparkle / Lens Flare highlights */
-.flareRight {
+/* Cinematic Title Energy Flash on Entrance */
+.titleFlash {
   position: absolute;
-  top: 190px;
-  right: 480px;
-  width: 260px;
-  height: 260px;
+  top: 90px;
+  left: 50%;
+  transform: translate(-50%, 0) scale(0.3);
+  width: 900px;
+  height: 420px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(160, 220, 255, 0.7) 0%, rgba(30, 120, 255, 0.3) 40%, rgba(30, 100, 250, 0) 70%);
-  filter: blur(8px);
+  background: radial-gradient(ellipse at center, rgba(94, 242, 184, 0.55) 0%, rgba(30, 102, 250, 0.4) 40%, rgba(0, 0, 0, 0) 75%);
+  filter: blur(28px);
   pointer-events: none;
-  z-index: 2;
-  animation: flarePulse 4s ease-in-out infinite alternate;
+  z-index: 3;
+  opacity: 0;
+  animation: titleFlashWave 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.55s forwards;
 }
 
-.flareLeft {
-  position: absolute;
-  top: 600px;
-  left: 380px;
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(140, 210, 255, 0.45) 0%, rgba(30, 100, 255, 0.15) 45%, rgba(0, 0, 0, 0) 70%);
-  filter: blur(10px);
-  pointer-events: none;
-  z-index: 2;
-  animation: flarePulse 5s ease-in-out infinite alternate-reverse;
-}
-
-@keyframes flarePulse {
+@keyframes titleFlashWave {
   0% {
-    opacity: 0.55;
-    transform: scale(0.92);
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.3);
+  }
+  30% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1.15);
   }
   100% {
-    opacity: 0.95;
-    transform: scale(1.08);
+    opacity: 0.25;
+    transform: translate(-50%, 0) scale(1.4);
   }
 }
 
@@ -65,9 +57,10 @@
   text-align: center;
   z-index: 5;
   padding: 0 40px;
+  perspective: 1200px;
 }
 
-/* 1. Titolo: "Provocazioni Artificiali" */
+/* 1. Titolo: "Provocazioni Artificiali" con effetto WOW cinematografico */
 .title {
   display: flex;
   flex-direction: column;
@@ -82,31 +75,74 @@
   color: #ffffff;
   letter-spacing: -0.015em;
   text-transform: none;
-  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 35px rgba(20, 100, 240, 0.4));
-
-  /* Entrance animation: enters first */
-  opacity: 0;
-  transform: translateY(-50px) scale(0.94);
-  animation: titleEntrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards;
+  transform-style: preserve-3d;
+  filter: drop-shadow(0 10px 28px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 35px rgba(20, 100, 240, 0.45));
 }
 
 .titleLine {
   display: block;
   white-space: nowrap;
+  transform-origin: center center;
+  backface-visibility: hidden;
 }
 
-@keyframes titleEntrance {
+/* Prima riga: "Provocazioni" - entra dall'alto con impatto 3D e fuoco cinematico */
+.titleLine1 {
+  opacity: 0;
+  transform: translateY(-80px) scale(1.35) rotateX(24deg);
+  filter: blur(14px) brightness(2.2);
+  letter-spacing: 0.08em;
+  animation: titleLine1Entrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards;
+}
+
+@keyframes titleLine1Entrance {
   0% {
     opacity: 0;
-    transform: translateY(-50px) scale(0.94);
+    transform: translateY(-80px) scale(1.35) rotateX(24deg);
+    filter: blur(14px) brightness(2.2);
+    letter-spacing: 0.08em;
   }
   70% {
     opacity: 1;
-    transform: translateY(4px) scale(1.01);
+    transform: translateY(0) scale(0.98) rotateX(0deg);
+    filter: blur(0) brightness(1.2);
+    letter-spacing: -0.015em;
   }
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0) scale(1) rotateX(0deg);
+    filter: blur(0) brightness(1);
+    letter-spacing: -0.015em;
+  }
+}
+
+/* Seconda riga: "Artificiali" - impatto sismico con flash neon subito dopo */
+.titleLine2 {
+  opacity: 0;
+  transform: translateY(70px) scale(1.4) rotateX(-24deg);
+  filter: blur(14px) brightness(2.4);
+  letter-spacing: 0.1em;
+  animation: titleLine2Entrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.55s forwards;
+}
+
+@keyframes titleLine2Entrance {
+  0% {
+    opacity: 0;
+    transform: translateY(70px) scale(1.4) rotateX(-24deg);
+    filter: blur(14px) brightness(2.4);
+    letter-spacing: 0.1em;
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(0) scale(0.97) rotateX(0deg);
+    filter: blur(0) brightness(1.4) drop-shadow(0 0 35px rgba(94, 242, 184, 0.9));
+    letter-spacing: -0.015em;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotateX(0deg);
+    filter: blur(0) brightness(1);
+    letter-spacing: -0.015em;
   }
 }
 
@@ -117,28 +153,55 @@
   font-size: 38px;
   font-weight: 500;
   line-height: 1.38;
-  color: #ffffff;
   max-width: 1100px;
-  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.55), 0 0 20px rgba(0, 0, 0, 0.35);
+  // text-shadow: 0 4px 14px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 0, 0, 0.4);
 
-  /* Entrance animation: enters second */
+  /* Holographic/neon mint sweep text gradient */
+  background: linear-gradient(
+    105deg,
+    #ffffff 0%,
+    #ffffff 35%,
+    #5ef2b8 50%,
+    #ffffff 65%,
+    #ffffff 100%
+  );
+  background-size: 250% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  /* Entrance animation: entra dopo i titoli con reveal e passaggio di luce */
   opacity: 0;
-  transform: translateY(28px);
-  animation: subtitleEntrance 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.95s forwards;
+  transform: translateY(35px) scale(0.94);
+  filter: blur(8px);
+  animation:
+    subtitleEntrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) 1.15s forwards,
+    subtitleShine 2.2s ease-in-out 1.55s forwards;
 }
 
 @keyframes subtitleEntrance {
   0% {
     opacity: 0;
-    transform: translateY(28px);
+    transform: translateY(35px) scale(0.94);
+    filter: blur(8px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+    filter: blur(0);
   }
 }
 
-/* 3. Le due persone */
+@keyframes subtitleShine {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0% 0;
+  }
+}
+
+/* 3. Le due persone: NO BUMP, ancorate rigidamente al fondo */
 /* In basso a sinistra: Stefano (intro-ste.png) */
 .speakerLeft {
   position: absolute;
@@ -151,20 +214,16 @@
   z-index: 10;
   filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.5));
 
-  /* Entrance animation: enters third */
+  /* Entrance animation: scorre su dal basso-sinistra, decelerando fino a bloccarsi a filo senza sobbalzi */
   opacity: 0;
-  transform: translate3d(-140px, 115%, 0);
-  animation: speakerLeftEntrance 0.9s cubic-bezier(0.18, 0.89, 0.32, 1.15) 1.65s forwards;
+  transform: translate3d(-180px, 100%, 0);
+  animation: speakerLeftEntrance 0.95s cubic-bezier(0.16, 1, 0.3, 1) 1.75s forwards;
 }
 
 @keyframes speakerLeftEntrance {
   0% {
     opacity: 0;
-    transform: translate3d(-140px, 115%, 0);
-  }
-  80% {
-    opacity: 1;
-    transform: translate3d(8px, -8px, 0);
+    transform: translate3d(-180px, 100%, 0);
   }
   100% {
     opacity: 1;
@@ -184,20 +243,16 @@
   z-index: 10;
   filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.5));
 
-  /* Entrance animation: enters third alongside/slightly staggered */
+  /* Entrance animation: scorre su dal basso-destra, decelerando fino a bloccarsi a filo senza sobbalzi */
   opacity: 0;
-  transform: translate3d(140px, 115%, 0);
-  animation: speakerRightEntrance 0.9s cubic-bezier(0.18, 0.89, 0.32, 1.15) 1.75s forwards;
+  transform: translate3d(180px, 100%, 0);
+  animation: speakerRightEntrance 0.95s cubic-bezier(0.16, 1, 0.3, 1) 1.85s forwards;
 }
 
 @keyframes speakerRightEntrance {
   0% {
     opacity: 0;
-    transform: translate3d(140px, 115%, 0);
-  }
-  80% {
-    opacity: 1;
-    transform: translate3d(-8px, -8px, 0);
+    transform: translate3d(180px, 100%, 0);
   }
   100% {
     opacity: 1;
@@ -208,7 +263,7 @@
 /* 4. Graffetta (Klippy): al centro che compare dal basso */
 .klippyWrapper {
   position: absolute;
-  bottom: 80px;
+  bottom: 100px;
   left: 50%;
   transform: translate3d(-50%, 120%, 0);
   z-index: 12;
@@ -217,11 +272,11 @@
   flex-direction: column;
   align-items: center;
 
-  /* Entrance animation: enters fourth and then transitions to idle */
+  /* Entrance animation: entra per quarta con bounce pop e poi galleggiamento */
   opacity: 0;
   animation:
-    klippyEntrance 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) 2.5s forwards,
-    klippyIdle 3.6s ease-in-out 3.4s infinite alternate;
+    klippyEntrance 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) 2.55s forwards,
+    klippyIdle 3.6s ease-in-out 3.45s infinite alternate;
 }
 
 .klippyImg {
