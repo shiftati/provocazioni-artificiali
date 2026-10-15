@@ -20,6 +20,9 @@ const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
 export const APP_ASSETS_CATALOG = [
   // 1. All presentation slides (1920x1080 backgrounds)
   "images/slides/1-titolo.jpg",
+  "images/slides/intro-daniel.png",
+  "images/slides/intro-klippy.png",
+  "images/slides/intro-ste.png",
   "images/slides/2-gli-esperti.png",
   "images/slides/3-developer-qualunque.png",
   "images/slides/4-macchinetta-caffe.png",
@@ -58,7 +61,8 @@ export const APP_ASSETS_CATALOG = [
   "logo/codemotion-logo-white.svg",
   "logo/codemotion-logo-black.svg",
 
-  // 5. Local WOFF2 typography
+  // 5. Local typography
+  "fonts/alfa-slab-one.ttf",
   "fonts/ibm-plex-sans-400.woff2",
   "fonts/ibm-plex-sans-600.woff2",
   "fonts/ibm-plex-sans-700.woff2",

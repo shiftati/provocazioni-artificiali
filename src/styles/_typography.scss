@@ -1,4 +1,13 @@
 @layer tokens {
+  /* Alfa Slab One - Display Header */
+  @font-face {
+    font-family: "Alfa Slab One";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../../public/fonts/alfa-slab-one.ttf") format("truetype");
+  }
+
   /* IBM Plex Sans - Display / Headings */
   @font-face {
     font-family: "IBM Plex Sans";

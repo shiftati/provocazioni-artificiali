@@ -1,6 +1,86 @@
-import type { FC } from "react";
-import { ImageSlide } from "../layouts/ImageSlide";
+import { useState, useCallback, type FC } from "react";
+import { useCachedAsset } from "../../../hooks/useCachedAsset";
+import { RefreshIcon } from "../../../components/icons";
+import styles from "./Slide01.module.scss";
+
+const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
 
 export const Slide01: FC = () => {
-  return <ImageSlide imageName="1-titolo.jpg" title="Titolo" />;
+  const [animKey, setAnimKey] = useState<number>(0);
+
+  const bgImg = useCachedAsset(`${BASE_URL}images/slides/1-titolo.jpg`);
+  const steImg = useCachedAsset(`${BASE_URL}images/slides/intro-ste.png`);
+  const danielImg = useCachedAsset(`${BASE_URL}images/slides/intro-daniel.png`);
+  const klippyImg = useCachedAsset(`${BASE_URL}images/slides/intro-klippy.png`);
+
+  const handleReplay = useCallback(() => {
+    setAnimKey((k) => k + 1);
+  }, []);
+
+  return (
+    <div
+      key={animKey}
+      className={styles.slideContainer}
+      style={{ backgroundImage: `url("${bgImg}")` }}
+      role="region"
+      aria-label="Slide 1 - Provocazioni Artificiali"
+    >
+      {/* Decorative lens flare glows matching reference art */}
+      <div className={styles.flareRight} aria-hidden="true" />
+      <div className={styles.flareLeft} aria-hidden="true" />
+
+      {/* Replay button for rehearsing */}
+      <button
+        type="button"
+        className={styles.replayBtn}
+        onClick={handleReplay}
+        title="Riproduci animazione d'ingresso"
+        aria-label="Riproduci animazione d'ingresso"
+      >
+        <RefreshIcon size={16} />
+      </button>
+
+      {/* Header text */}
+      <header className={styles.headerGroup}>
+        {/* 1. Titolo */}
+        <h1 className={styles.title}>
+          <span className={styles.titleLine}>Provocazioni</span>
+          <span className={styles.titleLine}>Artificiali</span>
+        </h1>
+
+        {/* 2. Sottotitolo */}
+        <p className={styles.subtitle}>
+          ...un talk così “shiftato” che ti verrà<br />
+          la voglia di rubarci il microfono!
+        </p>
+      </header>
+
+      {/* 3. Le due persone */}
+      {/* In basso a sinistra: Stefano (intro-ste.png) */}
+      <img
+        src={steImg}
+        alt="Stefano Bruno"
+        className={styles.speakerLeft}
+      />
+
+      {/* In basso a destra: Daniel (intro-daniel.png) */}
+      <img
+        src={danielImg}
+        alt="Daniel Zotti"
+        className={styles.speakerRight}
+      />
+
+      {/* 4. Graffetta (Klippy): al centro dal basso */}
+      <div className={styles.klippyWrapper}>
+        <img
+          src={klippyImg}
+          alt="Klippy la graffetta"
+          className={styles.klippyImg}
+        />
+        <div className={styles.klippyFloorShadow} aria-hidden="true" />
+      </div>
+    </div>
+  );
 };
