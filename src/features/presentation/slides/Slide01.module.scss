@@ -1,0 +1,300 @@
+@use "../../../styles/mixins" as *;
+
+.slideContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #071526;
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  user-select: none;
+}
+
+/* Sparkle / Lens Flare highlights */
+.flareRight {
+  position: absolute;
+  top: 190px;
+  right: 480px;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(160, 220, 255, 0.7) 0%, rgba(30, 120, 255, 0.3) 40%, rgba(30, 100, 250, 0) 70%);
+  filter: blur(8px);
+  pointer-events: none;
+  z-index: 2;
+  animation: flarePulse 4s ease-in-out infinite alternate;
+}
+
+.flareLeft {
+  position: absolute;
+  top: 600px;
+  left: 380px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(140, 210, 255, 0.45) 0%, rgba(30, 100, 255, 0.15) 45%, rgba(0, 0, 0, 0) 70%);
+  filter: blur(10px);
+  pointer-events: none;
+  z-index: 2;
+  animation: flarePulse 5s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes flarePulse {
+  0% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 0.95;
+    transform: scale(1.08);
+  }
+}
+
+/* Header Container */
+.headerGroup {
+  position: absolute;
+  top: 72px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 5;
+  padding: 0 40px;
+}
+
+/* 1. Titolo: "Provocazioni Artificiali" */
+.title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-slab);
+  font-size: 116px;
+  line-height: 1.02;
+  font-weight: 500;
+  color: #ffffff;
+  letter-spacing: -0.015em;
+  text-transform: none;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 35px rgba(20, 100, 240, 0.4));
+
+  /* Entrance animation: enters first */
+  opacity: 0;
+  transform: translateY(-50px) scale(0.94);
+  animation: titleEntrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards;
+}
+
+.titleLine {
+  display: block;
+  white-space: nowrap;
+}
+
+@keyframes titleEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.94);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(4px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 2. Sottotitolo: "...un talk così “shiftato” che ti verrà la voglia di rubarci il microfono!" */
+.subtitle {
+  margin-top: 32px;
+  font-family: var(--font-display);
+  font-size: 38px;
+  font-weight: 500;
+  line-height: 1.38;
+  color: #ffffff;
+  max-width: 1100px;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.55), 0 0 20px rgba(0, 0, 0, 0.35);
+
+  /* Entrance animation: enters second */
+  opacity: 0;
+  transform: translateY(28px);
+  animation: subtitleEntrance 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.95s forwards;
+}
+
+@keyframes subtitleEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 3. Le due persone */
+/* In basso a sinistra: Stefano (intro-ste.png) */
+.speakerLeft {
+  position: absolute;
+  bottom: 0;
+  left: -20px;
+  height: 610px;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 10;
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.5));
+
+  /* Entrance animation: enters third */
+  opacity: 0;
+  transform: translate3d(-140px, 115%, 0);
+  animation: speakerLeftEntrance 0.9s cubic-bezier(0.18, 0.89, 0.32, 1.15) 1.65s forwards;
+}
+
+@keyframes speakerLeftEntrance {
+  0% {
+    opacity: 0;
+    transform: translate3d(-140px, 115%, 0);
+  }
+  80% {
+    opacity: 1;
+    transform: translate3d(8px, -8px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* In basso a destra: Daniel (intro-daniel.png) */
+.speakerRight {
+  position: absolute;
+  bottom: 0;
+  right: -20px;
+  height: 610px;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 10;
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.5));
+
+  /* Entrance animation: enters third alongside/slightly staggered */
+  opacity: 0;
+  transform: translate3d(140px, 115%, 0);
+  animation: speakerRightEntrance 0.9s cubic-bezier(0.18, 0.89, 0.32, 1.15) 1.75s forwards;
+}
+
+@keyframes speakerRightEntrance {
+  0% {
+    opacity: 0;
+    transform: translate3d(140px, 115%, 0);
+  }
+  80% {
+    opacity: 1;
+    transform: translate3d(-8px, -8px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* 4. Graffetta (Klippy): al centro che compare dal basso */
+.klippyWrapper {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translate3d(-50%, 120%, 0);
+  z-index: 12;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  /* Entrance animation: enters fourth and then transitions to idle */
+  opacity: 0;
+  animation:
+    klippyEntrance 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) 2.5s forwards,
+    klippyIdle 3.6s ease-in-out 3.4s infinite alternate;
+}
+
+.klippyImg {
+  height: 415px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.25));
+}
+
+.klippyFloorShadow {
+  width: 190px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0) 70%);
+  margin-top: -12px;
+  filter: blur(4px);
+}
+
+@keyframes klippyEntrance {
+  0% {
+    opacity: 0;
+    transform: translate3d(-50%, 125%, 0) scale(0.85);
+  }
+  75% {
+    opacity: 1;
+    transform: translate3d(-50%, -20px, 0) scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0) scale(1);
+  }
+}
+
+@keyframes klippyIdle {
+  0% {
+    transform: translate3d(-50%, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(-50%, -14px, 0) rotate(1.2deg);
+  }
+  100% {
+    transform: translate3d(-50%, -4px, 0) rotate(-1.2deg);
+  }
+}
+
+/* Discreto pulsante replay per le prove o reload al volo */
+.replayBtn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(7, 21, 38, 0.55);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 30;
+  transition: all 0.2s ease;
+  padding: 0;
+
+  &:hover {
+    background: rgba(255, 85, 0, 0.85);
+    border-color: #ff5500;
+    color: #ffffff;
+    transform: scale(1.1) rotate(45deg);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
