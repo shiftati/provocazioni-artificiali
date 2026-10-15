@@ -322,34 +322,3 @@
   }
 }
 
-/* Discreto pulsante replay per le prove o reload al volo */
-.replayBtn {
-  position: absolute;
-  top: 24px;
-  right: 24px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(7, 21, 38, 0.55);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.65);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 30;
-  transition: all 0.2s ease;
-  padding: 0;
-
-  &:hover {
-    background: rgba(255, 85, 0, 0.85);
-    border-color: #ff5500;
-    color: #ffffff;
-    transform: scale(1.1) rotate(45deg);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-}

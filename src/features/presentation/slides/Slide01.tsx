@@ -1,6 +1,5 @@
-import { useState, useCallback, type FC } from "react";
+import type { FC } from "react";
 import { useCachedAsset } from "../../../hooks/useCachedAsset";
-import { RefreshIcon } from "../../../components/icons";
 import styles from "./Slide01.module.scss";
 
 const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
@@ -8,20 +7,13 @@ const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
   : `${import.meta.env.BASE_URL}/`;
 
 export const Slide01: FC = () => {
-  const [animKey, setAnimKey] = useState<number>(0);
-
   const bgImg = useCachedAsset(`${BASE_URL}images/slides/1-titolo.jpg`);
   const steImg = useCachedAsset(`${BASE_URL}images/slides/intro-ste.png`);
   const danielImg = useCachedAsset(`${BASE_URL}images/slides/intro-daniel.png`);
   const klippyImg = useCachedAsset(`${BASE_URL}images/slides/intro-klippy.png`);
 
-  const handleReplay = useCallback(() => {
-    setAnimKey((k) => k + 1);
-  }, []);
-
   return (
     <div
-      key={animKey}
       className={styles.slideContainer}
       style={{ backgroundImage: `url("${bgImg}")` }}
       role="region"
@@ -29,17 +21,6 @@ export const Slide01: FC = () => {
     >
       {/* Decorative lens flare glows matching reference art */}
       <div className={styles.titleFlash} aria-hidden="true" />
-
-      {/* Replay button for rehearsing */}
-      <button
-        type="button"
-        className={styles.replayBtn}
-        onClick={handleReplay}
-        title="Riproduci animazione d'ingresso"
-        aria-label="Riproduci animazione d'ingresso"
-      >
-        <RefreshIcon size={16} />
-      </button>
 
       {/* Header text */}
       <header className={styles.headerGroup}>

@@ -51,6 +51,8 @@ export interface AppStateContextValue {
   closeStopCallsOverlay: () => void;
   dispatchGame: (action: GameAction) => void;
   resetAll: () => void;
+  slideAnimKey: number;
+  replaySlideAnimation: () => void;
   // Event tracking
   logSessionEvent: (
     type: SessionEventType,
@@ -101,6 +103,11 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [stats, setStatsState] = useState<AppStats>(() => appStorage.getStats());
   const [theme, setThemeState] = useState<AppTheme>(() => appStorage.getTheme());
   const [stopCallsOverlayOpen, setStopCallsOverlayOpen] = useState<boolean>(false);
+  const [slideAnimKey, setSlideAnimKey] = useState<number>(0);
+
+  const replaySlideAnimation = useCallback(() => {
+    setSlideAnimKey((k) => k + 1);
+  }, []);
 
   // Analytics Sessions History
   const [sessions, setSessionsState] = useState<TalkSessionRecord[]>(() => appStorage.getSessions());
@@ -1145,6 +1152,8 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         closeStopCallsOverlay,
         dispatchGame,
         resetAll,
+        slideAnimKey,
+        replaySlideAnimation,
         logSessionEvent,
         updateSessionRecord,
         deleteSessionRecord,

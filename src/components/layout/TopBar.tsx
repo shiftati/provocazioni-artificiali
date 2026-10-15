@@ -11,6 +11,7 @@ import {
   ChevronUpIcon,
   AnalyticsIcon,
   // DownloadIcon,
+  RefreshIcon,
   SlidesIcon,
   GameIcon,
   SunIcon,
@@ -37,6 +38,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
     isSessionActive,
     theme,
     setTheme,
+    replaySlideAnimation,
   } = useAppState();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   // const { isInstallable, isInstalled, installApp } = usePwaInstall();
@@ -84,6 +86,15 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
       </div>
 
       <div className={styles.centerSection}>
+        <IconButton
+          aria-label="Riesegui animazione slide"
+          onClick={replaySlideAnimation}
+          disabled={!isPresentation}
+          title={isPresentation ? "Riesegui animazione slide" : "Disponibile solo in modalità slide"}
+          className={styles.topBarBtn}
+        >
+          <RefreshIcon size={20} />
+        </IconButton>
         <IconButton
           aria-label="Modalità Slide"
           isActive={isPresentation}

@@ -10,7 +10,7 @@ import styles from "./PresentationView.module.scss";
 
 export const PresentationView: FC = () => {
   const navigate = useNavigate();
-  const { session, config, setSlideIndex, setMode, endTalk, stopCallsOverlayOpen } = useAppState();
+  const { session, config, setSlideIndex, setMode, endTalk, stopCallsOverlayOpen, slideAnimKey } = useAppState();
 
   const totalSlides = SLIDES.length;
   // Ensure index is within range
@@ -74,7 +74,7 @@ export const PresentationView: FC = () => {
   return (
     <div className={styles.wrapper}>
       <Stage>
-        <SlideComponent />
+        <SlideComponent key={`${currentIndex}-${slideAnimKey}`} />
       </Stage>
 
       {/* Discrete bottom navigation controls */}
