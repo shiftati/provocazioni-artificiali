@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback, type FC } from "react";
 import { PlayIcon, PauseIcon, StopIcon } from "../../../components/icons";
+import { useCachedAsset } from "../../../hooks/useCachedAsset";
 import styles from "./Slide15.module.scss";
 
 const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
@@ -7,6 +8,12 @@ const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
   : `${import.meta.env.BASE_URL}/`;
 
 export const Slide15: FC = () => {
+  const audioSrc = useCachedAsset(`${BASE_URL}audio/back-to-the-future.mp3`);
+  const danielImg = useCachedAsset(`${BASE_URL}images/daniel.png`);
+  const danielQr = useCachedAsset(`${BASE_URL}images/qr-daniel.svg`);
+  const stefanoImg = useCachedAsset(`${BASE_URL}images/stefano.png`);
+  const stefanoQr = useCachedAsset(`${BASE_URL}images/qr-stefano.svg`);
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
@@ -63,7 +70,7 @@ export const Slide15: FC = () => {
       {/* Background audio element */}
       <audio
         ref={audioRef}
-        src={`${BASE_URL}audio/back-to-the-future.mp3`}
+        src={audioSrc}
         loop
         preload="auto"
         onPlay={() => setIsPlaying(true)}
@@ -82,7 +89,7 @@ export const Slide15: FC = () => {
             <div className={styles.profileHeader}>
               <div className={`${styles.avatarWrapper} ${styles.avatarDaniel}`}>
                 <img
-                  src={`${BASE_URL}images/daniel.png`}
+                  src={danielImg}
                   alt="Daniel Zotti"
                   className={styles.avatarImg}
                 />
@@ -109,7 +116,7 @@ export const Slide15: FC = () => {
                 title="Apri il sito di Daniel Zotti"
               >
                 <img
-                  src={`${BASE_URL}images/qr-daniel.svg`}
+                  src={danielQr}
                   alt="QR Code Daniel Zotti (www.danielzotti.it)"
                   className={styles.qrImg}
                 />
@@ -123,7 +130,7 @@ export const Slide15: FC = () => {
             <div className={styles.profileHeader}>
               <div className={`${styles.avatarWrapper} ${styles.avatarStefano}`}>
                 <img
-                  src={`${BASE_URL}images/stefano.png`}
+                  src={stefanoImg}
                   alt="Stefano Bruno"
                   className={styles.avatarImg}
                 />
@@ -150,7 +157,7 @@ export const Slide15: FC = () => {
                 title="Apri il profilo LinkedIn di Stefano Bruno"
               >
                 <img
-                  src={`${BASE_URL}images/qr-stefano.svg`}
+                  src={stefanoQr}
                   alt="QR Code LinkedIn Stefano Bruno"
                   className={styles.qrImg}
                 />

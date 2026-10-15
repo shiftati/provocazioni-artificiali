@@ -16,7 +16,6 @@ import { SelectInput } from "../../components/ui/SelectInput";
 import { SegmentedControl } from "../../components/ui/SegmentedControl";
 import { Modal } from "../../components/ui/Modal";
 import { Badge } from "../../components/ui/Badge";
-import { LogoPlaceholder } from "../../components/layout/LogoPlaceholder";
 import { SLIDES } from "../presentation/slides.registry";
 import type { AppTheme } from "../../types";
 import {
@@ -30,6 +29,7 @@ import {
   FinishIcon,
 } from "../../components/icons";
 import { usePwaInstall } from "../../hooks/usePwaInstall";
+import { useOfflineCache } from "../../hooks/useOfflineCache";
 import styles from "./ConfigView.module.scss";
 
 export const ConfigView: FC = () => {
@@ -48,6 +48,15 @@ export const ConfigView: FC = () => {
   } = useAppState();
   const { requestFullscreen } = useFullscreen();
   const { isInstallable, isInstalled, installApp } = usePwaInstall();
+  const {
+    total: cacheTotal,
+    completed: cacheCompleted,
+    percent: cachePercent,
+    isComplete: cacheIsComplete,
+    inProgress: cacheInProgress,
+    recache: triggerRecache,
+    isOnline,
+  } = useOfflineCache();
 
   // Initialize selected theme
   const [selectedTheme, setSelectedTheme] = useState<AppTheme>(
@@ -194,7 +203,6 @@ export const ConfigView: FC = () => {
     <div className={styles.container}>
       <div className={styles.contentWrapper}>
         <header className={styles.brandHeader}>
-          <LogoPlaceholder />
           <h1 className={styles.title}>
             Pannello <span className={styles.highlight}>Talk dal Vivo</span>
           </h1>
@@ -222,6 +230,36 @@ export const ConfigView: FC = () => {
               </Button>
             )}
             {isInstalled && <Badge variant="accent">App PWA Installata</Badge>}
+
+            {/* Offline Cache Status and Action */}
+            {cacheInProgress ? (
+              <Badge variant="accent">
+                Download cache offline: {cachePercent}% ({cacheCompleted}/
+                {cacheTotal})
+              </Badge>
+            ) : cacheIsComplete ? (
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={triggerRecache}
+                title="Tutti i file multimediali sono salvati in cache. Clicca per sincronizzare di nuovo."
+                leftIcon={<CheckIcon size={18} />}
+              >
+                100% Offline ({cacheCompleted}/{cacheTotal} in cache)
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={triggerRecache}
+                title="Scarica tutte le immagini e dati in locale per l'offline"
+                leftIcon={<DownloadIcon size={18} />}
+              >
+                Scarica Cache Offline ({cacheCompleted}/{cacheTotal})
+              </Button>
+            )}
+
+            {!isOnline && <Badge variant="danger">Dispositivo Offline</Badge>}
           </div>
         </header>
 

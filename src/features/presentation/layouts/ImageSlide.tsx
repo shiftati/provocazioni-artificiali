@@ -1,4 +1,5 @@
 import type { FC, ReactNode } from "react";
+import { useCachedAsset } from "../../../hooks/useCachedAsset";
 import styles from "./ImageSlide.module.scss";
 
 export interface ImageSlideProps {
@@ -19,12 +20,13 @@ export const ImageSlide: FC<ImageSlideProps> = ({
   className = "",
 }) => {
   const imageUrl = `${BASE_URL}images/slides/${encodeURI(imageName.normalize("NFC"))}`;
+  const effectiveImageUrl = useCachedAsset(imageUrl);
 
   return (
     <div
       className={`${styles.imageSlide} ${className}`}
       style={{
-        backgroundImage: `url("${imageUrl}")`,
+        backgroundImage: `url("${effectiveImageUrl}")`,
       }}
       role="region"
       aria-label={title || imageName}

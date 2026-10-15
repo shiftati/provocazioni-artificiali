@@ -15,6 +15,7 @@ import {
   ShuffleIcon,
   ArrowRightIcon,
 } from "../../components/icons";
+import { useCachedAsset } from "../../hooks/useCachedAsset";
 import styles from "./GameView.module.scss";
 
 const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
@@ -25,6 +26,7 @@ const KLIPPY_SAW_IMAGE = `${BASE_URL}images/slides/8-klippy-saw.jpg`;
 
 export const GameView: FC = () => {
   const navigate = useNavigate();
+  const sawImageUrl = useCachedAsset(KLIPPY_SAW_IMAGE);
   const {
     game,
     dispatchGame,
@@ -116,7 +118,7 @@ export const GameView: FC = () => {
         {game.step === "IDLE" && (
           <div
             className={styles.idleContainer}
-            style={{ backgroundImage: `url("${KLIPPY_SAW_IMAGE}")` }}
+            style={{ backgroundImage: `url("${sawImageUrl}")` }}
             role="region"
             aria-label="Klippy saw - Inizia il gioco"
           >

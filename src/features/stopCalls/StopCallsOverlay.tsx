@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { ArrowRightIcon } from "../../components/icons";
 import { useAppState } from "../../state/AppStateContext";
+import { useCachedAsset } from "../../hooks/useCachedAsset";
 import styles from "./StopCallsOverlay.module.scss";
 
 const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
@@ -13,6 +14,7 @@ const STOP_CALLS_BG = `${BASE_URL}images/stop-alle-telefonate.jpg`;
 
 export const StopCallsOverlay: FC = () => {
   const { session, stopCallsOverlayOpen, closeStopCallsOverlay, isSessionActive } = useAppState();
+  const bgUrl = useCachedAsset(STOP_CALLS_BG);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -64,7 +66,7 @@ export const StopCallsOverlay: FC = () => {
       aria-modal="true"
       aria-labelledby="stop-calls-title"
       className={styles.overlay}
-      style={{ backgroundImage: `url("${STOP_CALLS_BG}")` }}
+      style={{ backgroundImage: `url("${bgUrl}")` }}
     >
       <div className={styles.modalContent}>
         <Button

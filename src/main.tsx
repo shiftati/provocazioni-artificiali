@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
 import { App } from "./App";
 import { appStorage } from "./state/storage";
+import { precacheAllAssets } from "./utils/precacheAllAssets";
 import "./styles/index.scss";
 
 // Apply persisted theme immediately before render
@@ -23,15 +24,27 @@ createRoot(rootElement).render(
 const updateSW = registerSW({
   immediate: true,
   onNeedRefresh() {
+    console.info("[PWA] Nuova versione Service Worker rilevata, attivazione immediata...");
+    updateSW(true);
     window.dispatchEvent(
       new CustomEvent("sw-update-available", { detail: { updateSW } })
     );
   },
   onOfflineReady() {
     window.dispatchEvent(new CustomEvent("sw-offline-ready"));
+    // Re-verify that all media assets are stored locally
+    precacheAllAssets().catch((err) =>
+      console.warn("[PWA] Cache verification error:", err)
+    );
   },
+});
+
+// Eagerly precache all slides, images, audio, and fonts on first load
+precacheAllAssets().catch((err) => {
+  console.warn("[PWA] Eager asset precache error:", err);
 });
 
 // Expose update handler globally for UI triggers
 (window as unknown as { __updateSW?: typeof updateSW }).__updateSW = updateSW;
+
 

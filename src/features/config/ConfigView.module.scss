@@ -56,7 +56,8 @@
   margin-top: var(--space-4);
   display: flex;
   justify-content: center;
-  gap: var(--space-4)
+  gap: var(--space-4);
+  flex-wrap: wrap;
 }
 
 .cardGrid {

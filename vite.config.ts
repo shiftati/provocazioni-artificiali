@@ -15,16 +15,9 @@ export default defineConfig({
       injectRegister: null,
       devOptions: {
         enabled: true,
+        type: "classic",
+        navigateFallback: `${REPO_BASE}index.html`,
       },
-      includeAssets: [
-        "favicon.svg",
-        "favicon.ico",
-        "icons/*.png",
-        "fonts/*.woff2",
-        "images/**/*",
-        "logo/*",
-        "audio/*",
-      ],
       manifest: {
         name: "Shiftati di Testa — Codemotion",
         short_name: "Shiftati",
@@ -63,9 +56,78 @@ export default defineConfig({
         globPatterns: [
           "**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2,webmanifest,mp3,wav,ogg}",
         ],
-        maximumFileSizeToCacheInBytes: 15 * 1024 * 1024,
+        maximumFileSizeToCacheInBytes: 30 * 1024 * 1024,
         cleanupOutdatedCaches: true,
+        inlineWorkboxRuntime: true,
         navigateFallback: `${REPO_BASE}index.html`,
+        navigateFallbackDenylist: [
+          /\.(?:png|jpg|jpeg|svg|gif|webp|ico|woff|woff2|mp3|wav|ogg|css|js|map|json)$/i,
+        ],
+        runtimeCaching: [
+          {
+            urlPattern: ({ request, url }: { request: Request; url: URL }) =>
+              request.destination === "image" ||
+              /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i.test(url.pathname),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "images-cache",
+              expiration: {
+                maxEntries: 120,
+                maxAgeSeconds: 30 * 24 * 60 * 60,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: ({ request, url }: { request: Request; url: URL }) =>
+              request.destination === "audio" ||
+              /\.(?:mp3|wav|ogg)$/i.test(url.pathname),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "audio-cache",
+              rangeRequests: true,
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 30 * 24 * 60 * 60,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: ({ request, url }: { request: Request; url: URL }) =>
+              request.destination === "font" ||
+              /\.(?:woff|woff2|ttf|eot)$/i.test(url.pathname),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "fonts-cache",
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 365 * 24 * 60 * 60,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: ({ request, url }: { request: Request; url: URL }) =>
+              request.destination === "style" ||
+              request.destination === "script" ||
+              request.destination === "worker" ||
+              /\.(?:js|css)$/i.test(url.pathname),
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "static-resources",
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+        ],
       },
     }),
   ],
