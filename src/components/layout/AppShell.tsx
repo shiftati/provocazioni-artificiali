@@ -7,7 +7,9 @@ import { useAppState } from "../../state/AppStateContext";
 import { SLIDES } from "../../features/presentation/slides.registry";
 import { PROVOCATIONS, PROVOCATION_MAP } from "../../features/game/provocations.registry";
 import { Button } from "../ui/Button";
-import { RefreshIcon, ChevronDownIcon } from "../icons";
+import { CountdownDisplay } from "../ui/CountdownDisplay";
+import { RefreshIcon, ChevronDownIcon, ClockIcon } from "../icons";
+import { formatSecondsToMMSS } from "../../utils/time";
 import styles from "./AppShell.module.scss";
 
 export interface AppShellProps {
@@ -16,11 +18,40 @@ export interface AppShellProps {
 
 export const AppShell: FC<AppShellProps> = ({ children }) => {
   const location = useLocation();
-  const { isSessionActive, logSessionEvent, session, game } = useAppState();
+  const {
+    isSessionActive,
+    logSessionEvent,
+    session,
+    game,
+    globalRemainingSeconds,
+    config,
+  } = useAppState();
   const [swUpdateAvailable, setSwUpdateAvailable] = useState<boolean>(false);
   const [isHeaderExpanded, setIsHeaderExpanded] = useState<boolean>(
     () => !appStorage.getHeaderCollapsed()
   );
+
+  const introEndIndex = config.introEndSlide ? config.introEndSlide - 1 : 10;
+  const isPostGameSlides = session.currentSlideIndex > introEndIndex;
+  const isPostStopCalls = session.stopCallsShown || isPostGameSlides;
+  const isTalkEnded = Boolean(session.endedAt);
+  const isNegative = globalRemainingSeconds < 0;
+
+  const countdownTitle = isTalkEnded
+    ? `Talk concluso (${isNegative ? "tempo sforato di " : "tempo residuo "}${formatSecondsToMMSS(globalRemainingSeconds)})`
+    : isPostStopCalls
+      ? isNegative
+        ? `Tempo talk sforato: ${formatSecondsToMMSS(globalRemainingSeconds)}`
+        : "Countdown fine talk"
+      : "Countdown fine gioco";
+
+  const countdownAriaLabel = isTalkEnded
+    ? `Talk concluso, ${isNegative ? "tempo sforato di " : "tempo residuo "}${formatSecondsToMMSS(globalRemainingSeconds)}`
+    : isPostStopCalls
+      ? isNegative
+        ? `Tempo talk sforato: ${formatSecondsToMMSS(globalRemainingSeconds)}`
+        : "Tempo rimanente per la fine del talk"
+      : "Tempo rimanente per la fine del gioco";
 
   // Track route navigation events during an active session
   const prevPathRef = useRef(location.pathname);
@@ -156,12 +187,40 @@ export const AppShell: FC<AppShellProps> = ({ children }) => {
       {!isHeaderExpanded && (
         <button
           type="button"
-          className={styles.expandHeaderButton}
+          className={`${styles.expandHeaderButton} ${
+            isSessionActive ? styles.expandHeaderButtonWithTimer : ""
+          }`}
           onClick={() => setIsHeaderExpanded(true)}
-          aria-label="Espandi intestazione"
-          title="Espandi intestazione (H)"
+          aria-label={
+            isSessionActive
+              ? `Espandi intestazione. ${countdownAriaLabel}`
+              : "Espandi intestazione"
+          }
+          title={
+            isSessionActive
+              ? `Espandi intestazione (H) - ${countdownTitle}`
+              : "Espandi intestazione (H)"
+          }
         >
-          <ChevronDownIcon size={18} />
+          {isSessionActive && (
+            <span className={styles.timerBadge}>
+              <ClockIcon size={16} className={styles.timerIcon} />
+              <span className={styles.timerPhase}>
+                {isPostStopCalls ? "Talk" : "Gioco"}
+              </span>
+              <CountdownDisplay
+                remainingSeconds={globalRemainingSeconds}
+                size="sm"
+                className={styles.timerCountdown}
+                ariaLabel={countdownAriaLabel}
+                pulseOnDanger={!isTalkEnded}
+              />
+              <span className={styles.divider} aria-hidden="true" />
+            </span>
+          )}
+          <span className={styles.chevronIconWrapper}>
+            <ChevronDownIcon size={18} />
+          </span>
         </button>
       )}
 
