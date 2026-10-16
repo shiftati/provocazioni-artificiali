@@ -30,6 +30,7 @@ export const APP_ASSETS_CATALOG = [
   "images/slides/5-daniel-e-ste.jpg",
   "images/slides/6-klippy.png",
   "images/slides/7-ritorno-al-futuro.jpg",
+  "images/slides/klippy-einstein.png",
   "images/slides/8-klippy-saw.jpg",
   "images/slides/9-fight-club.png",
   "images/slides/10-klippy-lotta-tra-ai.jpg",
