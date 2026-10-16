@@ -1,0 +1,151 @@
+@use "../../../styles/mixins" as *;
+
+.slideContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #071526;
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  user-select: none;
+}
+
+/* 1. Stefano (in basso a sinistra) */
+.speakerLeft {
+  position: absolute;
+  bottom: 0;
+  left: 10px;
+  height: 610px;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 10;
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.5));
+  will-change: transform, opacity;
+}
+
+/* Compare immediatamente all'entrata della slide senza attendere il click */
+.speakerLeftEntrance {
+  opacity: 0;
+  transform: translate3d(-180px, 100%, 0);
+  animation: speakerLeftEntrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
+}
+
+/* Se si naviga a ritroso da slide 6+, è già statico e visibile */
+.speakerLeftStatic {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+@keyframes speakerLeftEntrance {
+  0% {
+    opacity: 0;
+    transform: translate3d(-180px, 100%, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* 2. Daniel (in basso a destra) */
+.speakerRight {
+  position: absolute;
+  bottom: 0;
+  right: 10px;
+  height: 610px;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 10;
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.5));
+
+  /* Stato iniziale / scomparsa */
+  opacity: 0;
+  transform: translate3d(180px, 100%, 0);
+  transition:
+    transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.speakerRightVisible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* 3. Klippy (al centro dal basso) */
+.klippyWrapper {
+  position: absolute;
+  bottom: 100px;
+  left: 50%;
+  transform: translate3d(-50%, 125%, 0) scale(0.85);
+  z-index: 12;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  transition:
+    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.5s ease-in;
+  will-change: transform, opacity;
+}
+
+.klippyVisible {
+  opacity: 1;
+  animation:
+    klippyEntrance 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+    klippyIdle 3.6s ease-in-out 0.85s infinite alternate;
+}
+
+.klippyVisibleIdleOnly {
+  opacity: 1;
+  transform: translate3d(-50%, 0, 0) scale(1);
+  animation: klippyIdle 3.6s ease-in-out infinite alternate;
+}
+
+.klippyImg {
+  height: 415px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.25));
+}
+
+.klippyFloorShadow {
+  width: 190px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0) 70%);
+  margin-top: -12px;
+  filter: blur(4px);
+}
+
+@keyframes klippyEntrance {
+  0% {
+    opacity: 0;
+    transform: translate3d(-50%, 125%, 0) scale(0.85);
+  }
+  75% {
+    opacity: 1;
+    transform: translate3d(-50%, -20px, 0) scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0) scale(1);
+  }
+}
+
+@keyframes klippyIdle {
+  0% {
+    transform: translate3d(-50%, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(-50%, -14px, 0) rotate(1.2deg);
+  }
+  100% {
+    transform: translate3d(-50%, -4px, 0) rotate(-1.2deg);
+  }
+}

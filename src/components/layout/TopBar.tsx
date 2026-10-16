@@ -49,6 +49,8 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
     setNavOnSlide,
     setSlideIndex,
     endTalk,
+    stepForward,
+    stepBackward,
   } = useAppState();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   // const { isInstallable, isInstalled, installApp } = usePwaInstall();
@@ -101,6 +103,9 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
       setMode("presentation");
       navigate("/presentation");
     }
+    if (stepBackward()) {
+      return;
+    }
     if (currentIndex > 0) {
       setSlideIndex(currentIndex - 1);
     }
@@ -110,6 +115,9 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
     if (!isPresentation) {
       setMode("presentation");
       navigate("/presentation");
+    }
+    if (stepForward()) {
+      return;
     }
     if (isLastSlide) {
       endTalk();

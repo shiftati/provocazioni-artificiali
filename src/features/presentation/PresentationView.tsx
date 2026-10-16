@@ -10,7 +10,18 @@ import styles from "./PresentationView.module.scss";
 
 export const PresentationView: FC = () => {
   const navigate = useNavigate();
-  const { session, config, setSlideIndex, setMode, endTalk, stopCallsOverlayOpen, slideAnimKey, navOnSlide } = useAppState();
+  const {
+    session,
+    config,
+    setSlideIndex,
+    setMode,
+    endTalk,
+    stopCallsOverlayOpen,
+    slideAnimKey,
+    navOnSlide,
+    stepForward,
+    stepBackward,
+  } = useAppState();
 
   const totalSlides = SLIDES.length;
   // Ensure index is within range
@@ -27,6 +38,10 @@ export const PresentationView: FC = () => {
 
   // On-screen "Avanti" button: on introEndSlide advances to next slide; on last slide finishes session
   const handleOnScreenNext = useCallback(() => {
+    if (stepForward()) {
+      return;
+    }
+
     if (isLastSlide) {
       handleEndSession();
       return;
@@ -35,10 +50,14 @@ export const PresentationView: FC = () => {
     if (currentIndex < totalSlides - 1) {
       setSlideIndex(currentIndex + 1);
     }
-  }, [isLastSlide, handleEndSession, currentIndex, totalSlides, setSlideIndex]);
+  }, [stepForward, isLastSlide, handleEndSession, currentIndex, totalSlides, setSlideIndex]);
 
   // Keyboard "Next" (Right arrow / Space / PageDown): on introEndSlide enters GAME mode; on other slides advances
   const handleKeyboardNext = useCallback(() => {
+    if (stepForward()) {
+      return;
+    }
+
     if (isIntroEndSlide) {
       setMode("game");
       navigate("/game");
@@ -53,13 +72,17 @@ export const PresentationView: FC = () => {
     if (currentIndex < totalSlides - 1) {
       setSlideIndex(currentIndex + 1);
     }
-  }, [isIntroEndSlide, isLastSlide, handleEndSession, currentIndex, totalSlides, setSlideIndex, setMode, navigate]);
+  }, [stepForward, isIntroEndSlide, isLastSlide, handleEndSession, currentIndex, totalSlides, setSlideIndex, setMode, navigate]);
 
   const handlePrev = useCallback(() => {
+    if (stepBackward()) {
+      return;
+    }
+
     if (currentIndex > 0) {
       setSlideIndex(currentIndex - 1);
     }
-  }, [currentIndex, setSlideIndex]);
+  }, [stepBackward, currentIndex, setSlideIndex]);
 
   // Keyboard navigation
   useKeyboardNavigation({

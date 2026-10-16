@@ -28,6 +28,11 @@ import type {
   SessionEventType,
 } from "../types";
 
+export interface SlideStepHandler {
+  onNext: () => boolean;
+  onPrev: () => boolean;
+}
+
 export interface AppStateContextValue {
   config: TalkConfig;
   session: AppSessionState;
@@ -55,6 +60,10 @@ export interface AppStateContextValue {
   resetAll: () => void;
   slideAnimKey: number;
   replaySlideAnimation: () => void;
+  previousSlideIndex: number | null;
+  registerSlideStepHandler: (handler: SlideStepHandler | null) => void;
+  stepForward: () => boolean;
+  stepBackward: () => boolean;
   // Event tracking
   logSessionEvent: (
     type: SessionEventType,
@@ -107,8 +116,29 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [navOnSlide, setNavOnSlideState] = useState<boolean>(() => appStorage.getNavOnSlide());
   const [stopCallsOverlayOpen, setStopCallsOverlayOpen] = useState<boolean>(false);
   const [slideAnimKey, setSlideAnimKey] = useState<number>(0);
+  const [previousSlideIndex, setPreviousSlideIndex] = useState<number | null>(null);
+  const slideStepHandlerRef = useRef<SlideStepHandler | null>(null);
+
+  const registerSlideStepHandler = useCallback((handler: SlideStepHandler | null) => {
+    slideStepHandlerRef.current = handler;
+  }, []);
+
+  const stepForward = useCallback((): boolean => {
+    if (slideStepHandlerRef.current) {
+      return slideStepHandlerRef.current.onNext();
+    }
+    return false;
+  }, []);
+
+  const stepBackward = useCallback((): boolean => {
+    if (slideStepHandlerRef.current) {
+      return slideStepHandlerRef.current.onPrev();
+    }
+    return false;
+  }, []);
 
   const replaySlideAnimation = useCallback(() => {
+    slideStepHandlerRef.current = null;
     setSlideAnimKey((k) => k + 1);
   }, []);
 
@@ -507,6 +537,8 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     // Reset tracking refs
     slideStartTimeRef.current = now;
     currentSlideIndexRef.current = 0;
+    setPreviousSlideIndex(null);
+    slideStepHandlerRef.current = null;
     provocationDecisionStartTimeRef.current = null;
     lastAcceptedProvocationIdRef.current = null;
     lastAcceptanceTimeRef.current = 0;
@@ -655,12 +687,16 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     currentSlideIndexRef.current = 0;
     currentModeRef.current = "presentation";
     slideStartTimeRef.current = now;
+    setPreviousSlideIndex(null);
+    slideStepHandlerRef.current = null;
   }, [updateActiveSession, finalizeActiveDiscussion, logSessionEvent]);
 
   const setSlideIndex = useCallback(
     (index: number) => {
       const now = Date.now();
       const prevIndex = currentSlideIndexRef.current;
+      setPreviousSlideIndex(prevIndex);
+      slideStepHandlerRef.current = null;
       const elapsedSeconds = Math.max(0, (now - slideStartTimeRef.current) / 1000);
 
       slideStartTimeRef.current = now;
@@ -1173,6 +1209,10 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         resetAll,
         slideAnimKey,
         replaySlideAnimation,
+        previousSlideIndex,
+        registerSlideStepHandler,
+        stepForward,
+        stepBackward,
         logSessionEvent,
         updateSessionRecord,
         deleteSessionRecord,

@@ -19,14 +19,14 @@ const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
 
 export const APP_ASSETS_CATALOG = [
   // 1. All presentation slides (1920x1080 backgrounds)
-  "images/slides/1-titolo.jpg",
+  "images/slides/codemotion-blue-title.jpg",
   "images/slides/intro-daniel.png",
   "images/slides/intro-klippy.png",
   "images/slides/intro-ste.png",
-  "images/slides/2-gli-esperti.png",
+  "images/slides/gli-esperti.png",
   "images/slides/codemotion-blue-bg.png",
   "images/slides/metroman.png",
-  "images/slides/4-macchinetta-caffe.jpg",
+  "images/slides/macchinetta-caffe.jpg",
   "images/slides/5-daniel-e-ste.jpg",
   "images/slides/6-klippy.png",
   "images/slides/7-ritorno-al-futuro.jpg",
