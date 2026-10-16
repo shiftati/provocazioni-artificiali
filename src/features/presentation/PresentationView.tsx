@@ -10,7 +10,7 @@ import styles from "./PresentationView.module.scss";
 
 export const PresentationView: FC = () => {
   const navigate = useNavigate();
-  const { session, config, setSlideIndex, setMode, endTalk, stopCallsOverlayOpen, slideAnimKey } = useAppState();
+  const { session, config, setSlideIndex, setMode, endTalk, stopCallsOverlayOpen, slideAnimKey, navOnSlide } = useAppState();
 
   const totalSlides = SLIDES.length;
   // Ensure index is within range
@@ -78,7 +78,7 @@ export const PresentationView: FC = () => {
       </Stage>
 
       {/* Discrete bottom navigation controls */}
-      {!stopCallsOverlayOpen && (
+      {!stopCallsOverlayOpen && navOnSlide && (
         <nav className={styles.navControls} aria-label="Controlli slide">
           <IconButton
             aria-label="Slide precedente"

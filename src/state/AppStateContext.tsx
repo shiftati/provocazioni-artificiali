@@ -34,6 +34,7 @@ export interface AppStateContextValue {
   game: GameState;
   stats: AppStats;
   theme: AppTheme;
+  navOnSlide: boolean;
   globalRemainingSeconds: number;
   isGlobalExpired: boolean;
   stopCallsOverlayOpen: boolean;
@@ -44,6 +45,7 @@ export interface AppStateContextValue {
   activeSessionRecord: TalkSessionRecord | null;
   updateConfig: (cfg: TalkConfig) => void;
   setTheme: (theme: AppTheme) => void;
+  setNavOnSlide: (navOnSlide: boolean) => void;
   startTalk: (configOverrides?: Partial<TalkConfig>) => void;
   endTalk: () => void;
   setSlideIndex: (index: number) => void;
@@ -102,6 +104,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   });
   const [stats, setStatsState] = useState<AppStats>(() => appStorage.getStats());
   const [theme, setThemeState] = useState<AppTheme>(() => appStorage.getTheme());
+  const [navOnSlide, setNavOnSlideState] = useState<boolean>(() => appStorage.getNavOnSlide());
   const [stopCallsOverlayOpen, setStopCallsOverlayOpen] = useState<boolean>(false);
   const [slideAnimKey, setSlideAnimKey] = useState<number>(0);
 
@@ -352,10 +355,24 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     });
   }, []);
 
+  const setNavOnSlide = useCallback((newNavOnSlide: boolean) => {
+    setNavOnSlideState(newNavOnSlide);
+    appStorage.saveNavOnSlide(newNavOnSlide);
+    setConfigState((prev) => {
+      const updated = { ...prev, navOnSlide: newNavOnSlide };
+      appStorage.saveConfig(updated);
+      return updated;
+    });
+  }, []);
+
   const updateConfig = useCallback((newConfig: TalkConfig) => {
     setConfigState(newConfig);
     if (newConfig.theme && newConfig.theme !== theme) {
       setThemeState(newConfig.theme);
+    }
+    if (typeof newConfig.navOnSlide === "boolean" && newConfig.navOnSlide !== navOnSlide) {
+      setNavOnSlideState(newConfig.navOnSlide);
+      appStorage.saveNavOnSlide(newConfig.navOnSlide);
     }
     appStorage.saveConfig(newConfig);
 
@@ -1136,6 +1153,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         game,
         stats,
         theme,
+        navOnSlide,
         globalRemainingSeconds,
         isGlobalExpired,
         stopCallsOverlayOpen,
@@ -1145,6 +1163,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         activeSessionRecord,
         updateConfig,
         setTheme,
+        setNavOnSlide,
         startTalk,
         endTalk,
         setSlideIndex,

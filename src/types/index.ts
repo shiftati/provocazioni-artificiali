@@ -10,6 +10,7 @@ export interface TalkConfig {
   theme?: AppTheme;
   conclusionMinutes?: number; // minuti dedicati alla conclusione
   introEndSlide?: number;     // ultima slide dell'introduzione (1-based, default 11)
+  navOnSlide?: boolean;       // true: sopra la slide (default); false: nell'intestazione
 }
 
 export interface AppSessionState {

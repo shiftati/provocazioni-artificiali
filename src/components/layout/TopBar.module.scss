@@ -67,6 +67,33 @@
   flex-shrink: 0;
 }
 
+.compactNavControls {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background-color: var(--color-decal-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-1);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.compactSlideCounter {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text);
+  padding: 0 var(--space-2);
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+
+.compactNavBtn {
+  width: 32px !important;
+  height: 32px !important;
+}
+
 /* Tablet / Medium screens */
 @media (max-width: 900px) {
   .topBar {
@@ -117,6 +144,16 @@
     height: 34px !important;
   }
 
+  .compactSlideCounter {
+    font-size: 0.75rem;
+    padding: 0 4px;
+  }
+
+  .compactNavBtn {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
   .fullscreenBtn {
     display: none !important;
   }
@@ -137,6 +174,16 @@
   .topBarBtn {
     width: 30px !important;
     height: 30px !important;
+  }
+
+  .compactSlideCounter {
+    font-size: 0.7rem;
+    padding: 0 2px;
+  }
+
+  .compactNavBtn {
+    width: 26px !important;
+    height: 26px !important;
   }
 
   .collapseBtn {

@@ -16,10 +16,15 @@ import {
   GameIcon,
   SunIcon,
   MoonIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  FinishIcon,
+  NavPositionIcon,
 } from "../icons";
 import { useAppState } from "../../state/AppStateContext";
 import { useFullscreen } from "../../hooks/useFullscreen";
 // import { usePwaInstall } from "../../hooks/usePwaInstall";
+import { SLIDES } from "../../features/presentation/slides.registry";
 import { formatSecondsToMMSS } from "../../utils/time";
 import styles from "./TopBar.module.scss";
 
@@ -39,6 +44,10 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
     theme,
     setTheme,
     replaySlideAnimation,
+    navOnSlide,
+    setNavOnSlide,
+    setSlideIndex,
+    endTalk,
   } = useAppState();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   // const { isInstallable, isInstalled, installApp } = usePwaInstall();
@@ -79,6 +88,43 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
         : "Tempo rimanente per la fine del talk"
       : "Tempo rimanente per la fine del gioco";
 
+  const totalSlides = SLIDES.length;
+  const currentIndex = Math.min(
+    Math.max(0, session.currentSlideIndex),
+    totalSlides - 1
+  );
+  const isLastSlide = currentIndex === totalSlides - 1;
+
+  const handleHeaderPrev = () => {
+    if (!isPresentation) {
+      setMode("presentation");
+      navigate("/presentation");
+    }
+    if (currentIndex > 0) {
+      setSlideIndex(currentIndex - 1);
+    }
+  };
+
+  const handleHeaderNext = () => {
+    if (!isPresentation) {
+      setMode("presentation");
+      navigate("/presentation");
+    }
+    if (isLastSlide) {
+      endTalk();
+      navigate("/analytics");
+      return;
+    }
+    if (currentIndex < totalSlides - 1) {
+      setSlideIndex(currentIndex + 1);
+    }
+  };
+
+  const handleHeaderEndSession = () => {
+    endTalk();
+    navigate("/analytics");
+  };
+
   return (
     <header className={styles.topBar}>
       <div className={styles.leftSection}>
@@ -86,6 +132,52 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
       </div>
 
       <div className={styles.centerSection}>
+        {!navOnSlide && (
+          <div
+            className={styles.compactNavControls}
+            role="group"
+            aria-label="Controlli slide nell'intestazione"
+          >
+            <IconButton
+              aria-label="Slide precedente"
+              size="sm"
+              onClick={handleHeaderPrev}
+              disabled={currentIndex === 0}
+              title="Slide precedente"
+              className={styles.compactNavBtn}
+            >
+              <ArrowLeftIcon size={16} />
+            </IconButton>
+
+            <span className={styles.compactSlideCounter} aria-live="polite">
+              {currentIndex + 1} / {totalSlides}
+            </span>
+
+            {isLastSlide ? (
+              <IconButton
+                aria-label="Concludi talk e sessione"
+                size="sm"
+                onClick={handleHeaderEndSession}
+                title="Concludi sessione talk"
+                className={styles.compactNavBtn}
+                style={{ color: "var(--color-mint)" }}
+              >
+                <FinishIcon size={18} />
+              </IconButton>
+            ) : (
+              <IconButton
+                aria-label="Slide successiva"
+                size="sm"
+                onClick={handleHeaderNext}
+                disabled={currentIndex === totalSlides - 1}
+                title="Slide successiva"
+                className={styles.compactNavBtn}
+              >
+                <ArrowRightIcon size={16} />
+              </IconButton>
+            )}
+          </div>
+        )}
         <IconButton
           aria-label="Riesegui animazione slide"
           onClick={replaySlideAnimation}
@@ -130,6 +222,24 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
             />
           </div>
         )}
+
+        <IconButton
+          aria-label={
+            navOnSlide
+              ? "Sposta frecce nell'intestazione"
+              : "Sposta frecce sopra la slide"
+          }
+          isActive={navOnSlide}
+          onClick={() => setNavOnSlide(!navOnSlide)}
+          title={
+            navOnSlide
+              ? "Frecce sopra la slide: attive (clicca per spostarle nell'intestazione)"
+              : "Frecce nell'intestazione (clicca per mostrarle sopra la slide)"
+          }
+          className={styles.topBarBtn}
+        >
+          <NavPositionIcon size={20} />
+        </IconButton>
 
         <IconButton
           aria-label={

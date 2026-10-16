@@ -12,6 +12,7 @@ const STORAGE_KEYS = {
   GAME: "codemotion-app:game",
   STATS: "codemotion-app:stats",
   HEADER_COLLAPSED: "codemotion-app:header-collapsed",
+  NAV_ON_SLIDE: "codemotion-app:nav-on-slide",
   SESSIONS: "codemotion-app:sessions-history",
   CURRENT_SESSION_ID: "codemotion-app:current-session-id",
 } as const;
@@ -25,6 +26,7 @@ export const DEFAULT_CONFIG: TalkConfig = {
   theme: "dark",
   conclusionMinutes: 5,
   introEndSlide: 11,
+  navOnSlide: true,
 };
 
 export const DEFAULT_SESSION: AppSessionState = {
@@ -94,6 +96,8 @@ export const appStorage = {
       ...cfg,
       conclusionMinutes:
         typeof cfg.conclusionMinutes === "number" ? cfg.conclusionMinutes : 5,
+      navOnSlide:
+        typeof cfg.navOnSlide === "boolean" ? cfg.navOnSlide : true,
     };
   },
   saveConfig(config: TalkConfig): void {
@@ -106,6 +110,19 @@ export const appStorage = {
   saveTheme(theme: "dark" | "light"): void {
     const cfg = this.getConfig();
     this.saveConfig({ ...cfg, theme });
+  },
+  getNavOnSlide(): boolean {
+    const raw = readItem<boolean | null>(STORAGE_KEYS.NAV_ON_SLIDE, null);
+    if (raw !== null) {
+      return raw;
+    }
+    const cfg = this.getConfig();
+    return typeof cfg.navOnSlide === "boolean" ? cfg.navOnSlide : true;
+  },
+  saveNavOnSlide(navOnSlide: boolean): void {
+    writeItem(STORAGE_KEYS.NAV_ON_SLIDE, navOnSlide);
+    const cfg = this.getConfig();
+    this.saveConfig({ ...cfg, navOnSlide });
   },
   hasConfig(): boolean {
     const cfg = this.getConfig();

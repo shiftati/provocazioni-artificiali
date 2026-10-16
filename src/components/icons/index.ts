@@ -28,3 +28,4 @@ export * from "./MoonIcon";
 export * from "./StepBackIcon";
 export * from "./StepForwardIcon";
 export * from "./StopIcon";
+export * from "./NavPositionIcon";

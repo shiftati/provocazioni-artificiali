@@ -40,6 +40,8 @@ export const ConfigView: FC = () => {
     game,
     theme,
     setTheme,
+    navOnSlide,
+    setNavOnSlide,
     updateConfig,
     startTalk,
     endTalk,
@@ -136,6 +138,7 @@ export const ConfigView: FC = () => {
       theme: selectedTheme,
       conclusionMinutes: Math.max(0, conclusionMinutes || 0),
       introEndSlide,
+      navOnSlide,
     });
 
     setHasSavedToast(true);
@@ -152,6 +155,7 @@ export const ConfigView: FC = () => {
       theme: selectedTheme,
       conclusionMinutes: Math.max(0, conclusionMinutes || 0),
       introEndSlide,
+      navOnSlide,
     };
 
     // Save configuration
