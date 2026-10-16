@@ -19,7 +19,8 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   FinishIcon,
-  NavPositionIcon,
+  NavOnSlideIcon,
+  NavInHeaderIcon,
 } from "../icons";
 import { useAppState } from "../../state/AppStateContext";
 import { useFullscreen } from "../../hooks/useFullscreen";
@@ -132,7 +133,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
       </div>
 
       <div className={styles.centerSection}>
-        {!navOnSlide && (
+        {isPresentation && !navOnSlide && (
           <div
             className={styles.compactNavControls}
             role="group"
@@ -178,15 +179,16 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
             )}
           </div>
         )}
-        <IconButton
-          aria-label="Riesegui animazione slide"
-          onClick={replaySlideAnimation}
-          disabled={!isPresentation}
-          title={isPresentation ? "Riesegui animazione slide" : "Disponibile solo in modalità slide"}
-          className={styles.topBarBtn}
-        >
-          <RefreshIcon size={20} />
-        </IconButton>
+        {isPresentation && (
+          <IconButton
+            aria-label="Riesegui animazione slide"
+            onClick={replaySlideAnimation}
+            title="Riesegui animazione slide"
+            className={styles.topBarBtn}
+          >
+            <RefreshIcon size={20} />
+          </IconButton>
+        )}
         <IconButton
           aria-label="Modalità Slide"
           isActive={isPresentation}
@@ -229,16 +231,19 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
               ? "Sposta frecce nell'intestazione"
               : "Sposta frecce sopra la slide"
           }
-          isActive={navOnSlide}
           onClick={() => setNavOnSlide(!navOnSlide)}
           title={
             navOnSlide
-              ? "Frecce sopra la slide: attive (clicca per spostarle nell'intestazione)"
-              : "Frecce nell'intestazione (clicca per mostrarle sopra la slide)"
+              ? "Frecce sopra la slide (clicca per spostarle nell'intestazione)"
+              : "Frecce nell'intestazione (clicca per spostarle sopra la slide)"
           }
           className={styles.topBarBtn}
         >
-          <NavPositionIcon size={20} />
+          {navOnSlide ? (
+            <NavOnSlideIcon size={20} />
+          ) : (
+            <NavInHeaderIcon size={20} />
+          )}
         </IconButton>
 
         <IconButton

@@ -29,3 +29,5 @@ export * from "./StepBackIcon";
 export * from "./StepForwardIcon";
 export * from "./StopIcon";
 export * from "./NavPositionIcon";
+export * from "./NavOnSlideIcon";
+export * from "./NavInHeaderIcon";

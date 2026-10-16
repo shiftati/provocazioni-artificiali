@@ -378,6 +378,27 @@ export const ConfigView: FC = () => {
               </span>
             </div>
 
+            {/* Nav arrows position selector */}
+            <div className={styles.themeSection}>
+              <label className={styles.themeLabel} id="nav-position-label">
+                Posizione frecce di navigazione
+              </label>
+              <SegmentedControl<"slide" | "header">
+                options={[
+                  { value: "slide", label: "🖥️ Sopra la slide" },
+                  { value: "header", label: "🔝 Nell'intestazione" },
+                ]}
+                value={navOnSlide ? "slide" : "header"}
+                onChange={(val) => setNavOnSlide(val === "slide")}
+                ariaLabel="Seleziona posizione frecce di navigazione"
+              />
+              <span className={styles.themeHint}>
+                {navOnSlide
+                  ? "Frecce visibili sopra la slide: controlli grandi e facili da premere a schermo."
+                  : "Frecce nell'intestazione: massimizza lo spazio della slide con controlli compatti in alto."}
+              </span>
+            </div>
+
             <TimeInput
               label="Orario previsto per la fine del talk"
               value={timeValue}
