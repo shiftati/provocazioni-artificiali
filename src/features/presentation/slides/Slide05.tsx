@@ -11,7 +11,7 @@ export const Slide05: FC = () => {
   const { registerSlideStepHandler, previousSlideIndex } = useAppState();
 
   const bgImg = useCachedAsset(
-    `${BASE_URL}images/slides/codemotion-blue-title.jpg`,
+    `${BASE_URL}images/slides/codemotion-blue-bg.png`,
   );
   const steImg = useCachedAsset(`${BASE_URL}images/slides/intro-ste.png`);
   const danielImg = useCachedAsset(`${BASE_URL}images/slides/intro-daniel.png`);

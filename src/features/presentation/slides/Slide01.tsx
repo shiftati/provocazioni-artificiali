@@ -12,7 +12,6 @@ export const Slide01: FC = () => {
   );
   const steImg = useCachedAsset(`${BASE_URL}images/slides/intro-ste.png`);
   const danielImg = useCachedAsset(`${BASE_URL}images/slides/intro-daniel.png`);
-  const klippyImg = useCachedAsset(`${BASE_URL}images/slides/intro-klippy.png`);
 
   return (
     <div
@@ -44,21 +43,23 @@ export const Slide01: FC = () => {
         </p>
       </header>
 
-      {/* 3. Le due persone */}
+      {/* 3. Le due persone con movimento fluttuante */}
       {/* In basso a sinistra: Stefano (intro-ste.png) */}
-      <img src={steImg} alt="Stefano Bruno" className={styles.speakerLeft} />
+      <div className={styles.speakerLeftWrapper}>
+        <img
+          src={steImg}
+          alt="Stefano Bruno"
+          className={styles.speakerLeftImg}
+        />
+      </div>
 
       {/* In basso a destra: Daniel (intro-daniel.png) */}
-      <img src={danielImg} alt="Daniel Zotti" className={styles.speakerRight} />
-
-      {/* 4. Graffetta (Klippy): al centro dal basso */}
-      <div className={styles.klippyWrapper}>
+      <div className={styles.speakerRightWrapper}>
         <img
-          src={klippyImg}
-          alt="Klippy la graffetta"
-          className={styles.klippyImg}
+          src={danielImg}
+          alt="Daniel Zotti"
+          className={styles.speakerRightImg}
         />
-        <div className={styles.klippyFloorShadow} aria-hidden="true" />
       </div>
     </div>
   );
