@@ -1,6 +1,28 @@
 import type { FC } from "react";
 import { ImageSlide } from "../layouts/ImageSlide";
+import { useCachedAsset } from "../../../hooks/useCachedAsset";
+import styles from "./Slide03.module.scss";
+
+const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
 
 export const Slide03: FC = () => {
-  return <ImageSlide imageName="3-developer-qualunque.png" title="Developer qualunque" />;
+  const metromanUrl = useCachedAsset(`${BASE_URL}images/slides/metroman.png`);
+
+  return (
+    <ImageSlide
+      imageName="codemotion-blue-bg.png"
+      title="Developer qualunque"
+    >
+      <div className={styles.metromanContainer}>
+        <img
+          src={metromanUrl}
+          alt="Metroman - Developer qualunque"
+          className={styles.metromanImage}
+        />
+      </div>
+    </ImageSlide>
+  );
 };
+
