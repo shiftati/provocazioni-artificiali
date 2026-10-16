@@ -133,9 +133,11 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
       </div>
 
       <div className={styles.centerSection}>
-        {isPresentation && !navOnSlide && (
+        {!navOnSlide && (
           <div
-            className={styles.compactNavControls}
+            className={`${styles.compactNavControls} ${
+              !isPresentation ? styles.compactNavControlsDisabled : ""
+            }`}
             role="group"
             aria-label="Controlli slide nell'intestazione"
           >
@@ -143,8 +145,12 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
               aria-label="Slide precedente"
               size="sm"
               onClick={handleHeaderPrev}
-              disabled={currentIndex === 0}
-              title="Slide precedente"
+              disabled={!isPresentation || currentIndex === 0}
+              title={
+                !isPresentation
+                  ? "Disponibile solo in modalità slide"
+                  : "Slide precedente"
+              }
               className={styles.compactNavBtn}
             >
               <ArrowLeftIcon size={16} />
@@ -159,7 +165,12 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
                 aria-label="Concludi talk e sessione"
                 size="sm"
                 onClick={handleHeaderEndSession}
-                title="Concludi sessione talk"
+                disabled={!isPresentation}
+                title={
+                  !isPresentation
+                    ? "Disponibile solo in modalità slide"
+                    : "Concludi sessione talk"
+                }
                 className={styles.compactNavBtn}
                 style={{ color: "var(--color-mint)" }}
               >
@@ -170,8 +181,12 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
                 aria-label="Slide successiva"
                 size="sm"
                 onClick={handleHeaderNext}
-                disabled={currentIndex === totalSlides - 1}
-                title="Slide successiva"
+                disabled={!isPresentation || currentIndex === totalSlides - 1}
+                title={
+                  !isPresentation
+                    ? "Disponibile solo in modalità slide"
+                    : "Slide successiva"
+                }
                 className={styles.compactNavBtn}
               >
                 <ArrowRightIcon size={16} />
@@ -179,16 +194,19 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
             )}
           </div>
         )}
-        {isPresentation && (
-          <IconButton
-            aria-label="Riesegui animazione slide"
-            onClick={replaySlideAnimation}
-            title="Riesegui animazione slide"
-            className={styles.topBarBtn}
-          >
-            <RefreshIcon size={20} />
-          </IconButton>
-        )}
+        <IconButton
+          aria-label="Riesegui animazione slide"
+          onClick={replaySlideAnimation}
+          disabled={!isPresentation}
+          title={
+            isPresentation
+              ? "Riesegui animazione slide"
+              : "Disponibile solo in modalità slide"
+          }
+          className={styles.topBarBtn}
+        >
+          <RefreshIcon size={20} />
+        </IconButton>
         <IconButton
           aria-label="Modalità Slide"
           isActive={isPresentation}

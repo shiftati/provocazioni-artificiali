@@ -77,6 +77,10 @@
   padding: var(--space-1) var(--space-1);
   user-select: none;
   flex-shrink: 0;
+
+  &.compactNavControlsDisabled {
+    opacity: 0.55;
+  }
 }
 
 .compactSlideCounter {
