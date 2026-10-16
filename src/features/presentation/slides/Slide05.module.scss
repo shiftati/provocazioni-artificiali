@@ -149,3 +149,173 @@
     transform: translate3d(-50%, -4px, 0) rotate(-1.2deg);
   }
 }
+
+/* 4. Indicatori con freccia per Stefano e Daniel */
+.indicatorStefano {
+  position: absolute;
+  bottom: 630px;
+  left: 470px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 20;
+  pointer-events: none;
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.6));
+  will-change: transform, opacity;
+}
+
+.indicatorDaniel {
+  position: absolute;
+  bottom: 630px;
+  left: 1455px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 20;
+  pointer-events: none;
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.6));
+  will-change: transform, opacity;
+}
+
+.indicatorBadge {
+  background-color: #ffd100;
+  color: #071526;
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 11px 26px;
+  border-radius: 9999px;
+  border: 3.5px solid #071526;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.indicatorArrow {
+  margin-top: -3px;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+}
+
+.indicatorEntrance {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-40px) scale(0.5);
+  animation:
+    indicatorPopIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.85s forwards,
+    indicatorBob 2.6s ease-in-out 1.4s infinite alternate;
+}
+
+.indicatorStatic {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0) scale(1);
+  animation: indicatorBob 2.6s ease-in-out infinite alternate;
+}
+
+@keyframes indicatorPopIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-40px) scale(0.5);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(6px) scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes indicatorBob {
+  0% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-10px);
+  }
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* 5. Bolla a fumetto per Klippy */
+.klippySpeechBubble {
+  position: absolute;
+  bottom: 450px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ffffff;
+  color: #071526;
+  padding: 16px 30px;
+  border-radius: 28px;
+  border: 3.5px solid #071526;
+  box-shadow:
+    0 14px 35px rgba(0, 0, 0, 0.5),
+    0 0 25px rgba(94, 242, 184, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 15;
+  will-change: transform, opacity;
+}
+
+.bubbleText {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  color: #071526;
+  letter-spacing: -0.01em;
+}
+
+.bubbleTail {
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-top: 18px solid #071526;
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 4px;
+    left: -10.5px;
+    width: 0;
+    height: 0;
+    border-left: 10.5px solid transparent;
+    border-right: 10.5px solid transparent;
+    border-top: 15px solid #ffffff;
+  }
+}
+
+.klippyBubbleEntrance {
+  opacity: 0;
+  transform: translateX(-50%) translateY(20px) scale(0.4);
+  animation: bubblePopIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.85s forwards;
+}
+
+.klippyBubbleStatic {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+
+@keyframes bubblePopIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px) scale(0.4);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-6px) scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+

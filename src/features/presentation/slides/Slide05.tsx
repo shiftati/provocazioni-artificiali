@@ -93,6 +93,33 @@ export const Slide05: FC = () => {
         }`}
       />
 
+      {/* Freccia indicatore per Stefano */}
+      <div
+        className={`${styles.indicatorStefano} ${
+          isEnteredBackwards
+            ? styles.indicatorStatic
+            : styles.indicatorEntrance
+        }`}
+        aria-hidden="true"
+      >
+        <span className={styles.indicatorBadge}>Stefano</span>
+        <svg
+          className={styles.indicatorArrow}
+          width="48"
+          height="54"
+          viewBox="0 0 42 48"
+          fill="none"
+        >
+          <path
+            d="M16 0H26V24H38L21 44L4 24H16V0Z"
+            fill="#ffd100"
+            stroke="#071526"
+            strokeWidth="3.5"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+
       {/* 2. In basso a destra: Daniel (intro-daniel.png) - compare al primo click avanti */}
       <img
         src={danielImg}
@@ -100,8 +127,49 @@ export const Slide05: FC = () => {
         className={`${styles.speakerRight} ${isDanielVisible ? styles.speakerRightVisible : ""}`}
       />
 
+      {/* Freccia indicatore per Daniel */}
+      {isDanielVisible && (
+        <div
+          className={`${styles.indicatorDaniel} ${
+            isEnteredBackwards && step === 2
+              ? styles.indicatorStatic
+              : styles.indicatorEntrance
+          }`}
+          aria-hidden="true"
+        >
+          <span className={styles.indicatorBadge}>Daniel</span>
+          <svg
+            className={styles.indicatorArrow}
+            width="48"
+            height="54"
+            viewBox="0 0 42 48"
+            fill="none"
+          >
+            <path
+              d="M16 0H26V24H38L21 44L4 24H16V0Z"
+              fill="#ffd100"
+              stroke="#071526"
+              strokeWidth="3.5"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+      )}
+
       {/* 3. Graffetta (Klippy): al centro dal basso - compare al secondo click avanti */}
       <div className={`${styles.klippyWrapper} ${klippyAnimationClass}`}>
+        {isKlippyVisible && (
+          <div
+            className={`${styles.klippySpeechBubble} ${
+              hasForwardKlippyEntrance
+                ? styles.klippyBubbleEntrance
+                : styles.klippyBubbleStatic
+            }`}
+          >
+            <span className={styles.bubbleText}>...e io sono Klippy!</span>
+            <div className={styles.bubbleTail} aria-hidden="true" />
+          </div>
+        )}
         <img
           src={klippyImg}
           alt="Klippy la graffetta"
