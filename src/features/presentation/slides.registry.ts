@@ -42,53 +42,48 @@ export const SLIDES: readonly SlideDefinition[] = [
     component: Slide05,
   },
   {
-    id: "klippy",
-    title: "6. Klippy",
-    component: Slide06,
-  },
-  {
     id: "ritorno-al-futuro",
-    title: "7. Ritorno al Futuro",
+    title: "6. Ritorno al Futuro",
     component: Slide07,
   },
   {
     id: "klippy-saw",
-    title: "8. Klippy saw",
+    title: "7. Klippy saw",
     component: Slide08,
   },
   {
     id: "fight-club",
-    title: "9. Fight club",
+    title: "8. Fight club",
     component: Slide09,
   },
   {
     id: "klippy-lotta-ai",
-    title: "10. Klippy lotta tra AI",
+    title: "9. Klippy lotta tra AI",
     component: Slide10,
   },
   {
     id: "klippy-matrix",
-    title: "11. Klippy matrix",
+    title: "10. Klippy matrix",
     component: Slide11,
   },
   {
     id: "io-sono-eccellenza",
-    title: "12. Io sono eccellenza",
+    title: "11. Io sono eccellenza",
     component: Slide12,
   },
   {
     id: "selfie",
-    title: "13. Selfie",
+    title: "12. Selfie",
     component: Slide13,
   },
   {
     id: "finale",
-    title: "14. Finale",
+    title: "13. Finale",
     component: Slide14,
   },
   {
     id: "contatti",
-    title: "15. Contatti",
+    title: "14. Contatti",
     component: Slide15,
   },
 ] as const;
