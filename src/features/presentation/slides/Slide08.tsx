@@ -16,16 +16,17 @@ export const Slide08: FC = () => {
     typeof previousSlideIndex === "number" && previousSlideIndex > 6,
   ).current;
 
-  const [hasEntered, setHasEntered] = useState<boolean>(() => isEnteredBackwards);
+  const [hasEntered, setHasEntered] = useState<boolean>(
+    () => isEnteredBackwards,
+  );
   const [isEntranceComplete, setIsEntranceComplete] = useState<boolean>(
     () => isEnteredBackwards,
   );
   const [isBubbleVisible, setIsBubbleVisible] = useState<boolean>(
     () => isEnteredBackwards,
   );
-  const [isBubbleEntranceComplete, setIsBubbleEntranceComplete] = useState<boolean>(
-    () => isEnteredBackwards,
-  );
+  const [isBubbleEntranceComplete, setIsBubbleEntranceComplete] =
+    useState<boolean>(() => isEnteredBackwards);
   const [isFlickerActive, setIsFlickerActive] = useState<boolean>(false);
 
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -94,7 +95,9 @@ export const Slide08: FC = () => {
     };
   }, [isEnteredBackwards, playEntranceSequence, clearAllTimers]);
 
-  const klippySawUrl = useCachedAsset(`${BASE_URL}images/slides/klippy-saw.png`);
+  const klippySawUrl = useCachedAsset(
+    `${BASE_URL}images/slides/klippy-saw.png`,
+  );
 
   // Classi dinamiche Klippy
   let klippyStateClass = "";
@@ -160,17 +163,6 @@ export const Slide08: FC = () => {
           {/* Ombra sul pavimento */}
           <div className={styles.klippyFloorShadow} aria-hidden="true" />
         </div>
-
-        {/* Badge discreto in basso a destra per rigiocare sul palco */}
-        <button
-          type="button"
-          className={styles.replayBadge}
-          onClick={playEntranceSequence}
-          aria-label="Rigioca animazione Klippy Saw"
-        >
-          <span>⚡</span>
-          <span>Rigioca</span>
-        </button>
       </div>
     </ImageSlide>
   );
