@@ -62,6 +62,8 @@ export interface AppStateContextValue {
   replaySlideAnimation: () => void;
   previousSlideIndex: number | null;
   registerSlideStepHandler: (handler: SlideStepHandler | null) => void;
+  hasPendingSlideAnimations: boolean;
+  setHasPendingSlideAnimations: (pending: boolean) => void;
   stepForward: () => boolean;
   stepBackward: () => boolean;
   // Event tracking
@@ -118,10 +120,18 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [slideAnimKey, setSlideAnimKey] = useState<number>(0);
   const [previousSlideIndex, setPreviousSlideIndex] = useState<number | null>(null);
   const slideStepHandlerRef = useRef<SlideStepHandler | null>(null);
+  const [hasPendingSlideAnimations, setHasPendingSlideAnimations] =
+    useState<boolean>(false);
 
-  const registerSlideStepHandler = useCallback((handler: SlideStepHandler | null) => {
-    slideStepHandlerRef.current = handler;
-  }, []);
+  const registerSlideStepHandler = useCallback(
+    (handler: SlideStepHandler | null) => {
+      slideStepHandlerRef.current = handler;
+      if (!handler) {
+        setHasPendingSlideAnimations(false);
+      }
+    },
+    [],
+  );
 
   const stepForward = useCallback((): boolean => {
     if (slideStepHandlerRef.current) {
@@ -139,6 +149,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const replaySlideAnimation = useCallback(() => {
     slideStepHandlerRef.current = null;
+    setHasPendingSlideAnimations(false);
     setSlideAnimKey((k) => k + 1);
   }, []);
 
@@ -697,6 +708,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       const prevIndex = currentSlideIndexRef.current;
       setPreviousSlideIndex(prevIndex);
       slideStepHandlerRef.current = null;
+      setHasPendingSlideAnimations(false);
       const elapsedSeconds = Math.max(0, (now - slideStartTimeRef.current) / 1000);
 
       slideStartTimeRef.current = now;
@@ -1211,6 +1223,8 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         replaySlideAnimation,
         previousSlideIndex,
         registerSlideStepHandler,
+        hasPendingSlideAnimations,
+        setHasPendingSlideAnimations,
         stepForward,
         stepBackward,
         logSessionEvent,

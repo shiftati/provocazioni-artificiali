@@ -51,6 +51,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
     endTalk,
     stepForward,
     stepBackward,
+    hasPendingSlideAnimations,
   } = useAppState();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   // const { isInstallable, isInstalled, installApp } = usePwaInstall();
@@ -97,6 +98,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
     totalSlides - 1
   );
   const isLastSlide = currentIndex === totalSlides - 1;
+  const showFinishButton = isLastSlide && !hasPendingSlideAnimations;
 
   const handleHeaderPrev = () => {
     if (!isPresentation) {
@@ -168,7 +170,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
               {currentIndex + 1} / {totalSlides}
             </span>
 
-            {isLastSlide ? (
+            {showFinishButton ? (
               <IconButton
                 aria-label="Concludi talk e sessione"
                 size="sm"
@@ -189,7 +191,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
                 aria-label="Slide successiva"
                 size="sm"
                 onClick={handleHeaderNext}
-                disabled={!isPresentation || currentIndex === totalSlides - 1}
+                disabled={!isPresentation || (isLastSlide && !hasPendingSlideAnimations)}
                 title={
                   !isPresentation
                     ? "Disponibile solo in modalità slide"

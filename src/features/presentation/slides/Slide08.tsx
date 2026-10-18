@@ -87,7 +87,7 @@ export const Slide08: FC = () => {
     // Suspense iniziale nella stanza buia di Saw: compare dopo 1.2 secondi
     const suspenseTimer = setTimeout(() => {
       playEntranceSequence();
-    }, 1200);
+    }, 200);
 
     return () => {
       clearTimeout(suspenseTimer);

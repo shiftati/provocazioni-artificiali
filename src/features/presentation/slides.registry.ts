@@ -12,7 +12,6 @@ import { Slide11 } from "./slides/Slide11";
 import { Slide12 } from "./slides/Slide12";
 import { Slide13 } from "./slides/Slide13";
 import { Slide14 } from "./slides/Slide14";
-import { Slide15 } from "./slides/Slide15";
 
 export const SLIDES: readonly SlideDefinition[] = [
   {
@@ -79,10 +78,5 @@ export const SLIDES: readonly SlideDefinition[] = [
     id: "finale",
     title: "13. Finale",
     component: Slide14,
-  },
-  {
-    id: "contatti",
-    title: "14. Contatti",
-    component: Slide15,
-  },
+  }
 ] as const;

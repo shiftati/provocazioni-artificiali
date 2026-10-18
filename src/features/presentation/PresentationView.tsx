@@ -21,6 +21,7 @@ export const PresentationView: FC = () => {
     navOnSlide,
     stepForward,
     stepBackward,
+    hasPendingSlideAnimations,
   } = useAppState();
 
   const totalSlides = SLIDES.length;
@@ -29,6 +30,7 @@ export const PresentationView: FC = () => {
   const introEndSlideIndex = (config.introEndSlide ? config.introEndSlide - 1 : 10);
   const isIntroEndSlide = currentIndex === introEndSlideIndex;
   const isLastSlide = currentIndex === totalSlides - 1;
+  const showFinishButton = isLastSlide && !hasPendingSlideAnimations;
 
   // Finalize session and navigate to analytics
   const handleEndSession = useCallback(() => {
@@ -117,7 +119,7 @@ export const PresentationView: FC = () => {
             {currentIndex + 1} / {totalSlides}
           </span>
 
-          {isLastSlide ? (
+          {showFinishButton ? (
             <IconButton
               aria-label="Concludi talk e sessione"
               size="md"

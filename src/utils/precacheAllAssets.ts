@@ -48,6 +48,7 @@ export const APP_ASSETS_CATALOG = [
   "images/stefano.png",
   "images/qr-daniel.svg",
   "images/qr-stefano.svg",
+  "images/qr-shiftati.svg",
 
   // 3. Audio tracks
   "audio/back-to-the-future.mp3",

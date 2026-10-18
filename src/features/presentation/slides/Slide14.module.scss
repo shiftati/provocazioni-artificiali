@@ -29,7 +29,7 @@
 
 .bubbleText {
   font-family: var(--font-display, "IBM Plex Sans", sans-serif);
-  font-size: 60px;
+  font-size: 50px;
   font-weight: 700;
   color: #071526;
   letter-spacing: -0.01em;
@@ -38,8 +38,8 @@
 
 /* 1° Fumetto: "Il futuro è come ve lo creerete voi" (sopra la testa) */
 .speechBubble1 {
-  top: 60px;
-  left: 44%;
+  top: 93px;
+  left: 41%;
   transform: translateX(-50%);
 }
 
@@ -69,8 +69,8 @@
 
 /* 2° Fumetto: "perciò createvelo buono!" (SOTTO la faccia del vecchio con i capelli bianchi) */
 .speechBubble2 {
-  top: 662px;
-  left: 61%;
+  top: 585px;
+  left: 78%;
   transform: translateX(-50%);
   z-index: 21;
 }
@@ -79,7 +79,7 @@
 .bubbleTail2 {
   position: absolute;
   top: -18px;
-  left: 24%;
+  left: 72%;
   transform: translateX(-50%);
   width: 0;
   height: 0;
@@ -126,3 +126,229 @@
     transform: translateX(-50%) translateY(0) scale(1);
   }
 }
+
+/* Card "Grazie!" nello spazio vuoto sulla sinistra */
+.thanksCard {
+  position: absolute;
+  bottom: 20%;
+  left: 10%;
+  width: 295px;
+  background-color: var(--color-surface, #0b1726);
+  border: 3.5px solid #000000;
+  box-shadow:
+    8px 8px 0 var(--color-accent, #ff5500),
+    8px 8px 0 3.5px #000000;
+  border-radius: var(--radius-md, 8px);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  z-index: 25;
+  pointer-events: auto;
+  will-change: transform, opacity;
+  scale: 1.8;
+}
+
+.cardTitle {
+  font-family: var(--font-display, "IBM Plex Sans", sans-serif);
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-shadow: 2px 2px 0 #000000;
+}
+
+.qrSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--color-decal-bg, #000000);
+  border: 2px solid #000000;
+  border-radius: var(--radius-xs, 2px);
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.qrCard {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  border: 2.5px solid #000000;
+  box-shadow: 3px 3px 0 #000000;
+  transition: transform var(--duration-fast) var(--ease), box-shadow var(--duration-fast) var(--ease);
+  cursor: pointer;
+}
+
+.qrImg {
+  width: 220px;
+  height: 220px;
+  display: block;
+}
+
+.qrBadge {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text-muted, #9bb0c7);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+.websiteLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono, monospace);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-mint, #5ef2b8);
+  text-decoration: none;
+  word-break: break-all;
+  transition: color var(--duration-fast) var(--ease), transform var(--duration-fast) var(--ease);
+
+  &:hover {
+    color: var(--color-mint-hover, #78f5c4);
+    text-decoration: underline;
+    transform: translateY(-1px);
+  }
+}
+
+.cardEntrance {
+  opacity: 0;
+  transform: translateX(-40px) scale(0.6);
+  animation: cardPopIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.cardStatic {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+
+@keyframes cardPopIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-40px) scale(0.6);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(6px) scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Audio controls in basso a destra */
+.audioControls {
+  position: absolute;
+  bottom: var(--space-6, 24px);
+  right: var(--space-8, 32px);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 12px);
+  background-color: var(--color-decal-bg, #000000);
+  border: 2px solid #000000;
+  box-shadow: 4px 4px 0 #000000;
+  padding: var(--space-2, 8px) var(--space-4, 16px);
+  border-radius: var(--radius-xs, 2px);
+  z-index: 50;
+  user-select: none;
+}
+
+.audioStatus {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+}
+
+.audioEqualizer {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  width: 14px;
+  height: 14px;
+
+  span {
+    flex: 1;
+    background-color: var(--color-text-subtle, #5f758f);
+    height: 30%;
+    border-radius: 1px;
+    transition: height 0.2s ease;
+  }
+
+  &.isPlaying span {
+    background-color: var(--color-mint, #5ef2b8);
+    animation: eqBounce 0.7s ease-in-out infinite alternate;
+
+    &:nth-child(1) {
+      animation-delay: 0s;
+    }
+    &:nth-child(2) {
+      animation-delay: 0.25s;
+    }
+    &:nth-child(3) {
+      animation-delay: 0.5s;
+    }
+  }
+}
+
+@keyframes eqBounce {
+  0% {
+    height: 25%;
+  }
+  100% {
+    height: 100%;
+  }
+}
+
+.audioTrackName {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  color: var(--color-text-subtle, #5f758f);
+  font-weight: 600;
+}
+
+.audioButtonGroup {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.audioBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+  font-weight: 700;
+  background-color: var(--color-surface, #0b1726);
+  color: var(--color-text, #ffffff);
+  border: 1px solid var(--color-border, #1a2c44);
+  border-radius: var(--radius-xs, 2px);
+  cursor: pointer;
+  transition: all var(--duration-fast, 120ms) var(--ease, cubic-bezier(0.2, 0, 0, 1));
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-surface-active, #162b46);
+    color: var(--color-accent, #ff5500);
+    border-color: var(--color-accent, #ff5500);
+  }
+
+  &.audioBtnActive {
+    background-color: var(--color-surface-active, #162b46);
+    color: var(--color-mint, #5ef2b8);
+    border-color: var(--color-mint, #5ef2b8);
+    box-shadow: 0 0 0 1px var(--color-mint, #5ef2b8);
+  }
+}
+
