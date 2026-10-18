@@ -250,8 +250,8 @@
 /* Audio controls in basso a destra */
 .audioControls {
   position: absolute;
-  bottom: var(--space-6, 24px);
-  right: var(--space-8, 32px);
+  bottom: var(--space-2, 24px);
+  right: var(--space-2, 32px);
   display: flex;
   align-items: center;
   gap: var(--space-3, 12px);
@@ -262,6 +262,11 @@
   border-radius: var(--radius-xs, 2px);
   z-index: 50;
   user-select: none;
+  opacity: 0.1;
+  transition: opacity var(--duration-fast) var(--ease);
+  &:hover {
+    opacity: 1;
+  }
 }
 
 .audioStatus {
