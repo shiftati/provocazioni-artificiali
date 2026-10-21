@@ -14,12 +14,17 @@ export interface KlippySawProps extends SlideProps {
   className?: string;
 }
 
-export const KlippySaw: FC<KlippySawProps> = ({ children, className }) => {
+export const KlippySaw: FC<KlippySawProps> = ({
+  children,
+  className,
+  isReplay = false,
+}) => {
   const { previousSlideIndex, session } = useAppState();
 
   // Se l'utente arriva a ritroso da una slide successiva (indice > 6) in presentazione, mostra già tutto senza attendere
   const isEnteredBackwards = useRef(
-    session.mode === "presentation" &&
+    !isReplay &&
+      session.mode === "presentation" &&
       typeof previousSlideIndex === "number" &&
       previousSlideIndex > 6,
   ).current;

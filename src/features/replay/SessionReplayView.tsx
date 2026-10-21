@@ -31,6 +31,7 @@ import {
   resolveReplayProvocation,
 } from "./replayUtils";
 import { ReplayControlBar } from "./ReplayControlBar";
+import { KlippySaw } from "../presentation/slides/KlippySaw";
 import styles from "./SessionReplayView.module.scss";
 import cardStyles from "../game/provocations/ProvocationCard.module.scss";
 
@@ -38,7 +39,6 @@ const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 
-const KLIPPY_SAW_IMAGE = `${BASE_URL}images/slides/8-gioco-saw.jpg`;
 const STOP_CALLS_BG = `${BASE_URL}images/stop-alle-telefonate.jpg`;
 
 export const SessionReplayView: FC = () => {
@@ -484,25 +484,21 @@ export const SessionReplayView: FC = () => {
             </>
           ) : (
             <div className={styles.gameWrapper}>
-              {/* IDLE */}
+              {/* STEP 1: IDLE */}
               {replayState.gameStep === "IDLE" && (
-                <div
-                  className={styles.idleContainer}
-                  style={{ backgroundImage: `url("${KLIPPY_SAW_IMAGE}")` }}
-                  role="region"
-                  aria-label="Klippy saw - Inizia il gioco"
-                >
+                <KlippySaw isReplay={true}>
                   <div className={styles.idleControls}>
                     <Button
                       variant="primary"
                       size="xl"
                       leftIcon={<PlayIcon size={32} />}
+                      className={styles.idleButton}
                       style={{ pointerEvents: "none" }}
                     >
                       Inizia il gioco
                     </Button>
                   </div>
-                </div>
+                </KlippySaw>
               )}
 
               {/* CHALLENGE */}

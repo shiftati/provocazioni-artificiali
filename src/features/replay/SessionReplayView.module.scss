@@ -103,7 +103,7 @@
 /* Presentation controls overlay */
 .slideCounter {
   position: absolute;
-  bottom: calc(var(--space-4) + 80px);
+  top: var(--space-4);
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.6);
@@ -143,7 +143,13 @@
   position: absolute;
   bottom: 48px;
   right: 48px;
-  z-index: 10;
+  z-index: var(--z-chrome, 100);
+  display: flex;
+  align-items: center;
+}
+
+.idleButton {
+  min-width: 260px;
 }
 
 .challengeContainer {
