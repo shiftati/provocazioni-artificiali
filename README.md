@@ -1,6 +1,6 @@
 # Shiftati di Testa — Codemotion Presentation, Game & Analytics App
 
-Web application offline-first progettata per gestire talk interattivi dal vivo sul palco di **Codemotion**: stage 16:9 con auto-scaling nativo (`1920×1080`), navigazione per telecomando da palco e tastiera, countdown globale bifase anti-drift, modalità gioco Klippy Saw ("Voglio fare un gioco con te"), overlay automatico "Stop alle telefonate", tema dinamico Dark/Light in stile Neo-Brutalist e una suite completa di **Dashboard Analytics** per il monitoraggio e l'analisi dei tempi di ogni sessione.
+Web application offline-first progettata per gestire talk interattivi dal vivo sul palco di **Codemotion**: stage 16:9 con auto-scaling nativo (`1920×1080`), navigazione per telecomando da palco e tastiera, countdown globale bifase anti-drift, modalità gioco Klippy Saw ("Voglio fare un gioco con te"), overlay automatico "Stop alle telefonate", tema dinamico Dark/Light in stile Neo-Brutalist, suite completa di **Dashboard Analytics** e motore di **Session Replay** con sincronizzazione audio per rivivere ogni secondo del talk.
 
 ---
 
@@ -10,15 +10,16 @@ Web application offline-first progettata per gestire talk interattivi dal vivo s
 2. [Flusso del Talk & Gestione Sessione](#2-flusso-del-talk--gestione-sessione)
 3. [Modalità Gioco: "Voglio fare un gioco con te" (Klippy Saw)](#3-modalità-gioco-voglio-fare-un-gioco-con-te-klippy-saw)
 4. [Dashboard Analytics & Monitoraggio Sessioni](#4-dashboard-analytics--monitoraggio-sessioni)
-5. [Controlli da Tastiera e Telecomando](#5-controlli-da-tastiera-e-telecomando)
-6. [Design System: Neo-Brutalism & Temi (Dark & Light)](#6-design-system-neo-brutalism--temi-dark--light)
-7. [Stack Tecnologico](#7-stack-tecnologico)
-8. [Comandi Disponibili](#8-comandi-disponibili)
-9. [Come Cambiare il Base Path (GitHub Pages)](#9-come-cambiare-il-base-path-github-pages)
-10. [Come Aggiungere una Nuova Slide](#10-come-aggiungere-una-nuova-slide)
-11. [Come Aggiungere una Nuova Provocazione](#11-come-aggiungere-una-nuova-provocazione)
-12. [Come Personalizzare Token di Brand e Logo](#12-come-personalizzare-token-di-brand-e-logo)
-13. [Offline & PWA](#13-offline--pwa)
+5. [Session Replay & Sincronizzazione Audio (`/replay`)](#5-session-replay--sincronizzazione-audio-replay)
+6. [Controlli da Tastiera e Telecomando](#6-controlli-da-tastiera-e-telecomando)
+7. [Design System: Neo-Brutalism & Temi (Dark & Light)](#7-design-system-neo-brutalism--temi-dark--light)
+8. [Stack Tecnologico](#8-stack-tecnologico)
+9. [Comandi Disponibili](#9-comandi-disponibili)
+10. [Come Cambiare il Base Path (GitHub Pages)](#10-come-cambiare-il-base-path-github-pages)
+11. [Come Aggiungere una Nuova Slide](#11-come-aggiungere-una-nuova-slide)
+12. [Come Aggiungere una Nuova Provocazione](#12-come-aggiungere-una-nuova-provocazione)
+13. [Come Personalizzare Token di Brand e Logo](#13-come-personalizzare-token-di-brand-e-logo)
+14. [Offline & PWA](#14-offline--pwa)
 
 ---
 
@@ -34,6 +35,7 @@ Web application offline-first progettata per gestire talk interattivi dal vivo s
 - **Transizione automatica Slide → Gioco (Slide 11)**: alla slide configurata come fine introduzione (`introEndSlide`, default slide 10), premendo il tasto "Avanti" da telecomando si entra direttamente nella modalità Gioco Klippy Saw.
 - **Conclusione del Talk e salvataggio metriche (Slide 14)**: sull'ultima slide è presente il controllo dedicato per archiviare la sessione, calcolare tutte le metriche e aprire la dashboard Analytics.
 - **Suite Analytics completa (`/analytics`)**: tracciamento automatico di tempi per slide, tempi di decisione e discussione delle provocazioni, KPI aggregati, grafici dettagliati, timeline, viste tabellari, comparazione multi-sessione e import/export JSON.
+- **Session Replay ad alta fedeltà con Audio Sync (`/replay`)**: motore di riproduzione fotogramma per fotogramma per rivedere l'intero talk (slide, animazioni interne a step, fasi del gioco e overlay) sincronizzato all'audio vocale registrato tramite microfono.
 - **Doppio Tema Dark / Light**: interfaccia con estetica Neo-Brutalist (bordi marcati, ombre nette sfalsate, alto contrasto visivo), commutabile dal pannello di configurazione.
 - **Screen Wake Lock**: impedisce lo spegnimento o lo stand-by dello schermo durante la presentazione sul palco.
 
@@ -45,7 +47,7 @@ L'applicazione supporta il ciclo di vita completo del talk:
 
 ```
 [Pannello Configurazione]
-        │  (Imposta orario fine, minuti conclusione, slide transizione, tema)
+        │  (Imposta orario fine, minuti conclusione, slide transizione, registrazione audio, tema)
         ▼
  [Fase 1: Introduzione] (Slide 1 → Slide 11)
         │
@@ -60,14 +62,15 @@ L'applicazione supporta il ciclo di vita completo del talk:
  [Fase 4: Conclusione] (Slide 12 → Slide 14)
         │  (Takeaway, selfie finale e ringraziamenti)
         ▼
- [Fase 5: Fine Talk & Analytics] (/analytics)
-           (Analisi tempi, grafici, esportazione report JSON)
+ [Fase 5: Fine Talk, Analytics & Replay] (/analytics e /replay)
+           (Analisi tempi, grafici, ascolto audio, replay sincronizzato, report JSON)
 ```
 
 ### Parametri di Configurazione (`/`)
 - **Orario di fine talk (`HH:MM`)**: orario target assoluto per la conclusione dell'intervento. Include validazione degli orari passati con richiesta di conferma.
 - **Minuti di conclusione (`conclusionMinutes`, default 5 min)**: anticipo rispetto alla fine del talk in cui deve scattare l'overlay "Stop alle telefonate".
 - **Slide fine introduzione (`introEndSlide`, default 10)**: numero della slide che attiva il passaggio automatico alla modalità Gioco tramite telecomando.
+- **Registrazione Audio Talk**: attiva/disattiva l'acquisizione del microfono per memorizzare la traccia vocale dell'intervento in locale (`IndexedDB`).
 - **Tema dell'app**: selezione tra modalità Scura (`dark`) e Chiara (`light`).
 
 ---
@@ -122,8 +125,15 @@ Accessibile dal percorso `/analytics` o cliccando l'icona del grafico nella TopB
   - Distribuzione percentuale del tempo del talk tra le tre macro-aree: *Slide Introduzione*, *Gioco & Provocazioni*, *Slide Conclusione*.
 - **Multi-Session Comparison Chart**:
   - Confronto visivo tra talk e prove differenti per analizzare l'evoluzione dei tempi, la velocità di esposizione e il numero di provocazioni completate.
+- **Session Timeline Interattiva**:
+  - Elenco cronologico completo degli eventi registrati con timestamp esatto.
+  - Pulsante dedicato **"Rivedi da qui"** su ciascun evento per saltare direttamente a quel fotogramma nel Session Replay.
+- **Talk Audio Player (`TalkAudioPlayer`)**:
+  - Player integrato per ascoltare la registrazione vocale dell'intervento memorizzata in IndexedDB.
+  - Pulsante per avviare il Session Replay sincronizzato direttamente dall'offset audio corrente.
 
 ### Strumenti di Gestione Dati
+- **Lancio Replay Talk**: pulsante diretto per aprire la sessione nel riproduttore temporale `/replay/:sessionId`.
 - **Vista Tabelle**: visualizzazione alternativa tabellare di slide e provocazioni con possibilità di cancellazione o modifica puntuale.
 - **Modifica Sessione (`SessionEditorModal`)**: per aggiornare il nome della sessione (es. "Codemotion Talk Ufficiale") e aggiungere note descrittive.
 - **Modifica Provocazione (`ProvocationEditorModal`)**: per correggere o perfezionare titoli e durate delle singole provocazioni registrate.
@@ -134,9 +144,55 @@ Accessibile dal percorso `/analytics` o cliccando l'icona del grafico nella TopB
 
 ---
 
-## 5. Controlli da Tastiera e Telecomando
+## 5. Session Replay & Sincronizzazione Audio (`/replay`)
 
-Tutti i comandi sono pensati per essere utilizzati alla cieca da telecomando per presentazioni sul palco:
+Il componente [SessionReplayView.tsx](file:///Users/daniel/Projects/github/provocazioni-shiftate-antigravity/src/features/replay/SessionReplayView.tsx) implementa un motore completo di riproduzione ad alta fedeltà che ricostruisce il talk esattamente come è stato vissuto sul palco:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│  Stage 16:9 Nativo (Slide, Animazioni a Step, Gioco Klippy Saw, Overlay)│
+│                                                                        │
+│  [Traccia Audio IndexedDB] ◄────── Sincronizzazione Hardware ─────────►│
+└────────────────────────────────────────────────────────────────────────┘
+│  ReplayControlBar: Scrubber Timeline, Event Markers, Velocità (1x-30x) │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+### Funzionalità Chiave del Replay
+
+1. **Riproduzione Fedele dello Stage 16:9**:
+   - Renderizza le slide con le stesse dimensioni e scaling del palco (`isReplay={true}`).
+   - Supporto nativo per le **animazioni interne a step** (`SLIDE_ANIMATION` con tracking di `slideStep`), permettendo di rivedere le transizioni progressive su slide complesse (es. slide 5 "Daniel e Ste" e slide 13 "Finale").
+   - Ricostruisce integralmente tutti gli stati del gioco Klippy Saw (`IDLE`, `CHALLENGE`, `PROVOCATION`, `DISCUSSION` con pause e riprese) e gli overlay di sistema ("Stop alle telefonate!").
+   - Interazione disattivata sul palco (`pointerEvents: "none"`) per evitare modifiche involontarie allo stato registrato durante la visione.
+
+2. **Sincronizzazione Hardware Audio (Audio Clock Sync)**:
+   - Se durante il talk è stata abilitata la registrazione vocale, la traccia audio viene caricata automaticamente da IndexedDB (`getAudioRecording`).
+   - L'audio hardware clock (`audio.currentTime`) funge da **source of truth primaria** per la sincronizzazione: il rendering visivo e i timer seguono al millisecondo la traccia vocale.
+   - In assenza di traccia audio, il motore passa in modo trasparente al clock delta basato su `requestAnimationFrame`.
+   - **Seek Bidirezionale**: spostando la timeline o saltando agli eventi, la traccia audio e lo stage visivo si riposizionano istantaneamente all'unisono.
+   - **Auto-Mute di Protezione**: il sonoro viene disattivato automaticamente a velocità elevate ($\ge$ 5x) per prevenire fastidiosi screeching audio, con possibilità di controllo manuale mute/unmute (`M`).
+
+3. **Floating Dock di Controllo (`ReplayControlBar`)**:
+   - Dock inferiore fluttuante con **scomparsa automatica per inattività del mouse** (dopo 4 secondi di inattività), ideale per proiezioni o revisioni pulite.
+   - **Timeline Scrubber Continua**: barra di trascinamento temporale con percentuale di completamento e tempo trascorso / tempo totale formattato (`MM:SS`).
+   - **Marker Visivi degli Eventi**: indicatori colorati distribuiti lungo la timeline in base alla tipologia di evento (slide, gioco, stop alle telefonate); cliccando su un marker si salta immediatamente all'evento corrispondente.
+   - **Pill Informativa Dinamica**: mostra in tempo reale l'evento corrente con icona dedicata (🖼️ slide, ✨ animazione interna, 💡 provocazione, ⏱️ sfida, 💬 discussione, 🔔 stop alle telefonate).
+   - **Selettore Velocità di Riproduzione**: pulsanti rapidi per riprodurre a `1x`, `2x`, `5x`, `10x` o `30x`.
+   - **Navigazione Rapida per Eventi**: pulsanti per saltare istantaneamente all'evento precedente o successivo.
+
+4. **Deep Linking & Avvio Mirato (`?startAt=epochMs`)**:
+   - Supporto al parametro URL `?startAt=` per aprire il replay ad un timestamp specifico.
+   - Integrato con i pulsanti "Rivedi da qui" della timeline in Analytics e con il player audio per passare con un click dall'analisi dei grafici alla revisione visiva del momento esatto.
+
+5. **Retrocompatibilità e Arricchimento Sintetico degli Eventi**:
+   - La funzione `ensureSessionEvents` e `enrichSlideAnimationEvents` arricchisce automaticamente sessioni legacy o prive di eventi di dettaglio, sintetizzando gli step di animazione e la sequenza delle slide per garantire una riproduzione fluida anche su dati storici.
+
+---
+
+## 6. Controlli da Tastiera e Telecomando
+
+### Controlli Presentazione sul Palco (Telecomando & Tastiera)
 
 | Tasto | Contesto | Azione |
 | :--- | :--- | :--- |
@@ -151,9 +207,26 @@ Tutti i comandi sono pensati per essere utilizzati alla cieca da telecomando per
 | Click su pulsante a schermo `Avanti` | Slide Fine Intro (Slide 11) | Avanza alla Slide 12 (senza entrare nel gioco) |
 | Click su icona `Concludi Sessione` | Ultima Slide (Slide 14) | **Termina la sessione e apre la dashboard Analytics** |
 
+### Scorciatoie da Tastiera del Session Replay (`/replay`)
+
+| Tasto | Azione Replay |
+| :--- | :--- |
+| `Space` | **Play / Pausa** |
+| `Escape` | **Esci dal Replay** e ritorna alla schermata Analytics |
+| `M` | **Attiva / Disattiva Audio** (Toggle Mute) |
+| `ArrowLeft` | **Salto indietro di 5 secondi** |
+| `ArrowRight` | **Salto avanti di 5 secondi** |
+| `Shift + ArrowLeft` | **Salta all'evento precedente** |
+| `Shift + ArrowRight` | **Salta all'evento successivo** |
+| `1` | Imposta velocità di riproduzione a **1x** |
+| `2` | Imposta velocità di riproduzione a **2x** |
+| `3` | Imposta velocità di riproduzione a **5x** |
+| `4` | Imposta velocità di riproduzione a **10x** |
+| `5` | Imposta velocità di riproduzione a **30x** |
+
 ---
 
-## 6. Design System: Neo-Brutalism & Temi (Dark & Light)
+## 7. Design System: Neo-Brutalism & Temi (Dark & Light)
 
 L'applicazione adotta un design system **Neo-Brutalist** progettato per garantire massima leggibilità da grande distanza su proiettori di sala:
 - **Bordi marcati e netti**: contorni neri ad alto contrasto (`border: 2px solid var(--color-border)`).
@@ -166,19 +239,20 @@ L'applicazione adotta un design system **Neo-Brutalist** progettato per garantir
 
 ---
 
-## 7. Stack Tecnologico
+## 8. Stack Tecnologico
 
 - **React 19** + **TypeScript** (`strict: true`, zero `any`).
 - **Vite 6** con `@vitejs/plugin-react`.
 - **`HashRouter`** (`react-router-dom` v7) per totale compatibilità con GitHub Pages e Service Worker offline.
 - **SCSS con CSS Modules** (`*.module.scss`) e `@layer` (reset, tokens, components).
 - **Font self-hosted WOFF2**: IBM Plex Sans, IBM Plex Mono e Roboto in `public/fonts/` (nessuna dipendenza runtime da Google Fonts o CDN).
+- **Archiviazione Locale & IndexedDB**: `localStorage` per configurazioni e record di sessione, `IndexedDB` nativo per memorizzare le registrazioni audio pesanti senza bloccare il browser.
 - **Service Worker e PWA scritti a mano**: precaching completo di asset, manifest e font.
 - **SVG Vector Graphics native**: nessun set di icone esterno; icone personalizzate scalabili e leggere.
 
 ---
 
-## 8. Comandi Disponibili
+## 9. Comandi Disponibili
 
 ```bash
 # Installa le dipendenze
@@ -196,7 +270,7 @@ npm run preview
 
 ---
 
-## 9. Come Cambiare il Base Path (GitHub Pages)
+## 10. Come Cambiare il Base Path (GitHub Pages)
 
 Nel file `vite.config.ts`, la costante `REPO_BASE` definisce il path base per GitHub Pages:
 
@@ -210,7 +284,7 @@ export const REPO_BASE = "/provocazioni-shiftate-codemotion-antigravity/";
 
 ---
 
-## 10. Come Aggiungere una Nuova Slide
+## 11. Come Aggiungere una Nuova Slide
 
 1. Crea il componente della slide in `src/features/presentation/slides/`, ad esempio `Slide15.tsx`:
    ```tsx
@@ -250,7 +324,7 @@ export const REPO_BASE = "/provocazioni-shiftate-codemotion-antigravity/";
 
 ---
 
-## 11. Come Aggiungere una Nuova Provocazione
+## 12. Come Aggiungere una Nuova Provocazione
 
 1. Crea il file della provocazione in `src/features/game/provocations/`, ad esempio `Provocation10.tsx`:
    ```tsx
@@ -293,7 +367,7 @@ export const REPO_BASE = "/provocazioni-shiftate-codemotion-antigravity/";
 
 ---
 
-## 12. Come Personalizzare Token di Brand e Logo
+## 13. Come Personalizzare Token di Brand e Logo
 
 ### Palette Colori
 I colori ufficiali del brand Codemotion sono definiti in `src/styles/_tokens.scss` (Dark mode) e `src/styles/_tokens_light.scss` (Light mode):
@@ -313,7 +387,7 @@ Puoi sostituire i vettori SVG con nuove icone o file immagine preservando l'alli
 
 ---
 
-## 13. Offline & PWA
+## 14. Offline & PWA
 
 - **Font WOFF2 locali**: tutti i font (IBM Plex Sans, IBM Plex Mono, Roboto) sono archiviati localmente in `public/fonts/`.
 - **Service Worker (`public/sw.js`)**: precache automatico degli asset compilati, della shell HTML, delle immagini e del manifest.

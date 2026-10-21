@@ -85,7 +85,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     transition: "fade-scale",
     transitionDurationMs: 600,
     assets: [
-      "images/slides/8-klippy-saw.jpg",
+      "images/slides/8-gioco-saw.jpg",
       "images/slides/klippy-saw.png",
     ],
   },

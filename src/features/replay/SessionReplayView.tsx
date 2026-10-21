@@ -10,7 +10,7 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAppState } from "../../state/AppStateContext";
 import { Stage } from "../../components/layout/Stage";
 import { SLIDES } from "../presentation/slides.registry";
-import { PROVOCATION_MAP } from "../game/provocations.registry";
+import { PROVOCATIONS } from "../game/provocations.registry";
 import { CountdownDisplay } from "../../components/ui/CountdownDisplay";
 import { Button } from "../../components/ui/Button";
 import { Badge } from "../../components/ui/Badge";
@@ -28,15 +28,17 @@ import {
   ensureSessionEvents,
   getReplayStateAt,
   getSessionTotalSeconds,
+  resolveReplayProvocation,
 } from "./replayUtils";
 import { ReplayControlBar } from "./ReplayControlBar";
 import styles from "./SessionReplayView.module.scss";
+import cardStyles from "../game/provocations/ProvocationCard.module.scss";
 
 const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 
-const KLIPPY_SAW_IMAGE = `${BASE_URL}images/slides/8-klippy-saw.jpg`;
+const KLIPPY_SAW_IMAGE = `${BASE_URL}images/slides/8-gioco-saw.jpg`;
 const STOP_CALLS_BG = `${BASE_URL}images/stop-alle-telefonate.jpg`;
 
 export const SessionReplayView: FC = () => {
@@ -395,6 +397,23 @@ export const SessionReplayView: FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleTogglePlay, handleExit, handleToggleMute, handlePrevEvent, handleNextEvent, handleSeek]);
 
+  // Active provocation resolved with robust fallbacks
+  const activeProvocation = useMemo(() => {
+    return resolveReplayProvocation(
+      replayState.currentProvocationId,
+      session,
+      replayState.activeEvent,
+      events,
+      currentTime
+    );
+  }, [
+    replayState.currentProvocationId,
+    replayState.activeEvent,
+    session,
+    events,
+    currentTime,
+  ]);
+
   if (!session) {
     return null;
   }
@@ -403,13 +422,7 @@ export const SessionReplayView: FC = () => {
   const currentSlide = SLIDES[replayState.slideIndex] ?? SLIDES[0];
   const SlideComponent = currentSlide ? currentSlide.component : () => null;
 
-  // Active provocation
-  const currentProvocation = replayState.currentProvocationId
-    ? PROVOCATION_MAP.get(replayState.currentProvocationId)
-    : null;
-  const ProvocationComponent = currentProvocation
-    ? currentProvocation.component
-    : null;
+  const ProvocationComponent = activeProvocation.Component;
 
   return (
     <div className={styles.replayViewport}>
@@ -530,10 +543,24 @@ export const SessionReplayView: FC = () => {
                 <div className={styles.provocationWrapper}>
                   {ProvocationComponent ? (
                     <ProvocationComponent />
-                  ) : (
-                    <div className={styles.idleContainer}>
-                      <h2>Provocazioni Esaurite!</h2>
+                  ) : activeProvocation.title ? (
+                    <div className={cardStyles.provocationCard}>
+                      <div className={cardStyles.contentWrapper}>
+                        <h2 className={cardStyles.title}>
+                          {activeProvocation.title}
+                        </h2>
+                        {activeProvocation.subtitle && (
+                          <p className={cardStyles.subtitle}>
+                            {activeProvocation.subtitle}
+                          </p>
+                        )}
+                      </div>
                     </div>
+                  ) : (
+                    (() => {
+                      const FallbackComp = PROVOCATIONS[0]!.component;
+                      return <FallbackComp />;
+                    })()
                   )}
 
                   <div className={styles.provocationControls}>

@@ -1,6 +1,6 @@
-import type { TalkSessionRecord, SessionEvent } from "../../types";
+import type { TalkSessionRecord, SessionEvent, ProvocationDefinition } from "../../types";
 import { SLIDES } from "../presentation/slides.registry";
-import { PROVOCATIONS } from "../game/provocations.registry";
+import { PROVOCATIONS, PROVOCATION_MAP } from "../game/provocations.registry";
 
 export interface ReplayState {
   mode: "presentation" | "game";
@@ -14,6 +14,318 @@ export interface ReplayState {
   stopCallsShown: boolean;
   activeEvent: SessionEvent | null;
   activeEventIndex: number;
+}
+
+export interface ResolvedReplayProvocation {
+  definition: ProvocationDefinition | null;
+  Component: React.ComponentType | null;
+  title: string;
+  subtitle?: string;
+  isCustom: boolean;
+}
+
+/**
+ * Robust extraction of the provocation ID or identifier from an event
+ */
+export function extractProvocationIdFromEvent(
+  evt: SessionEvent,
+  session?: TalkSessionRecord | null
+): string | null {
+  // 1. Direct details.provocationId
+  if (typeof evt.details?.provocationId === "string" && evt.details.provocationId.trim()) {
+    const rawId = evt.details.provocationId.trim();
+    if (PROVOCATION_MAP.has(rawId)) {
+      return rawId;
+    }
+    const stat = session?.provocations?.find((p) => p.id === rawId || p.provocationId === rawId);
+    if (stat) {
+      if (stat.provocationId && PROVOCATION_MAP.has(stat.provocationId)) {
+        return stat.provocationId;
+      }
+      if (stat.provocationTitle) {
+        const found = PROVOCATIONS.find(
+          (p) =>
+            p.title.toLowerCase().includes(stat.provocationTitle.toLowerCase()) ||
+            stat.provocationTitle.toLowerCase().includes(p.title.toLowerCase())
+        );
+        if (found) return found.id;
+      }
+    }
+    const numMatch = rawId.match(/\d+/);
+    if (numMatch) {
+      const idx = parseInt(numMatch[0]!, 10) - 1;
+      if (idx >= 0 && idx < PROVOCATIONS.length) {
+        return PROVOCATIONS[idx]!.id;
+      }
+    }
+    const byIdOrTitle = PROVOCATIONS.find(
+      (p) =>
+        p.id.toLowerCase() === rawId.toLowerCase() ||
+        p.title.toLowerCase().includes(rawId.toLowerCase())
+    );
+    if (byIdOrTitle) return byIdOrTitle.id;
+
+    return rawId;
+  }
+
+  // 2. details.provocationNumber
+  if (typeof evt.details?.provocationNumber === "number") {
+    const p = PROVOCATIONS[evt.details.provocationNumber - 1];
+    if (p) return p.id;
+  }
+
+  // 3. details.provocationTitle
+  if (typeof evt.details?.provocationTitle === "string" && evt.details.provocationTitle.trim()) {
+    const titleLower = evt.details.provocationTitle.toLowerCase();
+    const p = PROVOCATIONS.find(
+      (item) =>
+        item.title.toLowerCase().includes(titleLower) ||
+        titleLower.includes(item.title.toLowerCase())
+    );
+    if (p) return p.id;
+  }
+
+  // 4. Description parsing (e.g. "Mostro provocazione numero 2")
+  if (evt.description) {
+    const numMatch = evt.description.match(/provocazione\s+(?:numero\s+|#)?(\d+)/i);
+    if (numMatch) {
+      const num = parseInt(numMatch[1]!, 10);
+      const p = PROVOCATIONS[num - 1];
+      if (p) return p.id;
+    }
+    for (const p of PROVOCATIONS) {
+      if (evt.description.toLowerCase().includes(p.title.toLowerCase().slice(0, 25))) {
+        return p.id;
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Resolves the active provocation definition, component, and title/subtitle
+ * using multiple fallback strategies to ensure a provocation card is always
+ * faithfully shown during replay.
+ */
+export function resolveReplayProvocation(
+  provocationId: string | null | undefined,
+  session?: TalkSessionRecord | null,
+  activeEvent?: SessionEvent | null,
+  events?: SessionEvent[],
+  currentTimeSec?: number
+): ResolvedReplayProvocation {
+  // 1. Direct or normalized provocationId lookup
+  if (provocationId) {
+    if (PROVOCATION_MAP.has(provocationId)) {
+      const def = PROVOCATION_MAP.get(provocationId)!;
+      return {
+        definition: def,
+        Component: def.component,
+        title: def.title,
+        subtitle: def.subtitle,
+        isCustom: false,
+      };
+    }
+
+    const byId = PROVOCATIONS.find(
+      (p) => p.id.toLowerCase() === provocationId.toLowerCase()
+    );
+    if (byId) {
+      return {
+        definition: byId,
+        Component: byId.component,
+        title: byId.title,
+        subtitle: byId.subtitle,
+        isCustom: false,
+      };
+    }
+
+    const numMatch = provocationId.match(/\d+/);
+    if (numMatch) {
+      const idx = parseInt(numMatch[0]!, 10) - 1;
+      if (idx >= 0 && idx < PROVOCATIONS.length) {
+        const p = PROVOCATIONS[idx]!;
+        return {
+          definition: p,
+          Component: p.component,
+          title: p.title,
+          subtitle: p.subtitle,
+          isCustom: false,
+        };
+      }
+    }
+
+    const stat = session?.provocations?.find(
+      (p) => p.id === provocationId || p.provocationId === provocationId
+    );
+    if (stat) {
+      if (stat.provocationId && PROVOCATION_MAP.has(stat.provocationId)) {
+        const p = PROVOCATION_MAP.get(stat.provocationId)!;
+        return {
+          definition: p,
+          Component: p.component,
+          title: stat.provocationTitle || p.title,
+          subtitle: stat.provocationSubtitle || p.subtitle,
+          isCustom: false,
+        };
+      }
+      if (stat.provocationTitle) {
+        const tLower = stat.provocationTitle.toLowerCase();
+        const p = PROVOCATIONS.find(
+          (item) =>
+            item.title.toLowerCase().includes(tLower) ||
+            tLower.includes(item.title.toLowerCase())
+        );
+        if (p) {
+          return {
+            definition: p,
+            Component: p.component,
+            title: stat.provocationTitle,
+            subtitle: stat.provocationSubtitle || p.subtitle,
+            isCustom: false,
+          };
+        }
+        return {
+          definition: null,
+          Component: null,
+          title: stat.provocationTitle,
+          subtitle: stat.provocationSubtitle,
+          isCustom: true,
+        };
+      }
+    }
+  }
+
+  // 2. Active event lookup
+  if (activeEvent) {
+    const extId = extractProvocationIdFromEvent(activeEvent, session);
+    if (extId && PROVOCATION_MAP.has(extId)) {
+      const p = PROVOCATION_MAP.get(extId)!;
+      return {
+        definition: p,
+        Component: p.component,
+        title: activeEvent.details?.provocationTitle || p.title,
+        subtitle: p.subtitle,
+        isCustom: false,
+      };
+    }
+    if (activeEvent.details?.provocationTitle) {
+      const t = activeEvent.details.provocationTitle;
+      const p = PROVOCATIONS.find(
+        (item) =>
+          item.title.toLowerCase().includes(t.toLowerCase()) ||
+          t.toLowerCase().includes(item.title.toLowerCase())
+      );
+      if (p) {
+        return {
+          definition: p,
+          Component: p.component,
+          title: t,
+          subtitle: p.subtitle,
+          isCustom: false,
+        };
+      }
+      return {
+        definition: null,
+        Component: null,
+        title: t,
+        subtitle: undefined,
+        isCustom: true,
+      };
+    }
+  }
+
+  // 3. Scan backward in event history up to current playback timestamp
+  if (events && events.length > 0) {
+    const targetMs =
+      session?.startedAt && currentTimeSec !== undefined
+        ? session.startedAt + currentTimeSec * 1000
+        : Infinity;
+
+    for (let i = events.length - 1; i >= 0; i--) {
+      const evt = events[i]!;
+      if (evt.timestamp > targetMs) continue;
+
+      const extId = extractProvocationIdFromEvent(evt, session);
+      if (extId && PROVOCATION_MAP.has(extId)) {
+        const p = PROVOCATION_MAP.get(extId)!;
+        return {
+          definition: p,
+          Component: p.component,
+          title: p.title,
+          subtitle: p.subtitle,
+          isCustom: false,
+        };
+      }
+      if (evt.details?.provocationTitle) {
+        const t = evt.details.provocationTitle;
+        const p = PROVOCATIONS.find(
+          (item) =>
+            item.title.toLowerCase().includes(t.toLowerCase()) ||
+            t.toLowerCase().includes(item.title.toLowerCase())
+        );
+        if (p) {
+          return {
+            definition: p,
+            Component: p.component,
+            title: t,
+            subtitle: p.subtitle,
+            isCustom: false,
+          };
+        }
+      }
+    }
+  }
+
+  // 4. Session provocations list
+  if (session?.provocations && session.provocations.length > 0) {
+    const first = session.provocations[0]!;
+    if (first.provocationId && PROVOCATION_MAP.has(first.provocationId)) {
+      const p = PROVOCATION_MAP.get(first.provocationId)!;
+      return {
+        definition: p,
+        Component: p.component,
+        title: first.provocationTitle || p.title,
+        subtitle: first.provocationSubtitle || p.subtitle,
+        isCustom: false,
+      };
+    }
+    if (first.provocationTitle) {
+      const tLower = first.provocationTitle.toLowerCase();
+      const p = PROVOCATIONS.find(
+        (item) =>
+          item.title.toLowerCase().includes(tLower) ||
+          tLower.includes(item.title.toLowerCase())
+      );
+      if (p) {
+        return {
+          definition: p,
+          Component: p.component,
+          title: first.provocationTitle,
+          subtitle: first.provocationSubtitle || p.subtitle,
+          isCustom: false,
+        };
+      }
+      return {
+        definition: null,
+        Component: null,
+        title: first.provocationTitle,
+        subtitle: first.provocationSubtitle,
+        isCustom: true,
+      };
+    }
+  }
+
+  // 5. Safe fallback
+  const fallback = PROVOCATIONS[0]!;
+  return {
+    definition: fallback,
+    Component: fallback.component,
+    title: fallback.title,
+    subtitle: fallback.subtitle,
+    isCustom: false,
+  };
 }
 
 /**
@@ -115,6 +427,7 @@ function enrichSlideAnimationEvents(events: SessionEvent[], defaultEndTime: numb
 
   return result.sort((a, b) => a.timestamp - b.timestamp);
 }
+
 export function ensureSessionEvents(session: TalkSessionRecord): SessionEvent[] {
   const defaultEnd =
     session.endedAt ||
@@ -339,15 +652,16 @@ export function getReplayStateAt(
         }
         break;
 
-      case "MODE_CHANGE":
+      case "MODE_CHANGE": {
         if (evt.details?.mode) {
           mode = evt.details.mode;
         }
         if (typeof evt.details?.slideIndex === "number") {
           slideIndex = evt.details.slideIndex;
         }
-        if (typeof evt.details?.provocationId === "string") {
-          currentProvocationId = evt.details.provocationId;
+        const provId = extractProvocationIdFromEvent(evt, session);
+        if (provId) {
+          currentProvocationId = provId;
           gameStep = "PROVOCATION";
         } else if (mode === "game") {
           if (evt.description.toLowerCase().includes("sfida")) {
@@ -359,8 +673,9 @@ export function getReplayStateAt(
         }
         stopCallsShown = false;
         break;
+      }
 
-      case "NAVIGATION":
+      case "NAVIGATION": {
         if (evt.details?.path === "/game") {
           mode = "game";
         } else if (evt.details?.path === "/presentation") {
@@ -369,11 +684,13 @@ export function getReplayStateAt(
         if (typeof evt.details?.slideIndex === "number") {
           slideIndex = evt.details.slideIndex;
         }
-        if (typeof evt.details?.provocationId === "string") {
-          currentProvocationId = evt.details.provocationId;
+        const provId = extractProvocationIdFromEvent(evt, session);
+        if (provId) {
+          currentProvocationId = provId;
         }
         stopCallsShown = false;
         break;
+      }
 
       case "CHALLENGE_START":
         mode = "game";
@@ -381,38 +698,49 @@ export function getReplayStateAt(
         challengeStartTimestamp = evt.timestamp;
         break;
 
-      case "CHALLENGE_TIMEOUT":
+      case "CHALLENGE_TIMEOUT": {
         mode = "game";
         gameStep = "PROVOCATION";
-        break;
-
-      case "PROVOCATION_VIEW":
-        mode = "game";
-        gameStep = "PROVOCATION";
-        if (typeof evt.details?.provocationId === "string") {
-          currentProvocationId = evt.details.provocationId;
+        const provId = extractProvocationIdFromEvent(evt, session);
+        if (provId) {
+          currentProvocationId = provId;
         }
         break;
+      }
 
-      case "PROVOCATION_ACCEPT":
+      case "PROVOCATION_VIEW": {
+        mode = "game";
+        gameStep = "PROVOCATION";
+        const provId = extractProvocationIdFromEvent(evt, session);
+        if (provId) {
+          currentProvocationId = provId;
+        }
+        break;
+      }
+
+      case "PROVOCATION_ACCEPT": {
         mode = "game";
         gameStep = "DISCUSSION";
-        if (typeof evt.details?.provocationId === "string") {
-          currentProvocationId = evt.details.provocationId;
+        const provId = extractProvocationIdFromEvent(evt, session);
+        if (provId) {
+          currentProvocationId = provId;
         }
         discussionStartTimestamp = evt.timestamp;
         accumulatedPauseMs = 0;
         pauseStartTimestamp = null;
         isDiscussionPaused = false;
         break;
+      }
 
-      case "PROVOCATION_SKIP":
+      case "PROVOCATION_SKIP": {
         mode = "game";
         gameStep = "PROVOCATION";
-        if (typeof evt.details?.provocationId === "string") {
-          currentProvocationId = evt.details.provocationId;
+        const provId = extractProvocationIdFromEvent(evt, session);
+        if (provId) {
+          currentProvocationId = provId;
         }
         break;
+      }
 
       case "DISCUSSION_PAUSE":
         isDiscussionPaused = true;
@@ -429,7 +757,7 @@ export function getReplayStateAt(
 
       case "DISCUSSION_END":
         mode = "game";
-        gameStep = "PROVOCATION";
+        gameStep = "IDLE";
         discussionStartTimestamp = null;
         break;
 

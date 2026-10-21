@@ -32,7 +32,6 @@ export const APP_ASSETS_CATALOG = [
   "images/slides/7-ritorno-al-futuro.jpg",
   "images/slides/klippy-einstein.png",
   "images/slides/8-gioco-saw.jpg",
-  "images/slides/8-klippy-saw.jpg",
   "images/slides/klippy-saw.png",
   "images/slides/9-fight-club.jpg",
   "images/slides/10-klippy-lotta-tra-ai.jpg",
