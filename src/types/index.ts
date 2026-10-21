@@ -48,10 +48,15 @@ export interface AppStats {
   skippedCount: number;
 }
 
+export type SlideTransitionType = "fade-scale" | "fade" | "slide" | "cut";
+
 export interface SlideDefinition {
   id: string;
   title: string;
   component: ComponentType;
+  transition?: SlideTransitionType;
+  transitionDurationMs?: number;
+  assets?: readonly string[];
 }
 
 export interface ProvocationDefinition {
@@ -132,4 +137,3 @@ export interface TalkSessionRecord {
   gameDurationSeconds?: number; // total time spent in game mode (between intro and conclusione)
   events?: SessionEvent[];      // cronologia degli eventi registrati nella sessione
 }
-

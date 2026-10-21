@@ -1,4 +1,4 @@
-import { useCallback, type FC } from "react";
+import { useCallback, useRef, useEffect, type FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { Stage } from "../../components/layout/Stage";
 import { SLIDES } from "./slides.registry";
@@ -6,6 +6,8 @@ import { useAppState } from "../../state/AppStateContext";
 import { useKeyboardNavigation } from "../../hooks/useKeyboardNavigation";
 import { IconButton } from "../../components/ui/IconButton";
 import { ArrowLeftIcon, ArrowRightIcon, FinishIcon } from "../../components/icons";
+import { SlideTransition } from "./components/SlideTransition";
+import { useSlideImagePreload } from "./hooks/useSlideImagePreload";
 import styles from "./PresentationView.module.scss";
 
 export const PresentationView: FC = () => {
@@ -31,6 +33,22 @@ export const PresentationView: FC = () => {
   const isIntroEndSlide = currentIndex === introEndSlideIndex;
   const isLastSlide = currentIndex === totalSlides - 1;
   const showFinishButton = isLastSlide && !hasPendingSlideAnimations;
+
+  // Precarica in memoria e decodifica anticipatamente le immagini delle slide adiacenti
+  useSlideImagePreload(currentIndex, SLIDES);
+
+  // Traccia la direzione di navigazione (in avanti o a ritroso)
+  const prevIndexRef = useRef<number>(currentIndex);
+  const navigationDirection: "forward" | "backward" | "none" =
+    currentIndex > prevIndexRef.current
+      ? "forward"
+      : currentIndex < prevIndexRef.current
+      ? "backward"
+      : "none";
+
+  useEffect(() => {
+    prevIndexRef.current = currentIndex;
+  }, [currentIndex]);
 
   // Finalize session and navigate to analytics
   const handleEndSession = useCallback(() => {
@@ -95,11 +113,21 @@ export const PresentationView: FC = () => {
 
   const currentSlide = SLIDES[currentIndex] ?? SLIDES[0];
   const SlideComponent = currentSlide ? currentSlide.component : () => null;
+  const slideTransitionType = currentSlide?.transition ?? "fade-scale";
+  const slideTransitionDuration = currentSlide?.transitionDurationMs ?? 600;
 
   return (
     <div className={styles.wrapper}>
       <Stage>
-        <SlideComponent key={`${currentIndex}-${slideAnimKey}`} />
+        <SlideTransition
+          currentKey={`${currentIndex}-${slideAnimKey}`}
+          slideIndex={currentIndex}
+          direction={navigationDirection}
+          transitionType={slideTransitionType}
+          durationMs={slideTransitionDuration}
+        >
+          <SlideComponent key={`${currentIndex}-${slideAnimKey}`} />
+        </SlideTransition>
       </Stage>
 
       {/* Discrete bottom navigation controls */}

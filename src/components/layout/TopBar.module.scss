@@ -11,9 +11,12 @@
   user-select: none;
   flex-shrink: 0;
   transition: background-color var(--duration-base) var(--ease),
-              border-color var(--duration-base) var(--ease),
-              height var(--duration-base) var(--ease),
-              padding var(--duration-base) var(--ease);
+  border-color var(--duration-base) var(--ease),
+  height var(--duration-base) var(--ease),
+  padding var(--duration-base) var(--ease);
+  overflow-y: hidden;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
 .leftSection {
