@@ -1,32 +1,42 @@
+/* Floating Bottom Control Bar */
 .controlBarWrapper {
-  position: fixed;
-  bottom: var(--space-4);
+  position: absolute;
+  bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  width: min(94vw, 1100px);
-  z-index: 1000;
+  width: calc(100% - 48px);
+  max-width: 1080px;
+  background: rgba(14, 30, 48, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-xl, 16px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 210, 255, 0.2);
+  padding: var(--space-3) var(--space-4);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  background: rgba(14, 30, 48, 0.92);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.3);
-  border-radius: var(--radius-lg, 14px);
-  padding: var(--space-3) var(--space-4);
-  user-select: none;
+  z-index: 100;
   transition: opacity 0.3s ease, transform 0.3s ease;
+  user-select: none;
 
-  &.idleHidden {
-    opacity: 0.15;
-    &:hover {
-      opacity: 1;
-    }
+  @media (max-width: 768px) {
+    bottom: 12px;
+    width: calc(100% - 24px);
+    padding: var(--space-2) var(--space-3);
   }
 }
 
-/* Timeline scrubber */
+.idleHidden {
+  opacity: 0.15;
+  pointer-events: auto;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+/* Timeline Scrubber */
 .timelineScrubberContainer {
   position: relative;
   width: 100%;
@@ -37,11 +47,10 @@
 }
 
 .timelineTrack {
-  position: absolute;
-  left: 0;
-  right: 0;
+  position: relative;
+  width: 100%;
   height: 6px;
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 3px;
   overflow: visible;
 }
@@ -190,6 +199,31 @@
 
 .timeTotal {
   color: rgba(255, 255, 255, 0.5);
+}
+
+.audioControlsGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: var(--space-1);
+  padding-left: var(--space-2);
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.audioBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(94, 242, 184, 0.15);
+  border: 1px solid rgba(94, 242, 184, 0.35);
+  color: #5ef2b8;
+  border-radius: 999px;
+  padding: 2px 7px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .centerInfo {

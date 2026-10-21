@@ -1,0 +1,292 @@
+/* Talk Audio Player Component */
+.audioPlayerCard {
+  background: var(--color-surface);
+  border: 2px solid var(--color-mint);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  box-shadow: 4px 4px 0 -1px var(--color-mint), 4px 4px 0 0 #000000;
+
+  @media (max-width: 768px) {
+    padding: var(--space-4);
+    gap: var(--space-3);
+  }
+}
+
+.audioHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.audioTitleWrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.audioTitle {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.audioMeta {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--color-mint);
+  background-color: rgba(94, 242, 184, 0.12);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(94, 242, 184, 0.3);
+}
+
+.audioActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* Linear Timeline Scrubber Bar */
+.timelineScrubberContainer {
+  position: relative;
+  width: 100%;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.timelineTrack {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  overflow: visible;
+}
+
+:global([data-theme="light"]) .timelineTrack {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.timelineProgress {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, var(--color-primary, #1e66fa) 0%, var(--color-mint, #5ef2b8) 100%);
+  border-radius: 3px;
+  pointer-events: none;
+  transition: width 0.05s linear;
+}
+
+.timelineThumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid var(--color-primary, #1e66fa);
+  box-shadow: 0 0 10px rgba(94, 242, 184, 0.7), 0 2px 4px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  transition: transform 0.1s ease;
+}
+
+.rangeInput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 5;
+  margin: 0;
+}
+
+/* Controls Row */
+.controlsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+}
+
+:global([data-theme="light"]) .controlsRow {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.leftGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.playPauseBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-primary, #1e66fa);
+  color: #ffffff;
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0 #000000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s ease, background-color 0.15s ease, box-shadow 0.12s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 3px 3px 0 #000000;
+    background: #3b82f6;
+  }
+
+  &:active {
+    transform: translateY(1px);
+    box-shadow: 1px 1px 0 #000000;
+  }
+}
+
+.stepBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--color-mint);
+    color: var(--color-mint);
+  }
+}
+
+:global([data-theme="light"]) .stepBtn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.stepLabel {
+  font-size: 0.72rem;
+  opacity: 0.85;
+}
+
+.timeDisplay {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text);
+  padding: 0 var(--space-2);
+  white-space: nowrap;
+}
+
+.timeCurrent {
+  color: var(--color-mint);
+}
+
+.timeDivider {
+  color: var(--color-text-secondary);
+  opacity: 0.6;
+}
+
+.timeTotal {
+  color: var(--color-text-secondary);
+}
+
+.rightGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.volumeGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+}
+
+.volumeBtn {
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: var(--color-mint);
+  }
+}
+
+.volumeSlider {
+  width: 70px;
+  height: 4px;
+  accent-color: var(--color-mint);
+  cursor: pointer;
+}
+
+.speedGroup {
+  display: flex;
+  align-items: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+}
+
+.speedBtn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: var(--radius-xs, 2px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    color: var(--color-text);
+  }
+
+  &.activeSpeed {
+    background: var(--color-primary);
+    color: #ffffff;
+  }
+}

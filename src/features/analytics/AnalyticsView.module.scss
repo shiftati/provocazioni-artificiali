@@ -1122,3 +1122,69 @@
   gap: var(--space-3);
   margin-top: var(--space-6);
 }
+
+
+/* Audio Recording Player Card */
+.audioPlayerCard {
+  background: var(--color-surface);
+  border: 2px solid var(--color-mint);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  box-shadow: 4px 4px 0 -1px var(--color-mint), 4px 4px 0 0 #000000;
+
+  @media (max-width: 768px) {
+    padding: var(--space-4);
+    gap: var(--space-3);
+  }
+}
+
+.audioHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.audioTitleWrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.audioTitle {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.audioMeta {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--color-mint);
+  background-color: rgba(94, 242, 184, 0.12);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(94, 242, 184, 0.3);
+}
+
+.audioActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.nativeAudioElement {
+  width: 100%;
+  height: 44px;
+  border-radius: var(--radius-md);
+  outline: none;
+  filter: contrast(95%);
+}

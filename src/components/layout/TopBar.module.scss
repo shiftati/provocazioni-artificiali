@@ -197,3 +197,66 @@
     display: none !important;
   }
 }
+
+
+.recordingBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background-color: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  flex-shrink: 0;
+  user-select: none;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease);
+  animation: pulseRecording 2s infinite ease-in-out;
+
+  &:hover {
+    background-color: rgba(239, 68, 68, 0.25);
+    border-color: rgba(239, 68, 68, 0.8);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.35);
+  }
+}
+
+.recordingStopHint {
+  margin-left: 1px;
+  font-size: 0.7rem;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+
+  .recordingBadge:hover & {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+.recordingDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.9);
+}
+
+.recordingText {
+  font-weight: 700;
+}
+
+@keyframes pulseRecording {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(0.97);
+  }
+}

@@ -15,6 +15,7 @@ import { gameReducer, type GameAction } from "../features/game/game.machine";
 import { PROVOCATIONS, PROVOCATION_MAP } from "../features/game/provocations.registry";
 import { SLIDES } from "../features/presentation/slides.registry";
 import { createSampleSessions } from "../features/analytics/sampleData";
+import { saveAudioRecording, getSupportedAudioMimeType } from "../utils/audioStorage";
 import type {
   TalkConfig,
   AppSessionState,
@@ -44,6 +45,9 @@ export interface AppStateContextValue {
   isGlobalExpired: boolean;
   stopCallsOverlayOpen: boolean;
   isSessionActive: boolean;
+  isRecordingAudio: boolean;
+  audioRecordingError: string | null;
+  stopAudioRecording: () => void;
   // Sessions & Analytics
   sessions: TalkSessionRecord[];
   currentSessionId: string | null;
@@ -85,6 +89,42 @@ const AppStateContext = createContext<AppStateContextValue | null>(null);
 
 export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [config, setConfigState] = useState<TalkConfig>(() => appStorage.getConfig());
+  const [isRecordingAudio, setIsRecordingAudio] = useState<boolean>(false);
+  const [audioRecordingError, setAudioRecordingError] = useState<string | null>(null);
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioStreamRef = useRef<MediaStream | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingSessionIdRef = useRef<string | null>(null);
+  const recordingStartTimeRef = useRef<number | null>(null);
+
+  const stopAudioRecording = useCallback(() => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      try {
+        mediaRecorderRef.current.stop();
+      } catch (e) {
+        console.error("Error stopping audio recorder:", e);
+        if (audioStreamRef.current) {
+          audioStreamRef.current.getTracks().forEach((t) => t.stop());
+          audioStreamRef.current = null;
+        }
+        setIsRecordingAudio(false);
+      }
+    } else {
+      if (audioStreamRef.current) {
+        audioStreamRef.current.getTracks().forEach((t) => t.stop());
+        audioStreamRef.current = null;
+      }
+      setIsRecordingAudio(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      stopAudioRecording();
+    };
+  }, [stopAudioRecording]);
+
   const [session, setSessionState] = useState<AppSessionState>(() => {
     const saved = appStorage.getSession();
     const currentConfig = appStorage.getConfig();
@@ -575,6 +615,118 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     isDiscussionPausedRef.current = false;
     currentDiscussionProvStatIdRef.current = null;
     gameStartTimeRef.current = null;
+
+    // Start audio recording if enabled in activeConfig
+    if (activeConfig.audioRecordingEnabled && typeof navigator !== "undefined" && navigator.mediaDevices) {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        try {
+          mediaRecorderRef.current.stop();
+        } catch (e) {
+          console.error("Error stopping previous recorder:", e);
+        }
+      }
+      if (audioStreamRef.current) {
+        audioStreamRef.current.getTracks().forEach((t) => t.stop());
+        audioStreamRef.current = null;
+      }
+
+      const constraints: MediaStreamConstraints = {
+        audio:
+          activeConfig.audioDeviceId && activeConfig.audioDeviceId !== "default"
+            ? { deviceId: { exact: activeConfig.audioDeviceId } }
+            : true,
+      };
+
+      navigator.mediaDevices
+        .getUserMedia(constraints)
+        .then((stream) => {
+          audioStreamRef.current = stream;
+          const mimeType = getSupportedAudioMimeType();
+          const options: MediaRecorderOptions = mimeType ? { mimeType } : {};
+          const recorder = new MediaRecorder(stream, options);
+          mediaRecorderRef.current = recorder;
+          audioChunksRef.current = [];
+          recordingSessionIdRef.current = newSessionId;
+          recordingStartTimeRef.current = Date.now();
+
+          recorder.ondataavailable = (e) => {
+            if (e.data && e.data.size > 0) {
+              audioChunksRef.current.push(e.data);
+            }
+          };
+
+          recorder.onstop = async () => {
+            const targetSessionId = recordingSessionIdRef.current;
+            const recStart = recordingStartTimeRef.current;
+            const chunks = audioChunksRef.current;
+            const finalMime = recorder.mimeType || mimeType || "audio/webm";
+
+            if (targetSessionId && chunks.length > 0) {
+              const audioBlob = new Blob(chunks, { type: finalMime });
+              const durationSec = recStart
+                ? Math.max(1, Math.round((Date.now() - recStart) / 1000))
+                : undefined;
+
+              try {
+                await saveAudioRecording({
+                  sessionId: targetSessionId,
+                  blob: audioBlob,
+                  mimeType: finalMime,
+                  durationSeconds: durationSec,
+                  createdAt: Date.now(),
+                });
+                setSessionsState((prev) => {
+                  const updated = prev.map((s) =>
+                    s.id === targetSessionId
+                      ? {
+                          ...s,
+                          hasAudio: true,
+                          audioMimeType: finalMime,
+                          audioDurationSeconds: durationSec,
+                        }
+                      : s
+                  );
+                  appStorage.saveSessions(updated);
+                  return updated;
+                });
+              } catch (err) {
+                console.error("Failed to save audio recording to IndexedDB:", err);
+              }
+            }
+
+            if (audioStreamRef.current) {
+              audioStreamRef.current.getTracks().forEach((t) => t.stop());
+              audioStreamRef.current = null;
+            }
+            setIsRecordingAudio(false);
+            mediaRecorderRef.current = null;
+            audioChunksRef.current = [];
+            recordingSessionIdRef.current = null;
+            recordingStartTimeRef.current = null;
+          };
+
+          recorder.onerror = (event) => {
+            console.error("MediaRecorder error:", event);
+            setAudioRecordingError("Errore durante la registrazione audio");
+            setIsRecordingAudio(false);
+          };
+
+          recorder.start(1000);
+          setIsRecordingAudio(true);
+          setAudioRecordingError(null);
+        })
+        .catch((err) => {
+          console.error("getUserMedia error:", err);
+          setAudioRecordingError(
+            err.name === "NotAllowedError" || err.name === "PermissionDeniedError"
+              ? "Permesso microfono negato"
+              : "Impossibile accedere al microfono selezionato"
+          );
+          setIsRecordingAudio(false);
+        });
+    } else {
+      setIsRecordingAudio(false);
+    }
   }, [config.endTime, config.endTimestamp, updateActiveSession]);
 
   const finalizeActiveDiscussion = useCallback(
@@ -620,6 +772,9 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const endTalk = useCallback(() => {
     const now = Date.now();
+
+    // Stop audio recording if active
+    stopAudioRecording();
 
     logSessionEvent("SESSION_END", "Concluso talk e terminata sessione", undefined, now);
 
@@ -707,7 +862,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     slideStartTimeRef.current = now;
     setPreviousSlideIndex(null);
     slideStepHandlerRef.current = null;
-  }, [updateActiveSession, finalizeActiveDiscussion, logSessionEvent]);
+  }, [updateActiveSession, finalizeActiveDiscussion, logSessionEvent, stopAudioRecording]);
 
   const setSlideIndex = useCallback(
     (index: number) => {
@@ -1096,6 +1251,9 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   );
 
   const resetAll = useCallback(() => {
+    // Stop audio recording if active
+    stopAudioRecording();
+
     // Finalize any ongoing active session before reset
     const now = Date.now();
     if (currentSessionIdRef.current) {
@@ -1107,6 +1265,20 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
           : curr.totalDurationSeconds,
       }));
     }
+
+    // Stop audio recording if active
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      try {
+        mediaRecorderRef.current.stop();
+      } catch (e) {
+        console.error("Error stopping audio recorder on reset:", e);
+      }
+    }
+    if (audioStreamRef.current) {
+      audioStreamRef.current.getTracks().forEach((t) => t.stop());
+      audioStreamRef.current = null;
+    }
+    setIsRecordingAudio(false);
 
     // Reset live state
     appStorage.clearAll();
@@ -1213,6 +1385,9 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         isGlobalExpired,
         stopCallsOverlayOpen,
         isSessionActive,
+        isRecordingAudio,
+        audioRecordingError,
+        stopAudioRecording,
         sessions,
         currentSessionId,
         activeSessionRecord,

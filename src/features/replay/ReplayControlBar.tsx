@@ -7,6 +7,9 @@ import {
   StepBackIcon,
   StepForwardIcon,
   CloseIcon,
+  MicIcon,
+  VolumeHighIcon,
+  VolumeMuteIcon,
 } from "../../components/icons";
 import styles from "./ReplayControlBar.module.scss";
 
@@ -18,6 +21,9 @@ export interface ReplayControlBarProps {
   activeEvent: SessionEvent | null;
   events: SessionEvent[];
   sessionStartTime: number;
+  hasAudio?: boolean;
+  isMuted?: boolean;
+  onToggleMute?: () => void;
   onTogglePlay: () => void;
   onSeek: (seconds: number) => void;
   onSetSpeed: (speed: number) => void;
@@ -37,6 +43,9 @@ export const ReplayControlBar: FC<ReplayControlBarProps> = ({
   activeEvent,
   events,
   sessionStartTime,
+  hasAudio = false,
+  isMuted = false,
+  onToggleMute,
   onTogglePlay,
   onSeek,
   onSetSpeed,
@@ -164,6 +173,26 @@ export const ReplayControlBar: FC<ReplayControlBarProps> = ({
               / {formatDurationSeconds(Math.floor(totalDurationSeconds))}
             </span>
           </div>
+
+          {hasAudio && (
+            <div className={styles.audioControlsGroup}>
+              {onToggleMute && (
+                <button
+                  type="button"
+                  className={styles.iconBtn}
+                  onClick={onToggleMute}
+                  title={isMuted ? "Attiva audio talk (M)" : "Silenzia audio talk (M)"}
+                  aria-label={isMuted ? "Attiva audio talk" : "Silenzia audio talk"}
+                >
+                  {isMuted ? <VolumeMuteIcon size={16} /> : <VolumeHighIcon size={16} />}
+                </button>
+              )}
+              <span className={styles.audioBadge} title="Traccia audio registrata sincronizzata al replay">
+                <MicIcon size={12} />
+                <span>AUDIO SYNC</span>
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Center: Current active event pill */}

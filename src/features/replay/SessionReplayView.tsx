@@ -23,6 +23,7 @@ import {
   CloseIcon,
 } from "../../components/icons";
 import { formatDateTime } from "../../utils/time";
+import { getAudioRecording } from "../../utils/audioStorage";
 import {
   ensureSessionEvents,
   getReplayStateAt,
@@ -65,10 +66,51 @@ export const SessionReplayView: FC = () => {
     return ensureSessionEvents(session);
   }, [session]);
 
+  // Audio recording state
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioDuration, setAudioDuration] = useState<number | null>(null);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    let isCurrent = true;
+    let url: string | null = null;
+
+    if (session?.id) {
+      getAudioRecording(session.id, session.totalDurationSeconds).then((rec) => {
+        if (!isCurrent) return;
+        if (rec) {
+          url = URL.createObjectURL(rec.blob);
+          setAudioUrl(url);
+          if (rec.durationSeconds) {
+            setAudioDuration(rec.durationSeconds);
+          }
+        } else {
+          setAudioUrl(null);
+          setAudioDuration(null);
+        }
+      });
+    } else {
+      setAudioUrl(null);
+      setAudioDuration(null);
+    }
+
+    return () => {
+      isCurrent = false;
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    };
+  }, [session?.id, session?.totalDurationSeconds]);
+
   const totalDurationSeconds = useMemo(() => {
     if (!session) return 60;
-    return getSessionTotalSeconds(session, events);
-  }, [session, events]);
+    const dur = getSessionTotalSeconds(session, events);
+    if (audioDuration && audioDuration > dur) {
+      return audioDuration;
+    }
+    return dur;
+  }, [session, events, audioDuration]);
 
   // Initial start time offset from query param ?startAt=epochMs
   const initialTime = useMemo(() => {
@@ -94,6 +136,59 @@ export const SessionReplayView: FC = () => {
   const currentTimeRef = useRef(currentTime);
   currentTimeRef.current = currentTime;
 
+  // Set initial time on audio element once loaded
+  useEffect(() => {
+    const el = audioRef.current;
+    if (el && initialTime > 0) {
+      const handleMetadata = () => {
+        try {
+          el.currentTime = initialTime;
+        } catch (e) {
+          console.warn("Could not set initial audio currentTime:", e);
+        }
+      };
+      if (el.readyState >= 1) {
+        handleMetadata();
+      } else {
+        el.addEventListener("loadedmetadata", handleMetadata, { once: true });
+        return () => el.removeEventListener("loadedmetadata", handleMetadata);
+      }
+    }
+  }, [initialTime, audioUrl]);
+
+  // Sync isPlaying with audio element
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !audioUrl) return;
+
+    if (isPlaying) {
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
+          console.warn("Audio autoplay blocked or error:", err);
+          if (err.name === "NotAllowedError") {
+            setIsPlaying(false);
+          }
+        });
+      }
+    } else {
+      audio.pause();
+    }
+  }, [isPlaying, audioUrl]);
+
+  // Sync playback rate and muted state on audio
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    try {
+      audio.playbackRate = Math.min(16, playbackSpeed);
+      // Mute audio at high speeds (>= 5x) to avoid screeching
+      audio.muted = isMuted || playbackSpeed >= 5;
+    } catch (e) {
+      console.warn("Failed to set audio playback rate:", e);
+    }
+  }, [playbackSpeed, isMuted]);
+
   // Auto-hide controls when mouse is inactive
   useEffect(() => {
     let idleTimer: NodeJS.Timeout;
@@ -116,7 +211,9 @@ export const SessionReplayView: FC = () => {
     };
   }, []);
 
-  // Main playback animation loop
+  // Main playback animation loop:
+  // If synchronized audio is playing, audio hardware clock is the source of truth.
+  // Otherwise, fallback / normal deltaSec clock runs identically to before.
   useEffect(() => {
     if (!isPlaying) return;
 
@@ -124,24 +221,36 @@ export const SessionReplayView: FC = () => {
     let animFrameId: number;
 
     const tick = (now: number) => {
-      const deltaSec = ((now - lastTimestamp) / 1000) * playbackSpeed;
-      lastTimestamp = now;
+      const audio = audioRef.current;
+      const hasActiveAudio = Boolean(audio && audioUrl && !audio.paused && !audio.ended);
 
-      setCurrentTime((prev) => {
-        const next = prev + deltaSec;
-        if (next >= totalDurationSeconds) {
+      if (hasActiveAudio && audio) {
+        const audioTime = audio.currentTime;
+        setCurrentTime(audioTime);
+
+        if (audio.ended || audioTime >= totalDurationSeconds) {
           setIsPlaying(false);
-          return totalDurationSeconds;
+          return;
         }
-        return next;
-      });
+      } else {
+        const deltaSec = ((now - lastTimestamp) / 1000) * playbackSpeed;
+        setCurrentTime((prev) => {
+          const next = prev + deltaSec;
+          if (next >= totalDurationSeconds) {
+            setIsPlaying(false);
+            return totalDurationSeconds;
+          }
+          return next;
+        });
+      }
 
+      lastTimestamp = now;
       animFrameId = requestAnimationFrame(tick);
     };
 
     animFrameId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(animFrameId);
-  }, [isPlaying, playbackSpeed, totalDurationSeconds]);
+  }, [isPlaying, playbackSpeed, totalDurationSeconds, audioUrl]);
 
   // Compute active replay state at current time
   const replayState = useMemo(() => {
@@ -166,20 +275,44 @@ export const SessionReplayView: FC = () => {
     (seconds: number) => {
       const clamped = Math.min(totalDurationSeconds, Math.max(0, seconds));
       setCurrentTime(clamped);
+
+      if (audioRef.current && audioUrl) {
+        const audioDur =
+          Number.isFinite(audioRef.current.duration) && audioRef.current.duration > 0
+            ? audioRef.current.duration
+            : (audioDuration ?? totalDurationSeconds);
+        const targetAudioTime = Math.min(audioDur, clamped);
+        try {
+          audioRef.current.currentTime = targetAudioTime;
+        } catch (e) {
+          console.warn("Error seeking audio:", e);
+        }
+      }
     },
-    [totalDurationSeconds]
+    [totalDurationSeconds, audioUrl, audioDuration]
   );
 
   const handleTogglePlay = useCallback(() => {
     setIsPlaying((prev) => {
-      // If at end, replay from beginning
-      if (!prev && currentTimeRef.current >= totalDurationSeconds) {
+      const next = !prev;
+      if (next && currentTimeRef.current >= totalDurationSeconds) {
         setCurrentTime(0);
+        if (audioRef.current) {
+          try {
+            audioRef.current.currentTime = 0;
+          } catch (e) {
+            console.warn("Failed to rewind audio:", e);
+          }
+        }
         return true;
       }
-      return !prev;
+      return next;
     });
   }, [totalDurationSeconds]);
+
+  const handleToggleMute = useCallback(() => {
+    setIsMuted((prev) => !prev);
+  }, []);
 
   const handlePrevEvent = useCallback(() => {
     if (!session || events.length === 0) return;
@@ -227,6 +360,9 @@ export const SessionReplayView: FC = () => {
       } else if (e.key === "Escape") {
         e.preventDefault();
         handleExit();
+      } else if (e.key === "m" || e.key === "M") {
+        e.preventDefault();
+        handleToggleMute();
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
         if (e.shiftKey) {
@@ -256,7 +392,7 @@ export const SessionReplayView: FC = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleTogglePlay, handleExit, handlePrevEvent, handleNextEvent, handleSeek]);
+  }, [handleTogglePlay, handleExit, handleToggleMute, handlePrevEvent, handleNextEvent, handleSeek]);
 
   if (!session) {
     return null;
@@ -276,6 +412,17 @@ export const SessionReplayView: FC = () => {
 
   return (
     <div className={styles.replayViewport}>
+      {/* Hidden synchronized audio element */}
+      {audioUrl && (
+        <audio
+          ref={audioRef}
+          src={audioUrl}
+          preload="auto"
+          playsInline
+          style={{ display: "none" }}
+        />
+      )}
+
       {/* Top Replay Badge & Session Name */}
       <header className={styles.topReplayBar}>
         <div className={styles.topPill}>
@@ -479,6 +626,9 @@ export const SessionReplayView: FC = () => {
         activeEvent={replayState.activeEvent}
         events={events}
         sessionStartTime={session.startedAt}
+        hasAudio={Boolean(audioUrl)}
+        isMuted={isMuted}
+        onToggleMute={handleToggleMute}
         onTogglePlay={handleTogglePlay}
         onSeek={handleSeek}
         onSetSpeed={setPlaybackSpeed}

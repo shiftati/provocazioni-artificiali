@@ -1,5 +1,6 @@
 import type { TalkConfig, AppSessionState, GameState, AppStats, TalkSessionRecord } from "../types";
 import { deduplicateProvocations, getSessionGameDuration } from "../utils/time";
+import { deleteAudioRecording, clearAllAudioRecordings } from "../utils/audioStorage";
 
 interface VersionedEnvelope<T> {
   version: number;
@@ -27,6 +28,8 @@ export const DEFAULT_CONFIG: TalkConfig = {
   conclusionMinutes: 5,
   introEndSlide: 10,
   navOnSlide: true,
+  audioRecordingEnabled: false,
+  audioDeviceId: "default",
 };
 
 export const DEFAULT_SESSION: AppSessionState = {
@@ -98,6 +101,12 @@ export const appStorage = {
         typeof cfg.conclusionMinutes === "number" ? cfg.conclusionMinutes : 5,
       navOnSlide:
         typeof cfg.navOnSlide === "boolean" ? cfg.navOnSlide : true,
+      audioRecordingEnabled:
+        typeof cfg.audioRecordingEnabled === "boolean"
+          ? cfg.audioRecordingEnabled
+          : false,
+      audioDeviceId:
+        typeof cfg.audioDeviceId === "string" ? cfg.audioDeviceId : "default",
     };
   },
   saveConfig(config: TalkConfig): void {
@@ -220,6 +229,7 @@ export const appStorage = {
   deleteSession(id: string): void {
     const list = this.getSessions().filter((s) => s.id !== id);
     this.saveSessions(list);
+    deleteAudioRecording(id).catch(() => {});
     if (this.getCurrentSessionId() === id) {
       this.saveCurrentSessionId(null);
     }
@@ -227,6 +237,7 @@ export const appStorage = {
   clearAllSessions(): void {
     this.saveSessions([]);
     this.saveCurrentSessionId(null);
+    clearAllAudioRecordings().catch(() => {});
   },
 
   // Reset methods

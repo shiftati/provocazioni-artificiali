@@ -42,6 +42,8 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
     config,
     setMode,
     isSessionActive,
+    isRecordingAudio,
+    stopAudioRecording,
     theme,
     setTheme,
     replaySlideAnimation,
@@ -238,6 +240,21 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
       </div>
 
       <div className={styles.rightSection}>
+        {isRecordingAudio && (
+          <button
+            type="button"
+            className={styles.recordingBadge}
+            onClick={stopAudioRecording}
+            title="Registrazione audio microfono attiva. Fai clic per interrompere."
+            role="status"
+            aria-label="Registrazione audio in corso. Clicca per interrompere."
+          >
+            <span className={styles.recordingDot} />
+            <span className={styles.recordingText}>REC</span>
+            <span className={styles.recordingStopHint}>✕</span>
+          </button>
+        )}
+
         {isSessionActive && (
           <div className={styles.countdownWrapper} title={countdownTitle}>
             <ClockIcon size={20} style={{ color: "var(--color-accent)" }} />

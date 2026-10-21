@@ -11,6 +11,8 @@ export interface TalkConfig {
   conclusionMinutes?: number; // minuti dedicati alla conclusione
   introEndSlide?: number;     // ultima slide dell'introduzione (1-based, default 11)
   navOnSlide?: boolean;       // true: sopra la slide (default); false: nell'intestazione
+  audioRecordingEnabled?: boolean; // true: registra audio dal microfono durante il talk
+  audioDeviceId?: string;     // id dispositivo microfono selezionato ('default' o deviceId specifico)
 }
 
 export interface AppSessionState {
@@ -136,4 +138,7 @@ export interface TalkSessionRecord {
   introEndSlide?: number;       // ultima slide dell'introduzione (1-based, default 11)
   gameDurationSeconds?: number; // total time spent in game mode (between intro and conclusione)
   events?: SessionEvent[];      // cronologia degli eventi registrati nella sessione
+  hasAudio?: boolean;           // true se è presente una registrazione audio in IndexedDB
+  audioMimeType?: string;       // es. "audio/webm;codecs=opus"
+  audioDurationSeconds?: number;// durata stimata dell'audio registrato
 }

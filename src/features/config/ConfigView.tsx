@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, type FC } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback, type FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppState } from "../../state/AppStateContext";
 import { useFullscreen } from "../../hooks/useFullscreen";
@@ -27,6 +27,8 @@ import {
   AnalyticsIcon,
   DownloadIcon,
   FinishIcon,
+  MicIcon,
+  MicOffIcon,
 } from "../../components/icons";
 import { usePwaInstall } from "../../hooks/usePwaInstall";
 import { useOfflineCache } from "../../hooks/useOfflineCache";
@@ -47,6 +49,8 @@ export const ConfigView: FC = () => {
     endTalk,
     resetAll,
     isSessionActive,
+    isRecordingAudio,
+    stopAudioRecording,
   } = useAppState();
   const { requestFullscreen } = useFullscreen();
   const { isInstallable, isInstalled, installApp } = usePwaInstall();
@@ -84,6 +88,145 @@ export const ConfigView: FC = () => {
   const [introEndSlide, setIntroEndSlide] = useState<number>(() => {
     return typeof config.introEndSlide === "number" ? config.introEndSlide : 10;
   });
+
+  // Audio Recording configuration state
+  const [audioRecordingEnabled, setAudioRecordingEnabled] = useState<boolean>(
+    () => config.audioRecordingEnabled ?? false
+  );
+  const [audioDeviceId, setAudioDeviceId] = useState<string>(
+    () => config.audioDeviceId ?? "default"
+  );
+  const [availableMics, setAvailableMics] = useState<
+    Array<{ deviceId: string; label: string }>
+  >([]);
+  const [micPermissionState, setMicPermissionState] = useState<
+    "prompt" | "granted" | "denied"
+  >("prompt");
+  const [isTestingMic, setIsTestingMic] = useState(false);
+  const [audioLevel, setAudioLevel] = useState<number>(0);
+
+  const testStreamRef = useRef<MediaStream | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const animFrameRef = useRef<number | null>(null);
+
+  const refreshMicrophones = useCallback(async () => {
+    if (typeof navigator === "undefined" || !navigator.mediaDevices?.enumerateDevices) return;
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const audioInputs = devices
+        .filter((d) => d.kind === "audioinput")
+        .map((d, index) => ({
+          deviceId: d.deviceId,
+          label: d.label || `Microfono ${index + 1}`,
+        }));
+      setAvailableMics(audioInputs);
+      const hasLabels = audioInputs.some((d) => Boolean(d.label));
+      if (hasLabels) {
+        setMicPermissionState("granted");
+      }
+    } catch (err) {
+      console.warn("Error enumerating audio devices:", err);
+    }
+  }, []);
+
+  const requestMicPermission = async () => {
+    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) return;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setMicPermissionState("granted");
+      stream.getTracks().forEach((t) => t.stop());
+      await refreshMicrophones();
+    } catch (err) {
+      console.warn("Microphone permission denied:", err);
+      setMicPermissionState("denied");
+    }
+  };
+
+  useEffect(() => {
+    if (typeof navigator !== "undefined" && navigator.mediaDevices) {
+      refreshMicrophones();
+      navigator.mediaDevices.addEventListener?.("devicechange", refreshMicrophones);
+      return () => {
+        navigator.mediaDevices.removeEventListener?.("devicechange", refreshMicrophones);
+      };
+    }
+  }, [refreshMicrophones]);
+
+  const stopMicTest = useCallback(() => {
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+    if (testStreamRef.current) {
+      testStreamRef.current.getTracks().forEach((t) => t.stop());
+      testStreamRef.current = null;
+    }
+    if (audioCtxRef.current) {
+      audioCtxRef.current.close().catch(() => {});
+      audioCtxRef.current = null;
+    }
+    setIsTestingMic(false);
+    setAudioLevel(0);
+  }, []);
+
+  const startMicTest = async () => {
+    if (isTestingMic) {
+      stopMicTest();
+      return;
+    }
+
+    try {
+      const constraints: MediaStreamConstraints = {
+        audio:
+          audioDeviceId && audioDeviceId !== "default"
+            ? { deviceId: { exact: audioDeviceId } }
+            : true,
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      testStreamRef.current = stream;
+      setMicPermissionState("granted");
+      refreshMicrophones();
+
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const audioCtx = new AudioCtx();
+      audioCtxRef.current = audioCtx;
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      analyserRef.current = analyser;
+
+      const source = audioCtx.createMediaStreamSource(stream);
+      source.connect(analyser);
+
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      setIsTestingMic(true);
+
+      const updateMeter = () => {
+        if (!analyserRef.current) return;
+        analyserRef.current.getByteFrequencyData(dataArray);
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+          sum += dataArray[i] ?? 0;
+        }
+        const average = sum / dataArray.length;
+        const level = Math.min(100, Math.round((average / 128) * 100 * 1.5));
+        setAudioLevel(level);
+        animFrameRef.current = requestAnimationFrame(updateMeter);
+      };
+      updateMeter();
+    } catch (err) {
+      console.warn("Microphone test error:", err);
+      setMicPermissionState("denied");
+      stopMicTest();
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      stopMicTest();
+    };
+  }, [stopMicTest]);
 
   const [hasSavedToast, setHasSavedToast] = useState<boolean>(false);
   const [confirmResetOpen, setConfirmResetOpen] = useState<boolean>(false);
@@ -139,6 +282,8 @@ export const ConfigView: FC = () => {
       conclusionMinutes: Math.max(0, conclusionMinutes || 0),
       introEndSlide,
       navOnSlide,
+      audioRecordingEnabled,
+      audioDeviceId,
     });
 
     setHasSavedToast(true);
@@ -147,6 +292,7 @@ export const ConfigView: FC = () => {
 
   const proceedStart = async () => {
     if (!parsedTarget) return;
+    stopMicTest();
 
     const newConfigData = {
       endTime: timeValue,
@@ -156,6 +302,8 @@ export const ConfigView: FC = () => {
       conclusionMinutes: Math.max(0, conclusionMinutes || 0),
       introEndSlide,
       navOnSlide,
+      audioRecordingEnabled,
+      audioDeviceId,
     };
 
     // Save configuration
@@ -182,6 +330,7 @@ export const ConfigView: FC = () => {
   };
 
   const handleResume = async () => {
+    stopMicTest();
     await requestFullscreen();
     if (session.mode === "game") {
       navigate("/game");
@@ -317,6 +466,17 @@ export const ConfigView: FC = () => {
               </div>
 
               <div className={styles.actionsRow}>
+                {isRecordingAudio && (
+                  <Button
+                    variant="danger"
+                    size="md"
+                    onClick={stopAudioRecording}
+                    leftIcon={<MicOffIcon size={18} />}
+                    title="Interrompi e salva subito la registrazione audio in corso"
+                  >
+                    Ferma registrazione audio
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="md"
@@ -438,6 +598,146 @@ export const ConfigView: FC = () => {
               }))}
               hint={`La slide selezionata è l'ultima slide dell'introduzione (default #10). Lo 'Stop alle telefonate' passerà alla slide successiva (#${introEndSlide + 1}${SLIDES[introEndSlide] ? `: ${SLIDES[introEndSlide].title}` : ""}).`}
             />
+
+            {/* Audio Recording Section */}
+            <div className={styles.themeSection}>
+              <div className={styles.micHeader}>
+                <label className={styles.themeLabel} id="audio-recording-label">
+                  Registrazione audio
+                </label>
+                {isRecordingAudio ? (
+                  <Badge variant="danger">
+                    ● Registrazione in corso
+                  </Badge>
+                ) : audioRecordingEnabled ? (
+                  <Badge variant="accent">
+                    {isTestingMic ? "Test in corso" : "Attiva al via"}
+                  </Badge>
+                ) : null}
+              </div>
+              <SegmentedControl<"enabled" | "disabled">
+                options={[
+                  { value: "disabled", label: "Disabilitata" },
+                  { value: "enabled", label: "🎙️ Abilitata" },
+                ]}
+                value={audioRecordingEnabled ? "enabled" : "disabled"}
+                onChange={(val) => {
+                  const enabled = val === "enabled";
+                  setAudioRecordingEnabled(enabled);
+                  if (enabled && micPermissionState === "prompt") {
+                    requestMicPermission();
+                  }
+                  if (!enabled) {
+                    if (isTestingMic) {
+                      stopMicTest();
+                    }
+                    if (isRecordingAudio) {
+                      stopAudioRecording();
+                    }
+                  }
+                }}
+                ariaLabel="Abilita o disabilita registrazione audio"
+              />
+              <span className={styles.themeHint}>
+                {audioRecordingEnabled
+                  ? "Registra l'audio dal microfono selezionato da 'Inizia il talk' fino alla conclusione. Salvataggio locale in memoria browser (IndexedDB)."
+                  : "Nessun audio verrà registrato durante il talk."}
+              </span>
+
+              {isRecordingAudio && (
+                <div className={styles.recordingActiveNotice}>
+                  <div className={styles.recordingActiveInfo}>
+                    <span className={styles.recordingActiveDot} />
+                    <div className={styles.recordingActiveText}>
+                      <strong>Registrazione audio attualmente in corso</strong>
+                      <span>Il microfono sta catturando l'audio del talk in tempo reale.</span>
+                    </div>
+                  </div>
+                  <Button
+                    variant="danger"
+                    size="md"
+                    onClick={stopAudioRecording}
+                    leftIcon={<MicOffIcon size={16} />}
+                  >
+                    Ferma Registrazione
+                  </Button>
+                </div>
+              )}
+
+              {audioRecordingEnabled && (
+                <div className={styles.micSettingsWrapper}>
+                  {micPermissionState === "denied" && (
+                    <div className={styles.permissionErrorBanner} role="alert">
+                      <MicOffIcon size={18} />
+                      <span>
+                        Accesso al microfono negato nel browser.
+                        Abilita il permesso per registrare l'audio.
+                      </span>
+                    </div>
+                  )}
+
+                  {micPermissionState === "prompt" && (
+                    <div className={styles.permissionBanner}>
+                      <span>
+                        Per selezionare il microfono specifico e visualizzare i nomi, è richiesta l'autorizzazione.
+                      </span>
+                      <Button
+                        variant="secondary"
+                        size="md"
+                        onClick={requestMicPermission}
+                        leftIcon={<MicIcon size={16} />}
+                      >
+                        Autorizza Microfono
+                      </Button>
+                    </div>
+                  )}
+
+                  <SelectInput
+                    id="talk-audio-device"
+                    label="Microfono da utilizzare"
+                    value={audioDeviceId}
+                    onChange={(e) => {
+                      setAudioDeviceId(e.target.value);
+                      if (isTestingMic) {
+                        stopMicTest();
+                      }
+                    }}
+                    options={[
+                      { value: "default", label: "Microfono predefinito di sistema" },
+                      ...availableMics
+                        .filter((m) => m.deviceId !== "default")
+                        .map((m) => ({
+                          value: m.deviceId,
+                          label: m.label,
+                        })),
+                    ]}
+                    hint="Scegli la sorgente microfonica da cui catturare l'audio del talk."
+                  />
+
+                  <div className={styles.micTestRow}>
+                    <Button
+                      variant={isTestingMic ? "primary" : "secondary"}
+                      size="md"
+                      onClick={startMicTest}
+                      leftIcon={isTestingMic ? <MicOffIcon size={16} /> : <MicIcon size={16} />}
+                    >
+                      {isTestingMic ? "Ferma Test" : "Testa Microfono"}
+                    </Button>
+                    <div className={styles.meterWrapper}>
+                      <div className={styles.meterTrack}>
+                        <div
+                          className={styles.meterFill}
+                          style={{ width: `${isTestingMic ? audioLevel : 0}%` }}
+                        />
+                      </div>
+                      <span className={styles.meterLabel}>
+                        {isTestingMic ? `Livello: ${audioLevel}%` : "Inattivo"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
             <div className={styles.previewText} aria-live="polite">
               {durationPreview}

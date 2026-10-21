@@ -31,3 +31,7 @@ export * from "./StopIcon";
 export * from "./NavPositionIcon";
 export * from "./NavOnSlideIcon";
 export * from "./NavInHeaderIcon";
+export * from "./MicIcon";
+export * from "./MicOffIcon";
+export * from "./VolumeHighIcon";
+export * from "./VolumeMuteIcon";

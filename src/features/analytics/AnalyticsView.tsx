@@ -1,4 +1,4 @@
-import { useState, useMemo, Fragment, type FC } from "react";
+import { useState, useMemo, useEffect, Fragment, type FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppState } from "../../state/AppStateContext";
 import {
@@ -10,6 +10,7 @@ import {
 import { Button } from "../../components/ui/Button";
 import { Modal } from "../../components/ui/Modal";
 import { KPIStatsCards } from "./KPIStatsCards";
+import { TalkAudioPlayer } from "./TalkAudioPlayer";
 import { SlideDurationChart } from "./SlideDurationChart";
 import { SessionDurationChart } from "./SessionDurationChart";
 import { ProvocationsChart } from "./ProvocationsChart";
@@ -29,6 +30,12 @@ import {
   CheckIcon,
 } from "../../components/icons";
 import type { TalkSessionRecord, ProvocationStat } from "../../types";
+import {
+  getAudioRecording,
+  deleteAudioRecording,
+  downloadAudioFile,
+  type StoredAudioRecording,
+} from "../../utils/audioStorage";
 import styles from "./AnalyticsView.module.scss";
 
 export const AnalyticsView: FC = () => {
@@ -78,6 +85,62 @@ export const AnalyticsView: FC = () => {
     const found = sessions.find((s) => s.id === selectedSessionId);
     return found ?? sessions[0] ?? null;
   }, [sessions, selectedSessionId]);
+
+// Audio recording states
+  const [audioRecording, setAudioRecording] = useState<StoredAudioRecording | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [confirmDeleteAudio, setConfirmDeleteAudio] = useState(false);
+
+  useEffect(() => {
+    let isCurrent = true;
+    let objectUrl: string | null = null;
+
+    if (currentViewSession?.id) {
+      getAudioRecording(currentViewSession.id, currentViewSession.totalDurationSeconds).then((rec) => {
+        if (!isCurrent) return;
+        setAudioRecording(rec);
+        if (rec) {
+          objectUrl = URL.createObjectURL(rec.blob);
+          setAudioUrl(objectUrl);
+        } else {
+          setAudioUrl(null);
+        }
+      });
+    } else {
+      setAudioRecording(null);
+      setAudioUrl(null);
+    }
+
+    return () => {
+      isCurrent = false;
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [currentViewSession?.id]);
+
+  const handleDownloadAudio = () => {
+    if (!audioRecording || !currentViewSession) return;
+    const cleanName = `talk_audio_${currentViewSession.name.toLowerCase().replace(/[^a-z0-9]/g, "_")}_${new Date(currentViewSession.startedAt).toISOString().slice(0, 10)}`;
+    downloadAudioFile(audioRecording.blob, cleanName, audioRecording.mimeType);
+    showToast("Download file audio avviato!");
+  };
+
+  const handleDeleteAudio = async () => {
+    if (!currentViewSession) return;
+    await deleteAudioRecording(currentViewSession.id);
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+    }
+    setAudioRecording(null);
+    setAudioUrl(null);
+    setConfirmDeleteAudio(false);
+    updateSessionRecord({
+      ...currentViewSession,
+      hasAudio: false,
+    });
+    showToast("Registrazione audio eliminata.");
+  };
 
   // Determine the effective intro end slide for the selected session
   const effectiveIntroEndSlide = useMemo(() => {
@@ -260,6 +323,7 @@ export const AnalyticsView: FC = () => {
               >
                 {sessions.map((s) => (
                   <option key={s.id} value={s.id}>
+                    {s.hasAudio ? "🎙️ " : ""}
                     {s.name} ({formatDateTime(s.startedAt)})
                     {s.id === currentSessionId ? " [IN CORSO]" : ""}
                   </option>
@@ -363,6 +427,23 @@ export const AnalyticsView: FC = () => {
               <span className={styles.notesLabel}>Note della Sessione</span>
               <p className={styles.notesText}>{currentViewSession.notes}</p>
             </div>
+          )}
+
+          {/* Audio Recording Player Card */}
+          {currentViewSession && audioUrl && audioRecording && (
+            <TalkAudioPlayer
+              audioUrl={audioUrl}
+              audioRecording={audioRecording}
+              session={currentViewSession}
+              onDownload={handleDownloadAudio}
+              onDelete={() => setConfirmDeleteAudio(true)}
+              onLaunchReplay={(startAtSec) => {
+                const targetMs = Math.round(
+                  currentViewSession.startedAt + (startAtSec ?? 0) * 1000
+                );
+                navigate(`/replay/${currentViewSession.id}?startAt=${targetMs}`);
+              }}
+            />
           )}
 
           {/* High-Level KPI Cards */}
@@ -633,6 +714,50 @@ export const AnalyticsView: FC = () => {
           )}
         </>
       )}
+
+      {/* Confirm Delete Audio Modal */}
+      <Modal
+        isOpen={confirmDeleteAudio}
+        onClose={() => setConfirmDeleteAudio(false)}
+        ariaLabel="Conferma eliminazione file audio"
+      >
+        <h2
+          style={{
+            fontSize: "1.6rem",
+            color: "var(--color-danger)",
+            marginBottom: "var(--space-3)",
+          }}
+        >
+          Eliminare la registrazione audio?
+        </h2>
+        <p
+          style={{
+            color: "var(--color-text-muted)",
+            marginBottom: "var(--space-6)",
+          }}
+        >
+          Sei sicuro di voler eliminare la traccia audio registrata di questa sessione dalla memoria del browser?
+          L'operazione è definitiva e il file non potrà essere recuperato.
+        </p>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: "var(--space-3)",
+          }}
+        >
+          <Button
+            variant="ghost"
+            size="md"
+            onClick={() => setConfirmDeleteAudio(false)}
+          >
+            Annulla
+          </Button>
+          <Button variant="danger" size="md" onClick={handleDeleteAudio}>
+            Elimina Audio
+          </Button>
+        </div>
+      </Modal>
 
       {/* Provocation Editor Modal for Table view */}
       <ProvocationEditorModal
