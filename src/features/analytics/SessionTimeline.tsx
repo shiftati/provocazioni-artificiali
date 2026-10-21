@@ -21,6 +21,8 @@ function getEventBadgeInfo(event: SessionEvent): { icon: string; styleClass: str
       return { icon: "🏁", styleClass: styles.typeEnd ?? "" };
     case "SLIDE_VIEW":
       return { icon: "🖼️", styleClass: styles.typeSlide ?? "" };
+    case "SLIDE_ANIMATION":
+      return { icon: "✨", styleClass: styles.typeSlide ?? "" };
     case "MODE_CHANGE":
       if (event.details?.mode === "game") {
         return { icon: "🎮", styleClass: styles.typeGame ?? "" };
@@ -66,7 +68,7 @@ export const SessionTimeline: FC<SessionTimelineProps> = ({ session, onToast }) 
     let nav = 0;
 
     for (const evt of events) {
-      if (evt.type === "SLIDE_VIEW") slides++;
+      if (evt.type === "SLIDE_VIEW" || evt.type === "SLIDE_ANIMATION") slides++;
       if (
         evt.type.startsWith("PROVOCATION_") ||
         evt.type.startsWith("CHALLENGE_") ||
@@ -86,7 +88,7 @@ export const SessionTimeline: FC<SessionTimelineProps> = ({ session, onToast }) 
   const filteredEvents = useMemo(() => {
     return events.filter((evt) => {
       // Category filter
-      if (filter === "slides" && evt.type !== "SLIDE_VIEW") {
+      if (filter === "slides" && evt.type !== "SLIDE_VIEW" && evt.type !== "SLIDE_ANIMATION") {
         return false;
       }
       if (
@@ -121,8 +123,11 @@ export const SessionTimeline: FC<SessionTimelineProps> = ({ session, onToast }) 
         const matchesPath =
           typeof evt.details?.path === "string" &&
           evt.details.path.toLowerCase().includes(query);
+        const matchesAnim =
+          typeof evt.details?.animationName === "string" &&
+          evt.details.animationName.toLowerCase().includes(query);
 
-        return matchesDesc || matchesSlideTitle || matchesProvTitle || matchesPath;
+        return matchesDesc || matchesSlideTitle || matchesProvTitle || matchesPath || matchesAnim;
       }
 
       return true;

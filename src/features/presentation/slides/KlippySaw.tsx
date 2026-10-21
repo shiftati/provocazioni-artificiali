@@ -2,13 +2,14 @@ import { useState, useEffect, useRef, useCallback, type FC, type ReactNode } fro
 import { ImageSlide } from "../layouts/ImageSlide";
 import { useAppState } from "../../../state/AppStateContext";
 import { useCachedAsset } from "../../../hooks/useCachedAsset";
+import type { SlideProps } from "../../../types";
 import styles from "./KlippySaw.module.scss";
 
 const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 
-export interface KlippySawProps {
+export interface KlippySawProps extends SlideProps {
   children?: ReactNode;
   className?: string;
 }

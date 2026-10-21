@@ -258,6 +258,7 @@ export const SessionReplayView: FC = () => {
       return {
         mode: "presentation" as const,
         slideIndex: 0,
+        slideStep: 0,
         gameStep: "IDLE" as const,
         currentProvocationId: null,
         challengeSecondsRemaining: 30,
@@ -459,7 +460,11 @@ export const SessionReplayView: FC = () => {
         <Stage>
           {replayState.mode === "presentation" ? (
             <>
-              <SlideComponent />
+              <SlideComponent
+                key={`replay-slide-${replayState.slideIndex}`}
+                step={replayState.slideStep}
+                isReplay={true}
+              />
               <div className={styles.slideCounter}>
                 {replayState.slideIndex + 1} / {SLIDES.length}
               </div>

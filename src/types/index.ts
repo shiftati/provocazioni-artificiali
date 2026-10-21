@@ -52,10 +52,15 @@ export interface AppStats {
 
 export type SlideTransitionType = "fade-scale" | "fade" | "slide" | "cut";
 
+export interface SlideProps {
+  step?: number;
+  isReplay?: boolean;
+}
+
 export interface SlideDefinition {
   id: string;
   title: string;
-  component: ComponentType;
+  component: ComponentType<SlideProps>;
   transition?: SlideTransitionType;
   transitionDurationMs?: number;
   assets?: readonly string[];
@@ -90,6 +95,7 @@ export interface ProvocationStat {
 export type SessionEventType =
   | "SESSION_START"
   | "SLIDE_VIEW"
+  | "SLIDE_ANIMATION"
   | "MODE_CHANGE"
   | "NAVIGATION"
   | "PROVOCATION_VIEW"
@@ -112,6 +118,8 @@ export interface SessionEvent {
     slideIndex?: number;
     slideNumber?: number;
     slideTitle?: string;
+    step?: number;
+    animationName?: string;
     mode?: AppMode;
     provocationId?: string;
     provocationNumber?: number;

@@ -3,13 +3,14 @@ import { ImageSlide } from "../layouts/ImageSlide";
 import { useAppState } from "../../../state/AppStateContext";
 import { useCachedAsset } from "../../../hooks/useCachedAsset";
 import { PlayIcon, PauseIcon, StopIcon } from "../../../components/icons";
+import type { SlideProps } from "../../../types";
 import styles from "./Finale.module.scss";
 
 const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 
-export const Finale: FC = () => {
+export const Finale: FC<SlideProps> = ({ step: stepProp, isReplay = false }) => {
   const {
     registerSlideStepHandler,
     previousSlideIndex,
@@ -23,16 +24,18 @@ export const Finale: FC = () => {
   // Se si naviga all'indietro da una slide successiva (se presente),
   // inizializziamo con entrambi i fumetti e la card visibili (step 2)
   const isEnteredBackwards = useRef(
-    typeof previousSlideIndex === "number" && previousSlideIndex > 12,
+    !isReplay && typeof previousSlideIndex === "number" && previousSlideIndex > 12,
   ).current;
 
   // Step 0: nessun fumetto
   // Step 1: compare il 1° fumetto ("Il futuro è come ve lo creerete voi...") al 1° click
   // Step 2: compare il 2° fumetto ("...perciò createvelo buono!") al 2° click + parte audio BTTF
   //         + dopo 5s compare la card "Grazie!" con QR code a sinistra
-  const [step, setStep] = useState<number>(() => (isEnteredBackwards ? 2 : 0));
-  const stepRef = useRef<number>(step);
-  stepRef.current = step;
+  const [localStep, setLocalStep] = useState<number>(() => (isEnteredBackwards ? 2 : 0));
+  const stepRef = useRef<number>(localStep);
+  stepRef.current = localStep;
+
+  const currentStep = stepProp !== undefined ? stepProp : localStep;
 
   // Animazioni di comparsa fumetti
   const [hasForwardBubble1Entrance, setHasForwardBubble1Entrance] =
@@ -138,7 +141,7 @@ export const Finale: FC = () => {
   // 3. Dopo 5 secondi fa comparire la card "Grazie!" con link e QR Code a sinistra
   const triggerStep2Sequence = useCallback(() => {
     stepRef.current = 2;
-    setStep(2);
+    setLocalStep(2);
     setHasForwardBubble2Entrance(true);
     setIsBubble2EntranceComplete(false);
     setHasPendingSlideAnimations(true);
@@ -172,11 +175,13 @@ export const Finale: FC = () => {
   // - 2° click Avanti: mostra il 2° fumetto + musica BTTF + card dopo 5s
   // - Freccia Indietro: riavvolge i passi
   useEffect(() => {
+    if (isReplay) return;
+
     registerSlideStepHandler({
       onNext: () => {
         if (stepRef.current === 0) {
           stepRef.current = 1;
-          setStep(1);
+          setLocalStep(1);
           setHasForwardBubble1Entrance(true);
           setIsBubble1EntranceComplete(false);
           setHasPendingSlideAnimations(true);
@@ -205,7 +210,7 @@ export const Finale: FC = () => {
       onPrev: () => {
         if (stepRef.current === 2) {
           stepRef.current = 1;
-          setStep(1);
+          setLocalStep(1);
           setHasForwardBubble2Entrance(false);
           setIsBubble2EntranceComplete(false);
 
@@ -225,7 +230,7 @@ export const Finale: FC = () => {
 
         if (stepRef.current === 1) {
           stepRef.current = 0;
-          setStep(0);
+          setLocalStep(0);
           setHasForwardBubble1Entrance(false);
           setIsBubble1EntranceComplete(false);
           setHasPendingSlideAnimations(true);
@@ -235,6 +240,13 @@ export const Finale: FC = () => {
 
         return false; // Torna alla slide 12 precedente
       },
+      getCurrentStep: () => stepRef.current,
+      getStepDescription: (s) =>
+        s === 1
+          ? "Primo fumetto"
+          : s === 2
+          ? "Secondo fumetto e card ringraziamenti"
+          : "Iniziale",
     });
 
     return () => {
@@ -254,7 +266,7 @@ export const Finale: FC = () => {
     if (isEnteredBackwards) return;
     clearAllTimers();
     stopBttfAudio();
-    setStep(0);
+    setLocalStep(0);
     setHasForwardBubble1Entrance(false);
     setIsBubble1EntranceComplete(false);
     setHasForwardBubble2Entrance(false);
@@ -287,7 +299,7 @@ export const Finale: FC = () => {
   const handleAdvance = useCallback(() => {
     if (stepRef.current === 0) {
       stepRef.current = 1;
-      setStep(1);
+      setLocalStep(1);
       setHasForwardBubble1Entrance(true);
       setIsBubble1EntranceComplete(false);
       setHasPendingSlideAnimations(true);
@@ -303,10 +315,12 @@ export const Finale: FC = () => {
   }, [triggerStep2Sequence, revealCardImmediately, setHasPendingSlideAnimations]);
 
   // Classi dinamiche 1° fumetto
-  const isBubble1Visible = step >= 1;
+  const isBubble1Visible = currentStep >= 1;
   let bubble1AnimationClass = "";
   if (isBubble1Visible) {
-    if (hasForwardBubble1Entrance && !isBubble1EntranceComplete) {
+    if (isReplay) {
+      bubble1AnimationClass = styles.bubbleEntrance || "";
+    } else if (hasForwardBubble1Entrance && !isBubble1EntranceComplete) {
       bubble1AnimationClass = styles.bubbleEntrance || "";
     } else {
       bubble1AnimationClass = styles.bubbleStatic || "";
@@ -314,20 +328,26 @@ export const Finale: FC = () => {
   }
 
   // Classi dinamiche 2° fumetto
-  const isBubble2Visible = step >= 2;
+  const isBubble2Visible = currentStep >= 2;
   let bubble2AnimationClass = "";
   if (isBubble2Visible) {
-    if (hasForwardBubble2Entrance && !isBubble2EntranceComplete) {
+    if (isReplay) {
+      bubble2AnimationClass = styles.bubbleEntrance || "";
+    } else if (hasForwardBubble2Entrance && !isBubble2EntranceComplete) {
       bubble2AnimationClass = styles.bubbleEntrance || "";
     } else {
       bubble2AnimationClass = styles.bubbleStatic || "";
     }
   }
 
+  const effectiveCardVisible = isReplay ? currentStep >= 2 : isCardVisible;
+
   // Classi dinamiche card "Grazie!"
   let cardAnimationClass = "";
-  if (isCardVisible) {
-    if (hasForwardCardEntrance && !isCardEntranceComplete) {
+  if (effectiveCardVisible) {
+    if (isReplay) {
+      cardAnimationClass = styles.cardEntrance || "";
+    } else if (hasForwardCardEntrance && !isCardEntranceComplete) {
       cardAnimationClass = styles.cardEntrance || "";
     } else {
       cardAnimationClass = styles.cardStatic || "";
@@ -354,7 +374,7 @@ export const Finale: FC = () => {
             role="status"
             aria-live="polite"
             onClick={handleAdvance}
-            title={step === 1 ? "Clicca per mostrare il seguito" : undefined}
+            title={currentStep === 1 ? "Clicca per mostrare il seguito" : undefined}
           >
             <span className={styles.bubbleText}>
               Il futuro è come ve lo creerete voi...
@@ -378,7 +398,7 @@ export const Finale: FC = () => {
         )}
 
         {/* Card nello spazio vuoto a sinistra con Grazie, sito e QR Code (dopo 5s dal 2° fumetto) */}
-        {isCardVisible && (
+        {effectiveCardVisible && (
           <div
             className={`${styles.thanksCard} ${cardAnimationClass}`}
             role="region"
@@ -414,7 +434,7 @@ export const Finale: FC = () => {
         )}
 
         {/* Controlli audio in basso a destra (quando la musica parte) */}
-        {step >= 2 && (
+        {currentStep >= 2 && !isReplay && (
           <aside
             className={styles.audioControls}
             aria-label="Controlli audio di sottofondo"

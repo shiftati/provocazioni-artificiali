@@ -5,6 +5,7 @@ import { PROVOCATIONS } from "../game/provocations.registry";
 export interface ReplayState {
   mode: "presentation" | "game";
   slideIndex: number;
+  slideStep: number;
   gameStep: "IDLE" | "CHALLENGE" | "PROVOCATION" | "DISCUSSION";
   currentProvocationId: string | null;
   challengeSecondsRemaining: number;
@@ -20,9 +21,110 @@ export interface ReplayState {
  * (e.g. older legacy session), this synthesizes a realistic sequence
  * matching session.slides and session.provocations.
  */
+function enrichSlideAnimationEvents(events: SessionEvent[], defaultEndTime: number): SessionEvent[] {
+  const result: SessionEvent[] = [];
+
+  for (let i = 0; i < events.length; i++) {
+    const evt = events[i]!;
+    result.push(evt);
+
+    if (evt.type === "SLIDE_VIEW") {
+      const slideIdx =
+        typeof evt.details?.slideIndex === "number"
+          ? evt.details.slideIndex
+          : typeof evt.details?.slideNumber === "number"
+          ? evt.details.slideNumber - 1
+          : -1;
+
+      // Slide 4 is "Daniel e Ste" (5th slide), Slide 12 is "Finale" (13th slide)
+      const isMultiStepSlide = slideIdx === 4 || slideIdx === 12;
+      if (!isMultiStepSlide) continue;
+
+      let hasAnimationEvent = false;
+      let nextEventTimestamp = defaultEndTime;
+
+      for (let j = i + 1; j < events.length; j++) {
+        const nextEvt = events[j]!;
+        if (
+          nextEvt.type === "SLIDE_VIEW" ||
+          nextEvt.type === "MODE_CHANGE" ||
+          nextEvt.type === "SESSION_END"
+        ) {
+          nextEventTimestamp = nextEvt.timestamp;
+          break;
+        }
+        if (nextEvt.type === "SLIDE_ANIMATION") {
+          const animSlideIdx =
+            typeof nextEvt.details?.slideIndex === "number"
+              ? nextEvt.details.slideIndex
+              : typeof nextEvt.details?.slideNumber === "number"
+              ? nextEvt.details.slideNumber - 1
+              : -1;
+          if (animSlideIdx === slideIdx) {
+            hasAnimationEvent = true;
+            break;
+          }
+        }
+      }
+
+      if (!hasAnimationEvent) {
+        const deltaMs = nextEventTimestamp - evt.timestamp;
+        if (deltaMs >= 3000) {
+          const t1 = evt.timestamp + Math.min(4000, Math.round(deltaMs * 0.33));
+          const t2 = evt.timestamp + Math.min(8000, Math.round(deltaMs * 0.66));
+          const slideTitle = slideIdx === 4 ? "Daniel e Ste" : "Finale";
+
+          result.push({
+            id: `synth_anim_${slideIdx}_step1_${evt.timestamp}`,
+            timestamp: t1,
+            type: "SLIDE_ANIMATION",
+            description:
+              slideIdx === 4
+                ? "Mostro animazione slide 5 (Daniel e Ste): Compare Daniel"
+                : "Mostro animazione slide 13 (Finale): Primo fumetto",
+            details: {
+              slideIndex: slideIdx,
+              slideNumber: slideIdx + 1,
+              slideTitle,
+              step: 1,
+              animationName: slideIdx === 4 ? "Compare Daniel" : "Primo fumetto",
+            },
+          });
+
+          result.push({
+            id: `synth_anim_${slideIdx}_step2_${evt.timestamp}`,
+            timestamp: t2,
+            type: "SLIDE_ANIMATION",
+            description:
+              slideIdx === 4
+                ? "Mostro animazione slide 5 (Daniel e Ste): Compare Klippy"
+                : "Mostro animazione slide 13 (Finale): Secondo fumetto e card finale",
+            details: {
+              slideIndex: slideIdx,
+              slideNumber: slideIdx + 1,
+              slideTitle,
+              step: 2,
+              animationName:
+                slideIdx === 4 ? "Compare Klippy" : "Secondo fumetto e card finale",
+            },
+          });
+        }
+      }
+    }
+  }
+
+  return result.sort((a, b) => a.timestamp - b.timestamp);
+}
 export function ensureSessionEvents(session: TalkSessionRecord): SessionEvent[] {
+  const defaultEnd =
+    session.endedAt ||
+    (session.startedAt ? session.startedAt + (session.totalDurationSeconds || 60) * 1000 : Date.now());
+
   if (session.events && session.events.length > 0) {
-    return [...session.events].sort((a, b) => a.timestamp - b.timestamp);
+    return enrichSlideAnimationEvents(
+      [...session.events].sort((a, b) => a.timestamp - b.timestamp),
+      defaultEnd
+    );
   }
 
   const synthesized: SessionEvent[] = [];
@@ -168,7 +270,7 @@ export function ensureSessionEvents(session: TalkSessionRecord): SessionEvent[] 
     description: "Fine della sessione talk",
   });
 
-  return synthesized;
+  return enrichSlideAnimationEvents(synthesized, currentMs);
 }
 
 /**
@@ -184,6 +286,7 @@ export function getReplayStateAt(
 
   let mode: "presentation" | "game" = "presentation";
   let slideIndex = 0;
+  let slideStep = 0;
   let gameStep: "IDLE" | "CHALLENGE" | "PROVOCATION" | "DISCUSSION" = "IDLE";
   let currentProvocationId: string | null = PROVOCATIONS[0]?.id ?? null;
   let isDiscussionPaused = false;
@@ -220,7 +323,20 @@ export function getReplayStateAt(
         } else if (typeof evt.details?.slideNumber === "number") {
           slideIndex = evt.details.slideNumber - 1;
         }
+        slideStep = typeof evt.details?.step === "number" ? evt.details.step : 0;
         stopCallsShown = false;
+        break;
+
+      case "SLIDE_ANIMATION":
+        mode = "presentation";
+        if (typeof evt.details?.slideIndex === "number") {
+          slideIndex = evt.details.slideIndex;
+        } else if (typeof evt.details?.slideNumber === "number") {
+          slideIndex = evt.details.slideNumber - 1;
+        }
+        if (typeof evt.details?.step === "number") {
+          slideStep = evt.details.step;
+        }
         break;
 
       case "MODE_CHANGE":
@@ -354,6 +470,7 @@ export function getReplayStateAt(
   return {
     mode,
     slideIndex,
+    slideStep,
     gameStep,
     currentProvocationId,
     challengeSecondsRemaining,

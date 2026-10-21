@@ -32,6 +32,8 @@ import type {
 export interface SlideStepHandler {
   onNext: () => boolean;
   onPrev: () => boolean;
+  getCurrentStep?: () => number;
+  getStepDescription?: (step: number) => string;
 }
 
 export interface AppStateContextValue {
@@ -70,6 +72,7 @@ export interface AppStateContextValue {
   setHasPendingSlideAnimations: (pending: boolean) => void;
   stepForward: () => boolean;
   stepBackward: () => boolean;
+  logSlideAnimation: (step: number, description?: string) => void;
   // Event tracking
   logSessionEvent: (
     type: SessionEventType,
@@ -173,19 +176,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     [],
   );
 
-  const stepForward = useCallback((): boolean => {
-    if (slideStepHandlerRef.current) {
-      return slideStepHandlerRef.current.onNext();
-    }
-    return false;
-  }, []);
 
-  const stepBackward = useCallback((): boolean => {
-    if (slideStepHandlerRef.current) {
-      return slideStepHandlerRef.current.onPrev();
-    }
-    return false;
-  }, []);
 
   const replaySlideAnimation = useCallback(() => {
     slideStepHandlerRef.current = null;
@@ -309,6 +300,100 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     },
     [updateActiveSession]
   );
+
+  const logSlideAnimation = useCallback(
+    (step: number, description?: string) => {
+      const activeId = currentSessionIdRef.current;
+      if (!activeId) return;
+
+      const currentIdx = currentSlideIndexRef.current;
+      const slide = SLIDES[currentIdx];
+      const desc = description
+        ? `Mostro animazione slide ${currentIdx + 1}${slide?.title ? ` (${slide.title})` : ""}: ${description}`
+        : `Mostro animazione slide ${currentIdx + 1}${slide?.title ? ` (${slide.title})` : ""}: passo ${step}`;
+
+      logSessionEvent(
+        "SLIDE_ANIMATION",
+        desc,
+        {
+          slideIndex: currentIdx,
+          slideNumber: currentIdx + 1,
+          slideTitle: slide?.title,
+          step,
+          animationName: description,
+        }
+      );
+    },
+    [logSessionEvent]
+  );
+
+  const stepForward = useCallback((): boolean => {
+    if (slideStepHandlerRef.current) {
+      const handled = slideStepHandlerRef.current.onNext();
+      if (handled) {
+        const step = slideStepHandlerRef.current.getCurrentStep
+          ? slideStepHandlerRef.current.getCurrentStep()
+          : undefined;
+        const currentIdx = currentSlideIndexRef.current;
+        const slide = SLIDES[currentIdx];
+        const stepDesc =
+          step !== undefined && slideStepHandlerRef.current.getStepDescription
+            ? slideStepHandlerRef.current.getStepDescription(step)
+            : undefined;
+        const desc = stepDesc
+          ? `Mostro animazione slide ${currentIdx + 1}${slide?.title ? ` (${slide.title})` : ""}: ${stepDesc}`
+          : `Mostro animazione slide ${currentIdx + 1}${slide?.title ? ` (${slide.title})` : ""}${step !== undefined ? ` (passo ${step})` : ""}`;
+
+        logSessionEvent(
+          "SLIDE_ANIMATION",
+          desc,
+          {
+            slideIndex: currentIdx,
+            slideNumber: currentIdx + 1,
+            slideTitle: slide?.title,
+            step,
+            animationName: stepDesc,
+          }
+        );
+        return true;
+      }
+    }
+    return false;
+  }, [logSessionEvent]);
+
+  const stepBackward = useCallback((): boolean => {
+    if (slideStepHandlerRef.current) {
+      const handled = slideStepHandlerRef.current.onPrev();
+      if (handled) {
+        const step = slideStepHandlerRef.current.getCurrentStep
+          ? slideStepHandlerRef.current.getCurrentStep()
+          : undefined;
+        const currentIdx = currentSlideIndexRef.current;
+        const slide = SLIDES[currentIdx];
+        const stepDesc =
+          step !== undefined && slideStepHandlerRef.current.getStepDescription
+            ? slideStepHandlerRef.current.getStepDescription(step)
+            : undefined;
+        const desc = stepDesc
+          ? `Riavvolgo animazione slide ${currentIdx + 1}${slide?.title ? ` (${slide.title})` : ""}: ${stepDesc}`
+          : `Riavvolgo animazione slide ${currentIdx + 1}${slide?.title ? ` (${slide.title})` : ""}${step !== undefined ? ` (passo ${step})` : ""}`;
+
+        logSessionEvent(
+          "SLIDE_ANIMATION",
+          desc,
+          {
+            slideIndex: currentIdx,
+            slideNumber: currentIdx + 1,
+            slideTitle: slide?.title,
+            step,
+            animationName: stepDesc,
+          }
+        );
+        return true;
+      }
+    }
+    return false;
+  }, [logSessionEvent]);
 
   // Global timer interval (250ms tick)
   useEffect(() => {
@@ -1409,6 +1494,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         setHasPendingSlideAnimations,
         stepForward,
         stepBackward,
+        logSlideAnimation,
         logSessionEvent,
         updateSessionRecord,
         deleteSessionRecord,

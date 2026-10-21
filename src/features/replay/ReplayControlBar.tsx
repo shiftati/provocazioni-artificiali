@@ -205,6 +205,8 @@ export const ReplayControlBar: FC<ReplayControlBarProps> = ({
               <span className={styles.eventIcon}>
                 {activeEvent.type === "SLIDE_VIEW"
                   ? "🖼️"
+                  : activeEvent.type === "SLIDE_ANIMATION"
+                  ? "✨"
                   : activeEvent.type.startsWith("PROVOCATION_")
                   ? "💡"
                   : activeEvent.type.startsWith("CHALLENGE_")
