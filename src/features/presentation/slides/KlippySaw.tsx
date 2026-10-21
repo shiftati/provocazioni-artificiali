@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, type FC } from "react";
+import { useState, useEffect, useRef, useCallback, type FC, type ReactNode } from "react";
 import { ImageSlide } from "../layouts/ImageSlide";
 import { useAppState } from "../../../state/AppStateContext";
 import { useCachedAsset } from "../../../hooks/useCachedAsset";
@@ -8,12 +8,19 @@ const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 
-export const KlippySaw: FC = () => {
-  const { previousSlideIndex } = useAppState();
+export interface KlippySawProps {
+  children?: ReactNode;
+  className?: string;
+}
 
-  // Se l'utente arriva a ritroso da una slide successiva (indice > 6), mostra già tutto senza attendere
+export const KlippySaw: FC<KlippySawProps> = ({ children, className }) => {
+  const { previousSlideIndex, session } = useAppState();
+
+  // Se l'utente arriva a ritroso da una slide successiva (indice > 6) in presentazione, mostra già tutto senza attendere
   const isEnteredBackwards = useRef(
-    typeof previousSlideIndex === "number" && previousSlideIndex > 6,
+    session.mode === "presentation" &&
+      typeof previousSlideIndex === "number" &&
+      previousSlideIndex > 6,
   ).current;
 
   const [hasEntered, setHasEntered] = useState<boolean>(
@@ -116,7 +123,7 @@ export const KlippySaw: FC = () => {
   }
 
   return (
-    <ImageSlide imageName="8-gioco-saw.jpg" title="Klippy saw">
+    <ImageSlide imageName="8-gioco-saw.jpg" title="Klippy saw" className={className}>
       <div className={styles.sceneContainer}>
         {/* Overlay d'atmosfera cupa e horror flicker al momento dell'entrata */}
         <div
@@ -164,6 +171,7 @@ export const KlippySaw: FC = () => {
           <div className={styles.klippyFloorShadow} aria-hidden="true" />
         </div>
       </div>
+      {children}
     </ImageSlide>
   );
 };

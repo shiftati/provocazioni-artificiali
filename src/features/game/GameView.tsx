@@ -15,18 +15,11 @@ import {
   ShuffleIcon,
   ArrowRightIcon,
 } from "../../components/icons";
-import { useCachedAsset } from "../../hooks/useCachedAsset";
+import { KlippySaw } from "../presentation/slides/KlippySaw";
 import styles from "./GameView.module.scss";
-
-const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
-  ? import.meta.env.BASE_URL
-  : `${import.meta.env.BASE_URL}/`;
-
-const KLIPPY_SAW_IMAGE = `${BASE_URL}images/slides/8-klippy-saw.jpg`;
 
 export const GameView: FC = () => {
   const navigate = useNavigate();
-  const sawImageUrl = useCachedAsset(KLIPPY_SAW_IMAGE);
   const {
     game,
     dispatchGame,
@@ -116,12 +109,7 @@ export const GameView: FC = () => {
       <Stage>
         {/* STEP 1: IDLE */}
         {game.step === "IDLE" && (
-          <div
-            className={styles.idleContainer}
-            style={{ backgroundImage: `url("${sawImageUrl}")` }}
-            role="region"
-            aria-label="Klippy saw - Inizia il gioco"
-          >
+          <KlippySaw>
             <div className={styles.idleControls}>
               <Button
                 variant="primary"
@@ -133,7 +121,7 @@ export const GameView: FC = () => {
                 Inizia il gioco
               </Button>
             </div>
-          </div>
+          </KlippySaw>
         )}
 
         {/* STEP 2: CHALLENGE (30 seconds) */}
