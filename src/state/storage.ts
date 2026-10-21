@@ -1,5 +1,5 @@
 import type { TalkConfig, AppSessionState, GameState, AppStats, TalkSessionRecord } from "../types";
-import { deduplicateProvocations } from "../utils/time";
+import { deduplicateProvocations, getSessionGameDuration } from "../utils/time";
 
 interface VersionedEnvelope<T> {
   version: number;
@@ -164,14 +164,35 @@ export const appStorage = {
   // Sessions History (Analytics)
   getSessions(): TalkSessionRecord[] {
     const raw = readItem<TalkSessionRecord[]>(STORAGE_KEYS.SESSIONS, []);
-    return raw.map((session) => {
+    let needsResave = false;
+    const sanitized = raw.map((session) => {
       const cleanProvocations = deduplicateProvocations(session.provocations || []);
+      const trueGameDuration = getSessionGameDuration(session);
+      const isCorrupted =
+        typeof session.gameDurationSeconds === "number" &&
+        session.gameDurationSeconds !== trueGameDuration &&
+        (session.gameDurationSeconds > (session.totalDurationSeconds || 0) ||
+          Boolean(session.events && session.events.length > 0));
+
+      if (isCorrupted) {
+        needsResave = true;
+      }
+
       return {
         ...session,
         provocations: cleanProvocations,
         provocationsCount: cleanProvocations.length,
+        gameDurationSeconds: isCorrupted
+          ? trueGameDuration
+          : (session.gameDurationSeconds ?? trueGameDuration),
       };
     });
+
+    if (needsResave) {
+      writeItem(STORAGE_KEYS.SESSIONS, sanitized);
+    }
+
+    return sanitized;
   },
   saveSessions(sessions: TalkSessionRecord[]): void {
     writeItem(STORAGE_KEYS.SESSIONS, sessions);

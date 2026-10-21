@@ -1,3 +1,5 @@
+import type { SessionEvent } from "../types";
+
 /**
  * Returns a default end time formatted as "HH:mm", calculated as 45 minutes from now.
  */
@@ -106,20 +108,102 @@ export function formatDateTime(timestamp: number): string {
 }
 
 /**
+ * Calculates total game duration in seconds from chronological session events.
+ */
+export function calculateGameDurationFromEvents(events?: SessionEvent[]): number | null {
+  if (!events || events.length === 0) return null;
+
+  let totalGameSeconds = 0;
+  let inGame = false;
+  let gameStartTime: number | null = null;
+
+  for (const evt of events) {
+    const isGameStart =
+      (evt.type === "MODE_CHANGE" && evt.details?.mode === "game") ||
+      (!inGame &&
+        (evt.type === "PROVOCATION_VIEW" ||
+          evt.type === "PROVOCATION_ACCEPT" ||
+          evt.type === "CHALLENGE_START"));
+
+    const isGameEnd =
+      inGame &&
+      ((evt.type === "MODE_CHANGE" && evt.details?.mode === "presentation") ||
+        (evt.type === "STOP_CALLS" &&
+          (evt.details?.slideIndex !== undefined ||
+            evt.description?.toLowerCase().includes("chiuso"))) ||
+        evt.type === "SLIDE_VIEW" ||
+        evt.type === "SESSION_END");
+
+    if (isGameStart && !inGame) {
+      inGame = true;
+      gameStartTime = evt.timestamp;
+    } else if (isGameEnd && inGame && gameStartTime !== null) {
+      const duration = Math.max(0, (evt.timestamp - gameStartTime) / 1000);
+      totalGameSeconds += duration;
+      inGame = false;
+      gameStartTime = null;
+    }
+  }
+
+  // If session ended while still in game mode
+  if (inGame && gameStartTime !== null) {
+    const lastEvent = events[events.length - 1];
+    if (lastEvent && lastEvent.timestamp > gameStartTime) {
+      totalGameSeconds += (lastEvent.timestamp - gameStartTime) / 1000;
+    }
+  }
+
+  return totalGameSeconds > 0 ? Math.round(totalGameSeconds) : null;
+}
+
+/**
  * Returns total game duration in seconds for a session.
- * Uses recorded gameDurationSeconds if available, or calculates sum of provocations' time.
+ * Uses event log ground truth if available, or recorded gameDurationSeconds with corruption guard,
+ * or calculates sum of provocations' time.
  */
 export function getSessionGameDuration(session: {
   gameDurationSeconds?: number;
+  totalDurationSeconds?: number;
   provocations?: { acceptanceTimeSeconds?: number; discussionDurationSeconds?: number }[];
+  events?: SessionEvent[];
 }): number {
-  if (typeof session.gameDurationSeconds === "number" && session.gameDurationSeconds > 0) {
-    return session.gameDurationSeconds;
-  }
-  return (session.provocations || []).reduce(
+  const totalProvTime = (session.provocations || []).reduce(
     (acc, p) => acc + (p.discussionDurationSeconds || 0) + (p.acceptanceTimeSeconds || 0),
     0
   );
+
+  // 1. Ground truth from events log if present
+  if (session.events && session.events.length > 0) {
+    const fromEvents = calculateGameDurationFromEvents(session.events);
+    if (typeof fromEvents === "number" && fromEvents > 0) {
+      return fromEvents;
+    }
+  }
+
+  const rawGame =
+    typeof session.gameDurationSeconds === "number" && session.gameDurationSeconds > 0
+      ? session.gameDurationSeconds
+      : 0;
+  const totalDuration = session.totalDurationSeconds || 0;
+
+  // 2. Detection of double-counting bug: gameDuration cannot exceed total session duration
+  if (totalDuration > 0 && rawGame > totalDuration) {
+    // When the double counting bug occurred, rawGame was (trueGameDuration + totalProvTime)
+    const corrected = rawGame - totalProvTime;
+    if (corrected > 0 && corrected <= totalDuration) {
+      return corrected;
+    }
+    if (totalProvTime > 0 && totalProvTime <= totalDuration) {
+      return totalProvTime;
+    }
+    return totalDuration;
+  }
+
+  if (rawGame > 0) {
+    return rawGame;
+  }
+
+  return totalProvTime;
 }
 
 /**

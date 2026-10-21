@@ -331,10 +331,21 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
       const now = Date.now();
       const isPresentation = currentModeRef.current === "presentation";
+      const isGame = currentModeRef.current === "game";
       const currentIdx = currentSlideIndexRef.current;
       const elapsedOnSlide = isPresentation
         ? Math.max(0, (now - slideStartTimeRef.current) / 1000)
         : 0;
+      const elapsedGame = isGame && gameStartTimeRef.current
+        ? Math.max(0, (now - gameStartTimeRef.current) / 1000)
+        : 0;
+
+      if (isPresentation) {
+        slideStartTimeRef.current = now;
+      }
+      if (isGame && gameStartTimeRef.current) {
+        gameStartTimeRef.current = now;
+      }
 
       updateActiveSession((curr) => {
         const totalDurationSeconds = curr.startedAt
@@ -342,6 +353,10 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
           : curr.totalDurationSeconds;
 
         if (!isPresentation) {
+          const updatedGameDuration = elapsedGame > 0
+            ? Math.round((curr.gameDurationSeconds || 0) + elapsedGame)
+            : curr.gameDurationSeconds;
+
           const activeStatId = currentDiscussionProvStatIdRef.current;
           if (activeStatId && discussionStartTimeRef.current) {
             let discSec = discussionAccumulatedSecondsRef.current;
@@ -357,10 +372,15 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
             return {
               ...curr,
               totalDurationSeconds,
+              gameDurationSeconds: updatedGameDuration,
               provocations: updatedProvocations,
             };
           }
-          return { ...curr, totalDurationSeconds };
+          return {
+            ...curr,
+            totalDurationSeconds,
+            gameDurationSeconds: updatedGameDuration,
+          };
         }
 
         const slides = curr.slides.map((s, idx) => {
@@ -372,9 +392,6 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
           }
           return s;
         });
-
-        // Reset slide timer start point to current now so we don't accumulate double
-        slideStartTimeRef.current = now;
 
         return {
           ...curr,
@@ -557,6 +574,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     discussionAccumulatedSecondsRef.current = 0;
     isDiscussionPausedRef.current = false;
     currentDiscussionProvStatIdRef.current = null;
+    gameStartTimeRef.current = null;
   }, [config.endTime, config.endTimestamp, updateActiveSession]);
 
   const finalizeActiveDiscussion = useCallback(
@@ -582,21 +600,10 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
           return p;
         });
 
-        const totalProvTime = updatedProvocations.reduce(
-          (acc, p) =>
-            acc + (p.discussionDurationSeconds || 0) + (p.acceptanceTimeSeconds || 0),
-          0
-        );
-        const gameDurationSeconds = Math.max(
-          curr.gameDurationSeconds || 0,
-          totalProvTime
-        );
-
         return {
           ...curr,
           provocations: updatedProvocations,
           provocationsCount: updatedProvocations.length,
-          gameDurationSeconds,
         };
       });
 
