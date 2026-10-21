@@ -81,11 +81,11 @@ export const AnalyticsView: FC = () => {
 
   // Determine the effective intro end slide for the selected session
   const effectiveIntroEndSlide = useMemo(() => {
-    if (!currentViewSession) return 11;
+    if (!currentViewSession) return 10;
     const rawVal =
       currentViewSession.id === currentSessionId
-        ? (config.introEndSlide ?? currentViewSession.introEndSlide ?? 11)
-        : (currentViewSession.introEndSlide ?? config.introEndSlide ?? 11);
+        ? (config.introEndSlide ?? currentViewSession.introEndSlide ?? 10)
+        : (currentViewSession.introEndSlide ?? config.introEndSlide ?? 10);
     const maxSlides = currentViewSession.slides.length || 14;
     return Math.min(Math.max(1, rawVal), maxSlides);
   }, [currentViewSession, currentSessionId, config.introEndSlide]);

@@ -155,11 +155,10 @@
   font-family: var(--font-display, "IBM Plex Sans", sans-serif);
   font-size: 2.6rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--color-text, #ffffff);
   margin: 0;
   line-height: 1.1;
   letter-spacing: -0.01em;
-  text-shadow: 2px 2px 0 #000000;
 }
 
 .qrSection {

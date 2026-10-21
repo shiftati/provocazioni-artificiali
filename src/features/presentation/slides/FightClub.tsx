@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import { ImageSlide } from "../layouts/ImageSlide";
 
-export const Slide09: FC = () => {
+export const FightClub: FC = () => {
   return <ImageSlide imageName="9-fight-club.jpg" title="Fight club" />;
 };

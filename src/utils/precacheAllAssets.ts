@@ -51,7 +51,7 @@ export const APP_ASSETS_CATALOG = [
   "images/qr-shiftati.svg",
 
   // 3. Audio tracks
-  "audio/back-to-the-future.mp3",
+  "audio/back-to-the-future_short.mp3",
 
   // 4. Brand and conference logos
   "logo/shiftati-logo.png",

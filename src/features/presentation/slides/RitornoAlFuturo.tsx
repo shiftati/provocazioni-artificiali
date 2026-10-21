@@ -2,13 +2,13 @@ import { useState, useEffect, useRef, type FC } from "react";
 import { ImageSlide } from "../layouts/ImageSlide";
 import { useAppState } from "../../../state/AppStateContext";
 import { useCachedAsset } from "../../../hooks/useCachedAsset";
-import styles from "./Slide07.module.scss";
+import styles from "./RitornoAlFuturo.module.scss";
 
 const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 
-export const Slide07: FC = () => {
+export const RitornoAlFuturo: FC = () => {
   const { previousSlideIndex } = useAppState();
 
   const isEnteredBackwards = useRef(

@@ -31,7 +31,7 @@ Web application offline-first progettata per gestire talk interattivi dal vivo s
   - *Fase 2 (Talk)*: dopo l'attivazione di "Stop alle telefonate", il countdown passa automaticamente al tempo residuo per la fine assoluta del talk.
   - Nessuna perdita di sincronizzazione al refresh del browser, al cambio di tab o alla sospensione del computer.
 - **Overlay a schermo intero "Stop alle telefonate"**: allo scadere della finestra di gioco, scatta un overlay a tutto schermo con grafica personalizzata. Confermando ("Prosegui" o tasti `Enter`/`Space`/`Freccia Destra`), l'app riposiziona la presentazione direttamente sulle slide della conclusione.
-- **Transizione automatica Slide → Gioco (Slide 11)**: alla slide configurata come fine introduzione (`introEndSlide`, default slide 11), premendo il tasto "Avanti" da telecomando si entra direttamente nella modalità Gioco Klippy Saw.
+- **Transizione automatica Slide → Gioco (Slide 11)**: alla slide configurata come fine introduzione (`introEndSlide`, default slide 10), premendo il tasto "Avanti" da telecomando si entra direttamente nella modalità Gioco Klippy Saw.
 - **Conclusione del Talk e salvataggio metriche (Slide 14)**: sull'ultima slide è presente il controllo dedicato per archiviare la sessione, calcolare tutte le metriche e aprire la dashboard Analytics.
 - **Suite Analytics completa (`/analytics`)**: tracciamento automatico di tempi per slide, tempi di decisione e discussione delle provocazioni, KPI aggregati, grafici dettagliati, timeline, viste tabellari, comparazione multi-sessione e import/export JSON.
 - **Doppio Tema Dark / Light**: interfaccia con estetica Neo-Brutalist (bordi marcati, ombre nette sfalsate, alto contrasto visivo), commutabile dal pannello di configurazione.
@@ -67,7 +67,7 @@ L'applicazione supporta il ciclo di vita completo del talk:
 ### Parametri di Configurazione (`/`)
 - **Orario di fine talk (`HH:MM`)**: orario target assoluto per la conclusione dell'intervento. Include validazione degli orari passati con richiesta di conferma.
 - **Minuti di conclusione (`conclusionMinutes`, default 5 min)**: anticipo rispetto alla fine del talk in cui deve scattare l'overlay "Stop alle telefonate".
-- **Slide fine introduzione (`introEndSlide`, default 11)**: numero della slide che attiva il passaggio automatico alla modalità Gioco tramite telecomando.
+- **Slide fine introduzione (`introEndSlide`, default 10)**: numero della slide che attiva il passaggio automatico alla modalità Gioco tramite telecomando.
 - **Tema dell'app**: selezione tra modalità Scura (`dark`) e Chiara (`light`).
 
 ---

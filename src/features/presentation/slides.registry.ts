@@ -1,88 +1,88 @@
 import type { SlideDefinition } from "../../types";
-import { Slide01 } from "./slides/Slide01";
-import { Slide02 } from "./slides/Slide02";
-import { Slide03 } from "./slides/Slide03";
-import { Slide04 } from "./slides/Slide04";
-import { Slide05 } from "./slides/Slide05";
-import { Slide07 } from "./slides/Slide07";
-import { Slide08 } from "./slides/Slide08";
-import { Slide09 } from "./slides/Slide09";
-import { Slide10 } from "./slides/Slide10";
-import { Slide11 } from "./slides/Slide11";
-import { Slide12 } from "./slides/Slide12";
-import { Slide13 } from "./slides/Slide13";
-import { Slide14 } from "./slides/Slide14";
-import { Slide15 } from "./slides/Slide15";
+import { Titolo } from "./slides/Titolo";
+import { GliEsperti } from "./slides/GliEsperti";
+import { SviluppatoreQualunque } from "./slides/SviluppatoreQualunque";
+import { MacchinettaDelCaffe } from "./slides/MacchinettaDelCaffe";
+import { DanielESte } from "./slides/DanielESte";
+import { RitornoAlFuturo } from "./slides/RitornoAlFuturo";
+import { KlippySaw } from "./slides/KlippySaw";
+import { FightClub } from "./slides/FightClub";
+import { KlippyLottaTraAi } from "./slides/KlippyLottaTraAi";
+import { KlippyMatrix } from "./slides/KlippyMatrix";
+import { IoSonoEccellenza } from "./slides/IoSonoEccellenza";
+import { Selfie } from "./slides/Selfie";
+import { Finale } from "./slides/Finale";
+import { SchermoNero } from "./slides/SchermoNero";
 
 export const SLIDES: readonly SlideDefinition[] = [
   {
     id: "titolo",
-    title: "1. Titolo",
-    component: Slide01,
+    title: "Titolo",
+    component: Titolo,
   },
   {
     id: "gli-esperti",
-    title: "2. Gli esperti",
-    component: Slide02,
+    title: "Gli esperti",
+    component: GliEsperti,
   },
   {
     id: "developer-qualunque",
-    title: "3. Developer qualunque",
-    component: Slide03,
+    title: "Developer qualunque",
+    component: SviluppatoreQualunque,
   },
   {
     id: "macchinetta-caffe",
-    title: "4. Macchinetta del caffè",
-    component: Slide04,
+    title: "Macchinetta del caffè",
+    component: MacchinettaDelCaffe,
   },
   {
     id: "daniel-e-ste",
-    title: "5. Daniel e Ste",
-    component: Slide05,
+    title: "Daniel e Ste",
+    component: DanielESte,
   },
   {
     id: "ritorno-al-futuro",
-    title: "6. Ritorno al Futuro",
-    component: Slide07,
+    title: "Ritorno al Futuro",
+    component: RitornoAlFuturo,
   },
   {
     id: "klippy-saw",
-    title: "7. Klippy saw",
-    component: Slide08,
+    title: "Klippy saw",
+    component: KlippySaw,
   },
   {
     id: "fight-club",
-    title: "8. Fight club",
-    component: Slide09,
+    title: "Fight club",
+    component: FightClub,
   },
   {
     id: "klippy-lotta-ai",
-    title: "9. Klippy lotta tra AI",
-    component: Slide10,
+    title: "Klippy lotta tra AI",
+    component: KlippyLottaTraAi,
   },
   {
     id: "klippy-matrix",
-    title: "10. Klippy matrix",
-    component: Slide11,
+    title: "Klippy matrix",
+    component: KlippyMatrix,
   },
   {
     id: "io-sono-eccellenza",
-    title: "11. Io sono eccellenza",
-    component: Slide12,
+    title: "Io sono eccellenza",
+    component: IoSonoEccellenza,
   },
   {
     id: "selfie",
-    title: "12. Selfie",
-    component: Slide13,
+    title: "Selfie",
+    component: Selfie,
   },
   {
     id: "finale",
-    title: "13. Finale",
-    component: Slide14,
+    title: "Finale",
+    component: Finale,
   },
   {
     id: "nero",
-    title: "14. Nero",
-    component: Slide15,
+    title: "Schermo Nero",
+    component: SchermoNero,
   }
 ] as const;

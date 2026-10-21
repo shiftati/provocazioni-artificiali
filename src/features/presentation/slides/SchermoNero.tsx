@@ -1,7 +1,7 @@
 import type { FC } from "react";
-import styles from "./Slide15.module.scss";
+import styles from "./SchermoNero.module.scss";
 
-export const Slide15: FC = () => {
+export const SchermoNero: FC = () => {
   return (
     <div
       className={styles.blackSlide}

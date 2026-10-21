@@ -82,7 +82,7 @@ export const ConfigView: FC = () => {
   });
 
   const [introEndSlide, setIntroEndSlide] = useState<number>(() => {
-    return typeof config.introEndSlide === "number" ? config.introEndSlide : 11;
+    return typeof config.introEndSlide === "number" ? config.introEndSlide : 10;
   });
 
   const [hasSavedToast, setHasSavedToast] = useState<boolean>(false);
@@ -199,7 +199,7 @@ export const ConfigView: FC = () => {
     resetAll();
     setTimeValue(getDefaultEndTime());
     setConclusionMinutes(5);
-    setIntroEndSlide(11);
+    setIntroEndSlide(10);
     setConfirmResetOpen(false);
   };
 
@@ -430,13 +430,13 @@ export const ConfigView: FC = () => {
               label="Slide di fine intro"
               value={introEndSlide}
               onChange={(e) =>
-                setIntroEndSlide(parseInt(e.target.value, 10) || 11)
+                setIntroEndSlide(parseInt(e.target.value, 10) || 10)
               }
               options={SLIDES.map((s, idx) => ({
                 value: idx + 1,
                 label: `${idx + 1}: ${s.title}`,
               }))}
-              hint={`La slide selezionata è l'ultima slide dell'introduzione (default #11). Lo 'Stop alle telefonate' passerà alla slide successiva (#${introEndSlide + 1}${SLIDES[introEndSlide] ? `: ${SLIDES[introEndSlide].title}` : ""}).`}
+              hint={`La slide selezionata è l'ultima slide dell'introduzione (default #10). Lo 'Stop alle telefonate' passerà alla slide successiva (#${introEndSlide + 1}${SLIDES[introEndSlide] ? `: ${SLIDES[introEndSlide].title}` : ""}).`}
             />
 
             <div className={styles.previewText} aria-live="polite">

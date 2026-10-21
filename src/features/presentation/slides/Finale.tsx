@@ -3,13 +3,13 @@ import { ImageSlide } from "../layouts/ImageSlide";
 import { useAppState } from "../../../state/AppStateContext";
 import { useCachedAsset } from "../../../hooks/useCachedAsset";
 import { PlayIcon, PauseIcon, StopIcon } from "../../../components/icons";
-import styles from "./Slide14.module.scss";
+import styles from "./Finale.module.scss";
 
 const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 
-export const Slide14: FC = () => {
+export const Finale: FC = () => {
   const {
     registerSlideStepHandler,
     previousSlideIndex,
@@ -17,7 +17,7 @@ export const Slide14: FC = () => {
     setHasPendingSlideAnimations,
   } = useAppState();
 
-  const audioSrc = useCachedAsset(`${BASE_URL}audio/back-to-the-future.mp3`);
+  const audioSrc = useCachedAsset(`${BASE_URL}audio/back-to-the-future_short.mp3`);
   const qrSrc = useCachedAsset(`${BASE_URL}images/qr-shiftati.svg`);
 
   // Se si naviga all'indietro da una slide successiva (se presente),
@@ -363,7 +363,7 @@ export const Slide14: FC = () => {
           </div>
         )}
 
-        {/* 2° Fumetto: "perciò createvelo buono!" (compare al 2° click, sotto la faccia) */}
+        {/* 2° Fumetto: "...perciò createvelo buono!" (compare al 2° click, sotto la faccia) */}
         {isBubble2Visible && (
           <div
             className={`${styles.speechBubble} ${styles.speechBubble2} ${bubble2AnimationClass}`}

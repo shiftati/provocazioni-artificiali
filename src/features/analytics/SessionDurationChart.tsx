@@ -23,11 +23,11 @@ interface PhaseItem {
 
 export const SessionDurationChart: FC<SessionDurationChartProps> = ({
   session,
-  introEndSlide = 11,
+  introEndSlide = 10,
 }) => {
   const [hoveredPhase, setHoveredPhase] = useState<string | null>(null);
 
-  const endSlide = session.introEndSlide ?? introEndSlide ?? 11;
+  const endSlide = session.introEndSlide ?? introEndSlide ?? 10;
   const totalSlidesCount = session.slides.length || 14;
 
   const introSlides = session.slides.slice(0, endSlide);

@@ -17,7 +17,7 @@ export function createSampleSessions(): TalkSessionRecord[] {
     gameDurationSeconds: 794, // 13m 14s spent in game mode between slide 11 and 12
     plannedEndTime: "17:15",
     plannedEndTimestamp: oneDayAgo + 45 * 60 * 1000,
-    introEndSlide: 11,
+    introEndSlide: 10,
     notes: "Ottimo feedback dalla platea. Dibattito vivace sui microservizi e su AI coding.",
     slides: SLIDES.map((slide, idx) => {
       // Realistic slide durations in seconds
@@ -191,7 +191,7 @@ export function createSampleSessions(): TalkSessionRecord[] {
     gameDurationSeconds: 556, // 9m 16s spent in game mode between slide 11 and 12
     plannedEndTime: "11:30",
     plannedEndTimestamp: twoDaysAgo + 40 * 60 * 1000,
-    introEndSlide: 11,
+    introEndSlide: 10,
     notes: "Prima prova complessiva con timer attivo. Ritmo scorrevole.",
     slides: SLIDES.map((slide, idx) => {
       const durations = [

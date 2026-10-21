@@ -21,13 +21,13 @@ export const SessionEditorModal: FC<SessionEditorModalProps> = ({
 }) => {
   const [name, setName] = useState("");
   const [notes, setNotes] = useState("");
-  const [introEndSlide, setIntroEndSlide] = useState<number>(11);
+  const [introEndSlide, setIntroEndSlide] = useState<number>(10);
 
   useEffect(() => {
     if (session) {
       setName(session.name || "");
       setNotes(session.notes || "");
-      setIntroEndSlide(session.introEndSlide ?? 11);
+      setIntroEndSlide(session.introEndSlide ?? 10);
     }
   }, [session]);
 
@@ -76,7 +76,7 @@ export const SessionEditorModal: FC<SessionEditorModalProps> = ({
           id="session-intro-end-input"
           className={styles.formInput}
           value={introEndSlide}
-          onChange={(e) => setIntroEndSlide(parseInt(e.target.value, 10) || 11)}
+          onChange={(e) => setIntroEndSlide(parseInt(e.target.value, 10) || 10)}
         >
           {SLIDES.map((s, idx) => (
             <option key={s.id} value={idx + 1}>

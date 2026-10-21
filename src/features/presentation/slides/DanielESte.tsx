@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect, type FC } from "react";
 import { useAppState } from "../../../state/AppStateContext";
 import { useCachedAsset } from "../../../hooks/useCachedAsset";
-import styles from "./Slide05.module.scss";
+import styles from "./DanielESte.module.scss";
 
 const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 
-export const Slide05: FC = () => {
+export const DanielESte: FC = () => {
   const { registerSlideStepHandler, previousSlideIndex } = useAppState();
 
   const bgImg = useCachedAsset(

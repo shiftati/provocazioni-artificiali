@@ -25,7 +25,7 @@ export const DEFAULT_CONFIG: TalkConfig = {
   createdAt: 0,
   theme: "dark",
   conclusionMinutes: 5,
-  introEndSlide: 11,
+  introEndSlide: 10,
   navOnSlide: true,
 };
 

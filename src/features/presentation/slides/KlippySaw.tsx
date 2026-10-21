@@ -2,13 +2,13 @@ import { useState, useEffect, useRef, useCallback, type FC } from "react";
 import { ImageSlide } from "../layouts/ImageSlide";
 import { useAppState } from "../../../state/AppStateContext";
 import { useCachedAsset } from "../../../hooks/useCachedAsset";
-import styles from "./Slide08.module.scss";
+import styles from "./KlippySaw.module.scss";
 
 const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 
-export const Slide08: FC = () => {
+export const KlippySaw: FC = () => {
   const { previousSlideIndex } = useAppState();
 
   // Se l'utente arriva a ritroso da una slide successiva (indice > 6), mostra già tutto senza attendere

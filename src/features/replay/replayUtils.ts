@@ -37,7 +37,7 @@ export function ensureSessionEvents(session: TalkSessionRecord): SessionEvent[] 
     description: "Avvio della sessione talk",
   });
 
-  const introEnd = session.introEndSlide ?? 11;
+  const introEnd = session.introEndSlide ?? 10;
   const slides = session.slides.length > 0 ? session.slides : SLIDES.map((s, i) => ({
     slideIndex: i,
     slideId: s.id,
