@@ -2,9 +2,8 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
-// Change this base URL if deploying to a different repository or custom domain.
-// For local preview or root domains, change to "/" or "./".
-export const REPO_BASE = "/provocazioni-artificiali-antigravity/";
+// Set to "/" for custom domain (e.g. codemotion.shiftati.it)
+export const REPO_BASE = "/";
 
 export default defineConfig({
   base: REPO_BASE,
