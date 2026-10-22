@@ -245,7 +245,7 @@
   }
 }
 
-/* 3. Klippy sconvolto in basso a destra: entrata e movimento oscillante fluttuante */
+/* 3. Klippy sconvolto: entrata dal basso-destra */
 .klippyWrapper {
   position: absolute;
   bottom: 25px;
@@ -260,6 +260,13 @@
   will-change: transform, opacity;
 }
 
+/* Klippy Runner: 5s di attesa a destra -> corsa comica a sinistra -> stop a -15deg -> 5s attesa a sinistra -> corsa a destra -> loop */
+.klippyRunner {
+  transform-origin: bottom center;
+  animation: klippyPatrol 13s linear 2.7s infinite;
+  will-change: transform;
+}
+
 .klippyImg {
   display: block;
   height: 600px;
@@ -267,8 +274,6 @@
   object-fit: contain;
   filter: drop-shadow(0 14px 32px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 24px rgba(255, 85, 0, 0.2));
   transform-origin: bottom center;
-  animation: klippyIdle 3.8s ease-in-out 2.7s infinite alternate;
-  will-change: transform;
 }
 
 @keyframes klippyEntrance {
@@ -282,18 +287,160 @@
   }
 }
 
-@keyframes klippyIdle {
+@keyframes klippyPatrol {
+  /* =========================================================
+     FASE 1: In attesa sul lato destro (5.0s: 0% -> 38.46%)
+     Respiro naturale in idle prima della partenza
+     ========================================================= */
   0% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1, 1);
+    animation-timing-function: ease-in-out;
   }
-  35% {
-    transform: translate3d(0, -14px, 0) rotate(1.4deg);
+  9.6% {
+    transform: translate3d(0, -12px, 0) rotate(1.2deg) scale(1, 1);
+    animation-timing-function: ease-in-out;
   }
-  70% {
-    transform: translate3d(0, -6px, 0) rotate(-1.2deg);
+  19.2% {
+    transform: translate3d(0, -3px, 0) rotate(-0.8deg) scale(1, 1);
+    animation-timing-function: ease-in-out;
   }
-  100% {
-    transform: translate3d(0, -18px, 0) rotate(0.8deg);
+  28.8% {
+    transform: translate3d(0, -10px, 0) rotate(0.8deg) scale(1, 1);
+    animation-timing-function: ease-in-out;
+  }
+  36.5% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1, 1);
+    animation-timing-function: ease-out;
+  }
+  38.46% {
+    /* 5.0s passati dall'entrata: inizio anticipazione della corsa */
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1, 1);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* =========================================================
+     FASE 2: Corsa verso sinistra + frenata (1.5s: 38.46% -> 50.0%)
+     Anticipazione -> balzi e inclinazione in corsa -> derapata / frenata -> stop a -15deg
+     ========================================================= */
+  39.6% {
+    /* Anticipazione / caricamento: si abbassa e si inclina leggermente all'indietro per prendere aderenza */
+    transform: translate3d(22px, 8px, 0) rotate(8deg) scale(1.06, 0.92);
+    animation-timing-function: cubic-bezier(0.3, 0, 0.8, 0.6);
+  }
+  41.0% {
+    /* Scatto / takeoff: balzo in avanti inclinato a sinistra */
+    transform: translate3d(-170px, -28px, 0) rotate(-24deg) scale(0.95, 1.05);
+    animation-timing-function: ease-in-out;
+  }
+  42.4% {
+    /* Passo 1: contatto a terra con squashing */
+    transform: translate3d(-430px, 4px, 0) rotate(-18deg) scale(1.04, 0.96);
+    animation-timing-function: ease-in-out;
+  }
+  43.8% {
+    /* Passo 2: rimbalzo a mezz'aria */
+    transform: translate3d(-700px, -30px, 0) rotate(-25deg) scale(0.94, 1.06);
+    animation-timing-function: ease-in-out;
+  }
+  45.2% {
+    /* Passo 3: contatto a terra con squashing */
+    transform: translate3d(-970px, 4px, 0) rotate(-19deg) scale(1.04, 0.96);
+    animation-timing-function: ease-in-out;
+  }
+  46.6% {
+    /* Passo 4: ultimo slancio in corsa */
+    transform: translate3d(-1210px, -26px, 0) rotate(-24deg) scale(0.95, 1.05);
+    animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1);
+  }
+  48.0% {
+    /* Frenata / Derapata: talloni a terra, busto che va indietro per fermarsi, leggero overshoot */
+    transform: translate3d(-1385px, 6px, 0) rotate(-6deg) scale(1.08, 0.92);
+    animation-timing-function: ease-out;
+  }
+  49.0% {
+    /* Rinculo elastico della frenata */
+    transform: translate3d(-1342px, -8px, 0) rotate(-17deg) scale(0.97, 1.03);
+    animation-timing-function: ease-in-out;
+  }
+  50.0% {
+    /* Fermata completa sul lato sinistro, ruotato esattamente a -15deg */
+    transform: translate3d(-1350px, 0, 0) rotate(-15deg) scale(1, 1);
+    animation-timing-function: ease-in-out;
+  }
+
+  /* =========================================================
+     FASE 3: In attesa sul lato sinistro (5.0s: 50.0% -> 88.46%)
+     Ruotato di -15deg con respiro naturale in idle
+     ========================================================= */
+  59.6% {
+    transform: translate3d(-1350px, -12px, 0) rotate(-14deg) scale(1, 1);
+    animation-timing-function: ease-in-out;
+  }
+  69.2% {
+    transform: translate3d(-1350px, -3px, 0) rotate(-16deg) scale(1, 1);
+    animation-timing-function: ease-in-out;
+  }
+  78.8% {
+    transform: translate3d(-1350px, -10px, 0) rotate(-14.2deg) scale(1, 1);
+    animation-timing-function: ease-in-out;
+  }
+  86.5% {
+    transform: translate3d(-1350px, 0, 0) rotate(-15deg) scale(1, 1);
+    animation-timing-function: ease-out;
+  }
+  88.46% {
+    /* 5.0s passati sul lato sinistro: pronto allo scatto di ritorno verso destra */
+    transform: translate3d(-1350px, 0, 0) rotate(-15deg) scale(1, 1);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* =========================================================
+     FASE 4: Corsa di ritorno verso destra + frenata (1.5s: 88.46% -> 100.0%)
+     Anticipazione -> balzi e inclinazione a destra -> derapata / frenata -> stop a 0deg
+     ========================================================= */
+  89.6% {
+    /* Anticipazione / caricamento: si abbassa e si inclina a sinistra per prendere slancio */
+    transform: translate3d(-1372px, 8px, 0) rotate(-23deg) scale(1.06, 0.92);
+    animation-timing-function: cubic-bezier(0.3, 0, 0.8, 0.6);
+  }
+  91.0% {
+    /* Scatto / takeoff verso destra: corpo inclinato in avanti a destra */
+    transform: translate3d(-1180px, -28px, 0) rotate(24deg) scale(0.95, 1.05);
+    animation-timing-function: ease-in-out;
+  }
+  92.4% {
+    /* Passo 1: contatto a terra con squashing */
+    transform: translate3d(-920px, 4px, 0) rotate(18deg) scale(1.04, 0.96);
+    animation-timing-function: ease-in-out;
+  }
+  93.8% {
+    /* Passo 2: rimbalzo a mezz'aria */
+    transform: translate3d(-650px, -30px, 0) rotate(25deg) scale(0.94, 1.06);
+    animation-timing-function: ease-in-out;
+  }
+  95.2% {
+    /* Passo 3: contatto a terra con squashing */
+    transform: translate3d(-380px, 4px, 0) rotate(19deg) scale(1.04, 0.96);
+    animation-timing-function: ease-in-out;
+  }
+  96.6% {
+    /* Passo 4: ultimo slancio in corsa verso la posizione originale */
+    transform: translate3d(-140px, -26px, 0) rotate(24deg) scale(0.95, 1.05);
+    animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1);
+  }
+  98.0% {
+    /* Frenata / Derapata a destra: talloni a terra, busto che va indietro, leggero overshoot */
+    transform: translate3d(35px, 6px, 0) rotate(-8deg) scale(1.08, 0.92);
+    animation-timing-function: ease-out;
+  }
+  99.0% {
+    /* Rinculo elastico della frenata */
+    transform: translate3d(-8px, -8px, 0) rotate(2deg) scale(0.97, 1.03);
+    animation-timing-function: ease-in-out;
+  }
+  100.0% {
+    /* Fermata completa sul lato destro in posizione iniziale */
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1, 1);
   }
 }
 
@@ -305,6 +452,7 @@
   .subtitle,
   .subtitleText,
   .klippyWrapper,
+  .klippyRunner,
   .klippyImg {
     animation: none;
     opacity: 1;
