@@ -352,8 +352,8 @@ function enrichSlideAnimationEvents(events: SessionEvent[], defaultEndTime: numb
           ? evt.details.slideNumber - 1
           : -1;
 
-      // Slide 4 is "Daniel e Ste" (5th slide), Slide 12 is "Finale" (13th slide)
-      const isMultiStepSlide = slideIdx === 4 || slideIdx === 12;
+      // Slide 4 is "Daniel e Ste" (5th slide), Slide 7 is "Fight club" (8th slide), Slide 12 is "Finale" (13th slide)
+      const isMultiStepSlide = slideIdx === 4 || slideIdx === 7 || slideIdx === 12;
       if (!isMultiStepSlide) continue;
 
       let hasAnimationEvent = false;
@@ -386,44 +386,94 @@ function enrichSlideAnimationEvents(events: SessionEvent[], defaultEndTime: numb
       if (!hasAnimationEvent) {
         const deltaMs = nextEventTimestamp - evt.timestamp;
         if (deltaMs >= 3000) {
-          const t1 = evt.timestamp + Math.min(4000, Math.round(deltaMs * 0.33));
-          const t2 = evt.timestamp + Math.min(8000, Math.round(deltaMs * 0.66));
-          const slideTitle = slideIdx === 4 ? "Daniel e Ste" : "Finale";
+          const slideTitle =
+            slideIdx === 4 ? "Daniel e Ste" : slideIdx === 7 ? "Fight club" : "Finale";
 
-          result.push({
-            id: `synth_anim_${slideIdx}_step1_${evt.timestamp}`,
-            timestamp: t1,
-            type: "SLIDE_ANIMATION",
-            description:
-              slideIdx === 4
-                ? "Mostro animazione slide 5 (Daniel e Ste): Compare Daniel"
-                : "Mostro animazione slide 13 (Finale): Primo fumetto",
-            details: {
-              slideIndex: slideIdx,
-              slideNumber: slideIdx + 1,
-              slideTitle,
-              step: 1,
-              animationName: slideIdx === 4 ? "Compare Daniel" : "Primo fumetto",
-            },
-          });
+          if (slideIdx === 7) {
+            const t1 = evt.timestamp + Math.min(3000, Math.round(deltaMs * 0.25));
+            const t2 = evt.timestamp + Math.min(6000, Math.round(deltaMs * 0.5));
+            const t3 = evt.timestamp + Math.min(9000, Math.round(deltaMs * 0.75));
 
-          result.push({
-            id: `synth_anim_${slideIdx}_step2_${evt.timestamp}`,
-            timestamp: t2,
-            type: "SLIDE_ANIMATION",
-            description:
-              slideIdx === 4
-                ? "Mostro animazione slide 5 (Daniel e Ste): Compare Klippy"
-                : "Mostro animazione slide 13 (Finale): Secondo fumetto e card finale",
-            details: {
-              slideIndex: slideIdx,
-              slideNumber: slideIdx + 1,
-              slideTitle,
-              step: 2,
-              animationName:
-                slideIdx === 4 ? "Compare Klippy" : "Secondo fumetto e card finale",
-            },
-          });
+            result.push({
+              id: `synth_anim_${slideIdx}_step1_${evt.timestamp}`,
+              timestamp: t1,
+              type: "SLIDE_ANIMATION",
+              description: "Mostro animazione slide 8 (Fight club): Card 30 secondi per proporre la provocazione",
+              details: {
+                slideIndex: slideIdx,
+                slideNumber: slideIdx + 1,
+                slideTitle,
+                step: 1,
+                animationName: "Card 30 secondi per proporre la provocazione",
+              },
+            });
+
+            result.push({
+              id: `synth_anim_${slideIdx}_step2_${evt.timestamp}`,
+              timestamp: t2,
+              type: "SLIDE_ANIMATION",
+              description: "Mostro animazione slide 8 (Fight club): Card 5 minuti per discutere",
+              details: {
+                slideIndex: slideIdx,
+                slideNumber: slideIdx + 1,
+                slideTitle,
+                step: 2,
+                animationName: "Card 5 minuti per discutere",
+              },
+            });
+
+            result.push({
+              id: `synth_anim_${slideIdx}_step3_${evt.timestamp}`,
+              timestamp: t3,
+              type: "SLIDE_ANIMATION",
+              description: "Mostro animazione slide 8 (Fight club): Card finiti i 5 minuti riparte il giro",
+              details: {
+                slideIndex: slideIdx,
+                slideNumber: slideIdx + 1,
+                slideTitle,
+                step: 3,
+                animationName: "Card finiti i 5 minuti riparte il giro",
+              },
+            });
+          } else {
+            const t1 = evt.timestamp + Math.min(4000, Math.round(deltaMs * 0.33));
+            const t2 = evt.timestamp + Math.min(8000, Math.round(deltaMs * 0.66));
+
+            result.push({
+              id: `synth_anim_${slideIdx}_step1_${evt.timestamp}`,
+              timestamp: t1,
+              type: "SLIDE_ANIMATION",
+              description:
+                slideIdx === 4
+                  ? "Mostro animazione slide 5 (Daniel e Ste): Compare Daniel"
+                  : "Mostro animazione slide 13 (Finale): Primo fumetto",
+              details: {
+                slideIndex: slideIdx,
+                slideNumber: slideIdx + 1,
+                slideTitle,
+                step: 1,
+                animationName: slideIdx === 4 ? "Compare Daniel" : "Primo fumetto",
+              },
+            });
+
+            result.push({
+              id: `synth_anim_${slideIdx}_step2_${evt.timestamp}`,
+              timestamp: t2,
+              type: "SLIDE_ANIMATION",
+              description:
+                slideIdx === 4
+                  ? "Mostro animazione slide 5 (Daniel e Ste): Compare Klippy"
+                  : "Mostro animazione slide 13 (Finale): Secondo fumetto e card finale",
+              details: {
+                slideIndex: slideIdx,
+                slideNumber: slideIdx + 1,
+                slideTitle,
+                step: 2,
+                animationName:
+                  slideIdx === 4 ? "Compare Klippy" : "Secondo fumetto e card finale",
+              },
+            });
+          }
         }
       }
     }

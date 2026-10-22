@@ -2,7 +2,7 @@ import type { FC } from "react";
 import { ProvocationCard } from "./ProvocationCard";
 import styles from "./ProvocationCard.module.scss";
 
-export const KlippyLottaTraAi: FC = () => {
+export const CybersicurezzaLottaTraAi: FC = () => {
   return (
     <ProvocationCard
       imageName="cybersicurezza-lotta-tra-ai.jpg"

@@ -2,7 +2,7 @@ import type {FC} from "react";
 import {ProvocationCard} from "./ProvocationCard";
 import styles from "./ProvocationCard.module.scss";
 
-export const KlippyMatrix: FC = () => {
+export const DocumentazioneInsensata: FC = () => {
     return (
         <ProvocationCard
             imageName="documentazione-inutile.jpg"

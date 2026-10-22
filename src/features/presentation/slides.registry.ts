@@ -7,8 +7,8 @@ import { DanielESte } from "./slides/DanielESte";
 import { RitornoAlFuturo } from "./slides/RitornoAlFuturo";
 import { KlippySaw } from "./slides/KlippySaw";
 import { FightClub } from "./slides/FightClub";
-import { KlippyLottaTraAi } from "../game/provocations/KlippyLottaTraAi";
-import { KlippyMatrix } from "../game/provocations/KlippyMatrix";
+import { CybersicurezzaLottaTraAi } from "../game/provocations/CybersicurezzaLottaTraAi";
+import { DocumentazioneInsensata } from "../game/provocations/DocumentazioneInsensata";
 import { IoSonoEccellenza } from "./slides/IoSonoEccellenza";
 import { Selfie } from "./slides/Selfie";
 import { Finale } from "./slides/Finale";
@@ -100,7 +100,7 @@ export const SLIDES: readonly SlideDefinition[] = [
   {
     id: "klippy-lotta-ai",
     title: "Klippy lotta tra AI",
-    component: KlippyLottaTraAi,
+    component: CybersicurezzaLottaTraAi,
     transition: "fade-scale",
     transitionDurationMs: 600,
     assets: ["images/slides/cybersicurezza-lotta-tra-ai.jpg"],
@@ -108,7 +108,7 @@ export const SLIDES: readonly SlideDefinition[] = [
   {
     id: "klippy-matrix",
     title: "Klippy matrix",
-    component: KlippyMatrix,
+    component: DocumentazioneInsensata,
     transition: "fade-scale",
     transitionDurationMs: 600,
     assets: ["images/slides/documentazione-inutile.jpg"],
