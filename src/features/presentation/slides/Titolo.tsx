@@ -29,7 +29,7 @@ export const Titolo: FC = () => {
         <h1 className={styles.title}>
           <span className={`${styles.titleLine} ${styles.titleLine1}`}>
             Provocazioni
-          </span>
+          </span>{" "}
           <span className={`${styles.titleLine} ${styles.titleLine2}`}>
             Artificiali
           </span>
@@ -37,9 +37,11 @@ export const Titolo: FC = () => {
 
         {/* 2. Sottotitolo */}
         <p className={styles.subtitle}>
-          ...un talk così “shiftato” che ti verrà
-          <br />
-          la voglia di rubarci il microfono!
+          <span className={styles.subtitleText}>
+            ...un talk così “shiftato” che ti verrà
+            <br />
+            la voglia di rubarci il microfono!
+          </span>
         </p>
       </header>
 

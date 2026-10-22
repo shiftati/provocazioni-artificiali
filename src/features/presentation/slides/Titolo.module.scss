@@ -21,7 +21,12 @@
   width: 900px;
   height: 420px;
   border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(94, 242, 184, 0.55) 0%, rgba(30, 102, 250, 0.4) 40%, rgba(0, 0, 0, 0) 75%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(94, 242, 184, 0.55) 0%,
+    rgba(30, 102, 250, 0.4) 40%,
+    rgba(0, 0, 0, 0) 75%
+  );
   filter: blur(28px);
   pointer-events: none;
   z-index: 3;
@@ -58,125 +63,150 @@
   z-index: 5;
   padding: 0 40px;
   perspective: 1200px;
+  box-sizing: border-box;
 }
 
-/* 1. Titolo: "Provocazioni Artificiali" con effetto WOW cinematografico */
+/* 1. Titolo: Stile classico Codemotion decal neo-brutalist (come ProvocationCard) */
 .title {
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.35em;
+  flex-wrap: wrap;
   margin: 0;
-  padding: 0;
-  font-family: var(--font-slab);
-  font-size: 116px;
-  line-height: 1.02;
-  font-weight: 500;
-  color: #ffffff;
-  letter-spacing: -0.015em;
-  text-transform: none;
+  background-color: var(--color-decal-bg);
+  border: 4px solid #000000;
+  border-radius: 0;
+  box-shadow: var(--shadow-box-offset-lg);
+  padding: var(--space-4) var(--space-8);
+  font-family: var(--font-display);
+  font-size: 6.2rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--color-decal-text);
+  letter-spacing: -0.02em;
+  text-align: center;
   transform-style: preserve-3d;
-  filter: drop-shadow(0 10px 28px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 35px rgba(20, 100, 240, 0.45));
+  box-sizing: border-box;
+
+  /* Entrance animation della box del titolo */
+  opacity: 0;
+  transform: translateY(-30px) scale(0.92);
+  animation: titleBoxEntrance 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards;
+}
+
+@keyframes titleBoxEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.92);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(0) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .titleLine {
-  display: block;
+  display: inline-block;
   white-space: nowrap;
   transform-origin: center center;
   backface-visibility: hidden;
 }
 
-/* Prima riga: "Provocazioni" - entra dall'alto con impatto 3D e fuoco cinematico */
+/* Prima parola: "Provocazioni" - entra dall'alto con impatto 3D e luce cinematografica */
 .titleLine1 {
   opacity: 0;
-  transform: translateY(-80px) scale(1.35) rotateX(24deg);
-  filter: blur(14px) brightness(2.2);
-  letter-spacing: 0.08em;
+  transform: translateY(-60px) scale(1.25) rotateX(20deg);
+  filter: blur(10px) brightness(2);
+  letter-spacing: 0.04em;
   animation: titleLine1Entrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards;
 }
 
 @keyframes titleLine1Entrance {
   0% {
     opacity: 0;
-    transform: translateY(-80px) scale(1.35) rotateX(24deg);
-    filter: blur(14px) brightness(2.2);
-    letter-spacing: 0.08em;
+    transform: translateY(-60px) scale(1.25) rotateX(20deg);
+    filter: blur(10px) brightness(2);
+    letter-spacing: 0.04em;
   }
   70% {
     opacity: 1;
     transform: translateY(0) scale(0.98) rotateX(0deg);
     filter: blur(0) brightness(1.2);
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
   }
   100% {
     opacity: 1;
     transform: translateY(0) scale(1) rotateX(0deg);
     filter: blur(0) brightness(1);
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
   }
 }
 
-/* Seconda riga: "Artificiali" - impatto sismico con flash neon subito dopo */
+/* Seconda parola: "Artificiali" - impatto sismico con flash neon subito dopo */
 .titleLine2 {
   opacity: 0;
-  transform: translateY(70px) scale(1.4) rotateX(-24deg);
-  filter: blur(14px) brightness(2.4);
-  letter-spacing: 0.1em;
+  transform: translateY(50px) scale(1.25) rotateX(-20deg);
+  filter: blur(10px) brightness(2.2);
+  letter-spacing: 0.04em;
   animation: titleLine2Entrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.55s forwards;
 }
 
 @keyframes titleLine2Entrance {
   0% {
     opacity: 0;
-    transform: translateY(70px) scale(1.4) rotateX(-24deg);
-    filter: blur(14px) brightness(2.4);
-    letter-spacing: 0.1em;
+    transform: translateY(50px) scale(1.25) rotateX(-20deg);
+    filter: blur(10px) brightness(2.2);
+    letter-spacing: 0.04em;
   }
   65% {
     opacity: 1;
-    transform: translateY(0) scale(0.97) rotateX(0deg);
-    filter: blur(0) brightness(1.4) drop-shadow(0 0 35px rgba(94, 242, 184, 0.9));
-    letter-spacing: -0.015em;
+    transform: translateY(0) scale(0.98) rotateX(0deg);
+    filter: blur(0) brightness(1.3) drop-shadow(0 0 35px rgba(255, 85, 0, 0.9));
+    letter-spacing: -0.02em;
   }
   100% {
     opacity: 1;
     transform: translateY(0) scale(1) rotateX(0deg);
     filter: blur(0) brightness(1);
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
   }
 }
 
-/* 2. Sottotitolo: "...un talk così “shiftato” che ti verrà la voglia di rubarci il microfono!" */
+/* Highlight identico allo stile provocazioni (LavoroSviluppatoreFinito) */
+.highlight {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+  text-underline-offset: 14px;
+}
+
+/* 2. Sottotitolo: Stile decal neo-brutalist Codemotion con mint box shadow */
 .subtitle {
-  margin-top: 32px;
+  margin-top: 28px;
+  //background-color: var(--color-decal-bg);
+  //border: 3.5px solid #000000;
+  //border-radius: 0;
+  //box-shadow: var(--shadow-box-offset-mint);
+  padding: 16px 36px;
+  display: inline-block;
   font-family: var(--font-display);
-  font-size: 38px;
-  font-weight: 500;
+  font-size: 52px;
+  font-weight: 600;
   line-height: 1.38;
   max-width: 1100px;
-  // text-shadow: 0 4px 14px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  box-sizing: border-box;
 
-  /* Holographic/neon mint sweep text gradient */
-  background: linear-gradient(
-    105deg,
-    #ffffff 0%,
-    #ffffff 35%,
-    #5ef2b8 50%,
-    #ffffff 65%,
-    #ffffff 100%
-  );
-  background-size: 250% 100%;
-  background-position: 100% 0;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-
-  /* Entrance animation: entra dopo i titoli con reveal e passaggio di luce */
+  /* Entrance animation: entra dopo i titoli con reveal fluido */
   opacity: 0;
   transform: translateY(35px) scale(0.94);
   filter: blur(8px);
-  animation:
-    subtitleEntrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) 1.15s forwards,
-    subtitleShine 2.2s ease-in-out 1.55s forwards;
+  animation: subtitleEntrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) 1.15s forwards;
 }
 
 @keyframes subtitleEntrance {
@@ -190,6 +220,24 @@
     transform: translateY(0) scale(1);
     filter: blur(0);
   }
+}
+
+.subtitleText {
+  display: inline-block;
+  /* Holographic/neon mint sweep text gradient */
+  background: linear-gradient(
+    105deg,
+    #ffffff 0%,
+    #ffffff 35%,
+    #5ef2b8 50%,
+    #ffffff 65%,
+    #ffffff 100%
+  );
+  background-size: 250% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: subtitleShine 2.2s ease-in-out 1.55s forwards;
 }
 
 @keyframes subtitleShine {
@@ -302,9 +350,11 @@
 
 @media (prefers-reduced-motion: reduce) {
   .titleFlash,
+  .title,
   .titleLine1,
   .titleLine2,
   .subtitle,
+  .subtitleText,
   .speakerLeftWrapper,
   .speakerLeftImg,
   .speakerRightWrapper,
@@ -315,4 +365,3 @@
     filter: none;
   }
 }
-
