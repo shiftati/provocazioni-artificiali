@@ -64,6 +64,7 @@ export interface AppStateContextValue {
   closeStopCallsOverlay: () => void;
   dispatchGame: (action: GameAction) => void;
   resetAll: () => void;
+  resetSlideAndGame: () => void;
   slideAnimKey: number;
   replaySlideAnimation: () => void;
   previousSlideIndex: number | null;
@@ -1401,6 +1402,72 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     currentDiscussionProvStatIdRef.current = null;
   }, [theme, updateActiveSession]);
 
+  const resetSlideAndGame = useCallback(() => {
+    const now = Date.now();
+
+    // 1. Reset game state to IDLE (KlippySaw)
+    dispatchGame({ type: "RESET_GAME" });
+
+    // 2. Reset presentation tracking refs
+    currentSlideIndexRef.current = 0;
+    currentModeRef.current = "presentation";
+    slideStartTimeRef.current = now;
+    setPreviousSlideIndex(null);
+    slideStepHandlerRef.current = null;
+    setHasPendingSlideAnimations(false);
+    setStopCallsOverlayOpen(false);
+
+    // 3. Reset provocation/discussion refs
+    provocationDecisionStartTimeRef.current = null;
+    lastAcceptedProvocationIdRef.current = null;
+    lastAcceptanceTimeRef.current = 0;
+    discussionStartTimeRef.current = null;
+    discussionAccumulatedSecondsRef.current = 0;
+    isDiscussionPausedRef.current = false;
+    currentDiscussionProvStatIdRef.current = null;
+    gameStartTimeRef.current = null;
+
+    // 4. Update session state
+    setSessionState((prev) => {
+      const updated: AppSessionState = {
+        ...prev,
+        currentSlideIndex: 0,
+        mode: "presentation",
+        stopCallsShown: false,
+      };
+      appStorage.saveSession(updated);
+      return updated;
+    });
+
+    // 5. Reset stats discussions/skipped count
+    const freshStats: AppStats = {
+      ...DEFAULT_STATS,
+      talkStartedAt: sessionRef.current.startedAt,
+    };
+    setStatsState(freshStats);
+    appStorage.saveStats(freshStats);
+
+    // 6. If there is an active session record, log the event and reset session provocations
+    if (currentSessionIdRef.current) {
+      updateActiveSession((curr) => ({
+        ...curr,
+        provocations: [],
+        provocationsCount: 0,
+        gameDurationSeconds: 0,
+      }));
+      logSessionEvent(
+        "SLIDE_VIEW",
+        `Reset: Mostro slide 1${SLIDES[0]?.title ? ` (${SLIDES[0].title})` : ""}`,
+        {
+          slideIndex: 0,
+          slideNumber: 1,
+          slideTitle: SLIDES[0]?.title,
+        },
+        now
+      );
+    }
+  }, [dispatchGame, logSessionEvent, updateActiveSession]);
+
   // Session management handlers
   const updateSessionRecord = useCallback((updated: TalkSessionRecord) => {
     setSessionsState((prev) => {
@@ -1486,6 +1553,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         closeStopCallsOverlay,
         dispatchGame,
         resetAll,
+        resetSlideAndGame,
         slideAnimKey,
         replaySlideAnimation,
         previousSlideIndex,

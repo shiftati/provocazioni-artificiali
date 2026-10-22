@@ -127,6 +127,13 @@
 .sessionCard {
   border: 3px solid #000000;
   border-radius: 0;
+  box-shadow: var(--shadow-box-offset);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.sessionCardActive {
   box-shadow: var(--shadow-box-offset-mint);
 }
 

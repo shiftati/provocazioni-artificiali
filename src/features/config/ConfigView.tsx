@@ -47,7 +47,8 @@ export const ConfigView: FC = () => {
     updateConfig,
     startTalk,
     endTalk,
-    resetAll,
+    setMode,
+    resetSlideAndGame,
     isSessionActive,
     isRecordingAudio,
     stopAudioRecording,
@@ -229,6 +230,7 @@ export const ConfigView: FC = () => {
   }, [stopMicTest]);
 
   const [hasSavedToast, setHasSavedToast] = useState<boolean>(false);
+  const [hasResetToast, setHasResetToast] = useState<boolean>(false);
   const [confirmResetOpen, setConfirmResetOpen] = useState<boolean>(false);
   const [confirmPastOpen, setConfirmPastOpen] = useState<boolean>(false);
   const [pendingPastAction, setPendingPastAction] = useState<"save" | "start">(
@@ -344,11 +346,14 @@ export const ConfigView: FC = () => {
     navigate("/analytics");
   };
 
+  const handleResetClick = () => {
+    setConfirmResetOpen(true);
+  };
+
   const handleResetConfirm = () => {
-    resetAll();
-    setTimeValue(getDefaultEndTime());
-    setConclusionMinutes(5);
-    setIntroEndSlide(10);
+    resetSlideAndGame();
+    setHasResetToast(true);
+    setTimeout(() => setHasResetToast(false), 2500);
     setConfirmResetOpen(false);
   };
 
@@ -417,18 +422,28 @@ export const ConfigView: FC = () => {
         </header>
 
         <div className={styles.cardGrid}>
-          {/* Active Session block */}
-          {hasActiveSession && (
-            <Card raised className={styles.sessionCard}>
-              <div className={styles.cardHeading}>
-                <span>Sessione in corso</span>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "var(--space-2)",
-                    alignItems: "center",
-                  }}
-                >
+          {/* Status & Session Card - Always visible with Reset Button */}
+          <Card
+            raised
+            className={`${styles.sessionCard} ${hasActiveSession ? styles.sessionCardActive : ""}`}
+          >
+            <div className={styles.cardHeading}>
+              <span>
+                {hasActiveSession ? "Sessione in corso" : "Stato Talk & Presentazione"}
+              </span>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "var(--space-2)",
+                  alignItems: "center",
+                }}
+              >
+                {hasResetToast && (
+                  <span className={styles.savedToast}>
+                    <CheckIcon size={18} /> Resettato
+                  </span>
+                )}
+                {hasActiveSession && (
                   <Button
                     variant="ghost"
                     size="md"
@@ -437,54 +452,63 @@ export const ConfigView: FC = () => {
                   >
                     Analytics
                   </Button>
-                  <Badge variant="accent">Attiva</Badge>
-                </div>
-              </div>
-
-              <div className={styles.sessionStats}>
-                <div className={styles.statItem}>
-                  <span className={styles.statValue}>
-                    {session.currentSlideIndex + 1}
-                  </span>
-                  <span className={styles.statLabel}>Slide attuale</span>
-                </div>
-                <div className={styles.statItem}>
-                  <span className={styles.statValue}>
-                    {game.discussedCount}
-                  </span>
-                  <span className={styles.statLabel}>Provocazioni</span>
-                </div>
-                <div className={styles.statItem}>
-                  <span
-                    className={styles.statValue}
-                    style={{ textTransform: "capitalize" }}
-                  >
-                    {session.mode === "game" ? "Gioco" : "Slide"}
-                  </span>
-                  <span className={styles.statLabel}>Modalità</span>
-                </div>
-              </div>
-
-              <div className={styles.actionsRow}>
-                {isRecordingAudio && (
-                  <Button
-                    variant="danger"
-                    size="md"
-                    onClick={stopAudioRecording}
-                    leftIcon={<MicOffIcon size={18} />}
-                    title="Interrompi e salva subito la registrazione audio in corso"
-                  >
-                    Ferma registrazione audio
-                  </Button>
                 )}
-                <Button
-                  variant="ghost"
-                  size="md"
-                  onClick={() => setConfirmResetOpen(true)}
-                  leftIcon={<RefreshIcon size={18} />}
+                <Badge variant={hasActiveSession ? "accent" : "default"}>
+                  {hasActiveSession ? "Attiva" : "Pronto"}
+                </Badge>
+              </div>
+            </div>
+
+            <div className={styles.sessionStats}>
+              <div className={styles.statItem}>
+                <span className={styles.statValue}>
+                  {session.currentSlideIndex + 1}
+                </span>
+                <span className={styles.statLabel}>Slide attuale</span>
+              </div>
+              <div className={styles.statItem}>
+                <span className={styles.statValue}>
+                  {game.discussedCount}
+                </span>
+                <span className={styles.statLabel}>Provocazioni</span>
+              </div>
+              <div className={styles.statItem}>
+                <span
+                  className={styles.statValue}
+                  style={{ textTransform: "capitalize" }}
                 >
-                  Ricomincia da capo
+                  {session.mode === "game"
+                    ? game.step === "IDLE"
+                      ? "Gioco (IDLE)"
+                      : "Gioco"
+                    : "Slide"}
+                </span>
+                <span className={styles.statLabel}>Modalità</span>
+              </div>
+            </div>
+
+            <div className={styles.actionsRow}>
+              {hasActiveSession && isRecordingAudio && (
+                <Button
+                  variant="danger"
+                  size="md"
+                  onClick={stopAudioRecording}
+                  leftIcon={<MicOffIcon size={18} />}
+                  title="Interrompi e salva subito la registrazione audio in corso"
+                >
+                  Ferma registrazione audio
                 </Button>
+              )}
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={handleResetClick}
+                leftIcon={<RefreshIcon size={18} />}
+                title="Imposta la slide alla numero 1 e il gioco allo stato IDLE (KlippySaw)"
+              >
+                Reset (Slide 1 & KlippySaw)
+              </Button>
+              {hasActiveSession && (
                 <IconButton
                   aria-label="Concludi talk e sessione"
                   size="lg"
@@ -494,6 +518,8 @@ export const ConfigView: FC = () => {
                 >
                   <FinishIcon size={24} />
                 </IconButton>
+              )}
+              {hasActiveSession ? (
                 <Button
                   variant="primary"
                   size="lg"
@@ -502,9 +528,21 @@ export const ConfigView: FC = () => {
                 >
                   Riprendi Talk
                 </Button>
-              </div>
-            </Card>
-          )}
+              ) : (
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={() => {
+                    setMode("presentation");
+                    navigate("/presentation");
+                  }}
+                  rightIcon={<ArrowRightIcon size={18} />}
+                >
+                  Vai alle Slide
+                </Button>
+              )}
+            </div>
+          </Card>
 
           {/* Configuration block */}
           <Card className={styles.configCard}>
@@ -771,7 +809,7 @@ export const ConfigView: FC = () => {
       <Modal
         isOpen={confirmResetOpen}
         onClose={() => setConfirmResetOpen(false)}
-        ariaLabel="Conferma azzeramento sessione"
+        ariaLabel="Conferma reset slide e gioco"
       >
         <h2
           style={{
@@ -780,7 +818,7 @@ export const ConfigView: FC = () => {
             color: "var(--color-text)",
           }}
         >
-          Ricominciare da capo?
+          Resettare slide e gioco?
         </h2>
         <p
           style={{
@@ -789,9 +827,9 @@ export const ConfigView: FC = () => {
             fontSize: "1.1rem",
           }}
         >
-          Questa operazione azzererà la configurazione del talk, riporterà la
-          presentazione alla prima slide e resetterà il contatore e la
-          cronologia delle provocazioni discusse nel gioco.
+          Questa operazione imposterà la slide alla numero 1 (Titolo) e il
+          gioco allo stato IDLE (KlippySaw). La configurazione dell'orario del
+          talk rimarrà invariata.
         </p>
         <div
           style={{
@@ -807,8 +845,13 @@ export const ConfigView: FC = () => {
           >
             Annulla
           </Button>
-          <Button variant="danger" size="md" onClick={handleResetConfirm}>
-            Sì, ricomincia
+          <Button
+            variant="danger"
+            size="md"
+            onClick={handleResetConfirm}
+            leftIcon={<RefreshIcon size={18} />}
+          >
+            Sì, resetta
           </Button>
         </div>
       </Modal>
