@@ -5,7 +5,7 @@ import styles from "./ProvocationCard.module.scss";
 export const OpenSourceMorto: FC = () => {
     return (
         <ProvocationCard
-            imageName="open-source-morto.jpg"
+            imageName="open-source-morto.webp"
             ariaLabel="Provocazione: L'open source è morto"
         >
             <h2 className={styles.title}>

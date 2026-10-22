@@ -5,7 +5,7 @@ import styles from "./ProvocationCard.module.scss";
 export const LavoroSviluppatoreFinito: FC = () => {
     return (
         <ProvocationCard
-            imageName="sviluppo-software-morto.jpeg"
+            imageName="sviluppo-software-morto.webp"
             ariaLabel="Provocazione: Il mondo dello sviluppo software è morto"
         >
             <h2 className={styles.title}>

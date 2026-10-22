@@ -12,11 +12,11 @@ export const DanielESte: FC<SlideProps> = ({ step: stepProp, isReplay = false })
   const { registerSlideStepHandler, previousSlideIndex } = useAppState();
 
   const bgImg = useCachedAsset(
-    `${BASE_URL}images/slides/codemotion-blue-bg.png`,
+    `${BASE_URL}images/slides/codemotion-blue-bg.webp`,
   );
-  const steImg = useCachedAsset(`${BASE_URL}images/slides/intro-ste.png`);
-  const danielImg = useCachedAsset(`${BASE_URL}images/slides/intro-daniel.png`);
-  const klippyImg = useCachedAsset(`${BASE_URL}images/slides/intro-klippy.png`);
+  const steImg = useCachedAsset(`${BASE_URL}images/slides/intro-ste.webp`);
+  const danielImg = useCachedAsset(`${BASE_URL}images/slides/intro-daniel.webp`);
+  const klippyImg = useCachedAsset(`${BASE_URL}images/slides/intro-klippy.webp`);
 
   // Se si naviga all'indietro partendo da una slide successiva (slide 6 o oltre),
   // inizializziamo con tutti i personaggi visibili (step 2)

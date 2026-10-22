@@ -5,7 +5,7 @@ import styles from "./ProvocationCard.module.scss";
 export const TeamGrandiControproducenti: FC = () => {
     return (
         <ProvocationCard
-            imageName="team-grandi-controproducenti.jpeg"
+            imageName="team-grandi-controproducenti.webp"
             ariaLabel="Provocazione: I team grandi sono controproducenti"
         >
             <h2 className={styles.title}>

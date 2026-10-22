@@ -29,7 +29,7 @@ export const RitornoAlFuturo: FC = () => {
   }, [isEnteredBackwards]);
 
   const klippyEinsteinUrl = useCachedAsset(
-    `${BASE_URL}images/slides/klippy-einstein.png`,
+    `${BASE_URL}images/slides/klippy-einstein.webp`,
   );
 
   return (

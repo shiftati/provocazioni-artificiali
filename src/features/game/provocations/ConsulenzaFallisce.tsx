@@ -5,7 +5,7 @@ import styles from "./ProvocationCard.module.scss";
 export const ConsulenzaFallisce: FC = () => {
     return (
         <ProvocationCard
-            imageName="consulenza-fallisce.jpeg"
+            imageName="consulenza-fallisce.webp"
             ariaLabel="Provocazione: Le società di consulenza falliranno"
         >
             <h2 className={styles.title}>

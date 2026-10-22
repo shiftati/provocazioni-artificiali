@@ -5,7 +5,7 @@ import styles from "./ProvocationCard.module.scss";
 export const CybersicurezzaLottaTraAi: FC = () => {
   return (
     <ProvocationCard
-      imageName="cybersicurezza-lotta-tra-ai.jpg"
+      imageName="cybersicurezza-lotta-tra-ai.webp"
       ariaLabel="Klippy lotta tra AI"
     >
         <div className={styles.title}>

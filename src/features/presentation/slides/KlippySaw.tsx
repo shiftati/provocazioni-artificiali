@@ -109,7 +109,7 @@ export const KlippySaw: FC<KlippySawProps> = ({
   }, [isEnteredBackwards, playEntranceSequence, clearAllTimers]);
 
   const klippySawUrl = useCachedAsset(
-    `${BASE_URL}images/slides/klippy-saw.png`,
+    `${BASE_URL}images/slides/klippy-saw.webp`,
   );
 
   // Classi dinamiche Klippy
