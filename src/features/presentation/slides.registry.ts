@@ -22,8 +22,8 @@ export const SLIDES: readonly SlideDefinition[] = [
     transition: "fade-scale",
     transitionDurationMs: 600,
     assets: [
-      "images/slides/codemotion-blue-title.jpg",
-      "images/klippy-shattered.png",
+      "images/slides/codemotion-blue-title.webp",
+      "images/klippy-shattered.webp",
     ],
   },
   {
@@ -32,7 +32,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     component: GliEsperti,
     transition: "fade-scale",
     transitionDurationMs: 600,
-    assets: ["images/slides/gli-esperti.png"],
+    assets: ["images/slides/gli-esperti.webp"],
   },
   {
     id: "developer-qualunque",
@@ -41,8 +41,8 @@ export const SLIDES: readonly SlideDefinition[] = [
     transition: "fade-scale",
     transitionDurationMs: 600,
     assets: [
-      "images/slides/codemotion-blue-bg.png",
-      "images/slides/metroman.png",
+      "images/slides/codemotion-blue-bg.webp",
+      "images/slides/metroman.webp",
     ],
   },
   {
@@ -51,7 +51,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     component: MacchinettaDelCaffe,
     transition: "fade-scale",
     transitionDurationMs: 600,
-    assets: ["images/slides/macchinetta-caffe.jpg"],
+    assets: ["images/slides/macchinetta-caffe.webp"],
   },
   {
     id: "daniel-e-ste",
@@ -60,10 +60,10 @@ export const SLIDES: readonly SlideDefinition[] = [
     transition: "fade-scale",
     transitionDurationMs: 600,
     assets: [
-      "images/slides/codemotion-blue-bg.png",
-      "images/slides/intro-ste.png",
-      "images/slides/intro-daniel.png",
-      "images/slides/intro-klippy.png",
+      "images/slides/codemotion-blue-bg.webp",
+      "images/slides/intro-ste.webp",
+      "images/slides/intro-daniel.webp",
+      "images/slides/intro-klippy.webp",
     ],
   },
   {
@@ -73,8 +73,8 @@ export const SLIDES: readonly SlideDefinition[] = [
     transition: "fade-scale",
     transitionDurationMs: 600,
     assets: [
-      "images/slides/ritorno-al-futuro.jpg",
-      "images/slides/klippy-einstein.png",
+      "images/slides/ritorno-al-futuro.webp",
+      "images/slides/klippy-einstein.webp",
     ],
   },
   {
@@ -84,8 +84,8 @@ export const SLIDES: readonly SlideDefinition[] = [
     transition: "fade-scale",
     transitionDurationMs: 600,
     assets: [
-      "images/slides/saw-background.jpg",
-      "images/slides/klippy-saw.png",
+      "images/slides/saw-background.webp",
+      "images/slides/klippy-saw.webp",
     ],
   },
   {
@@ -94,7 +94,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     component: FightClub,
     transition: "fade-scale",
     transitionDurationMs: 600,
-    assets: ["images/slides/fight-club.jpg"],
+    assets: ["images/slides/fight-club.webp"],
   },
   {
     id: "klippy-lotta-ai",
@@ -102,7 +102,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     component: CybersicurezzaLottaTraAi,
     transition: "fade-scale",
     transitionDurationMs: 600,
-    assets: ["images/slides/cybersicurezza-lotta-tra-ai.jpg"],
+    assets: ["images/slides/cybersicurezza-lotta-tra-ai.webp"],
   },
   {
     id: "klippy-matrix",
@@ -110,7 +110,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     component: DocumentazioneInsensata,
     transition: "fade-scale",
     transitionDurationMs: 600,
-    assets: ["images/slides/documentazione-inutile.jpg"],
+    assets: ["images/slides/documentazione-inutile.webp"],
   },
   {
     id: "io-sono-eccellenza",
@@ -118,7 +118,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     component: IoSonoEccellenza,
     transition: "fade-scale",
     transitionDurationMs: 600,
-    assets: ["images/slides/io-sono-eccellenza.jpg"],
+    assets: ["images/slides/io-sono-eccellenza.webp"],
   },
   {
     id: "selfie",
@@ -126,7 +126,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     component: Selfie,
     transition: "fade-scale",
     transitionDurationMs: 600,
-    assets: ["images/slides/selfie.jpg"],
+    assets: ["images/slides/selfie.webp"],
   },
   {
     id: "finale",
@@ -135,7 +135,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     transition: "fade-scale",
     transitionDurationMs: 600,
     assets: [
-      "images/slides/ritorno-al-futuro-treno.jpg",
+      "images/slides/ritorno-al-futuro-treno.webp",
       "images/qr-shiftati.svg",
     ],
   },

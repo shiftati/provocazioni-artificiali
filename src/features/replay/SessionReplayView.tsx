@@ -40,7 +40,7 @@ const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 
-const STOP_CALLS_BG = `${BASE_URL}images/stop-alle-telefonate.jpg`;
+const STOP_CALLS_BG = `${BASE_URL}images/stop-alle-telefonate.webp`;
 
 export const SessionReplayView: FC = () => {
   const { sessionId } = useParams<{ sessionId?: string }>();

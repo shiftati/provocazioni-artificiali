@@ -5,7 +5,7 @@ import styles from "./ProvocationCard.module.scss";
 export const DocumentazioneInsensata: FC = () => {
     return (
         <ProvocationCard
-            imageName="documentazione-inutile.jpg"
+            imageName="documentazione-inutile.webp"
             ariaLabel="Klippy matrix"
         >
             <div className={styles.title}>

@@ -8,9 +8,9 @@ const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
 
 export const Titolo: FC = () => {
   const bgImg = useCachedAsset(
-    `${BASE_URL}images/slides/codemotion-blue-title.jpg`,
+    `${BASE_URL}images/slides/codemotion-blue-title.webp`,
   );
-  const klippyImg = useCachedAsset(`${BASE_URL}images/klippy-shattered.png`);
+  const klippyImg = useCachedAsset(`${BASE_URL}images/klippy-shattered.webp`);
 
   return (
     <div

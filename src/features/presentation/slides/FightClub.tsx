@@ -105,7 +105,7 @@ export const FightClub: FC<SlideProps> = ({step: stepProp, isReplay = false}) =>
 
     return (
         <ImageSlide
-            imageName="fight-club.jpg"
+            imageName="fight-club.webp"
             title="Fight club"
             className={styles.slideContainer}
         >

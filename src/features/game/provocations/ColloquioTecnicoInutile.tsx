@@ -5,7 +5,7 @@ import styles from "./ProvocationCard.module.scss";
 export const ColloquioTecnicoInutile: FC = () => {
     return (
         <ProvocationCard
-            imageName="colloquio-tecnico-inutile.jpeg"
+            imageName="colloquio-tecnico-inutile.webp"
             ariaLabel="Provocazione: Il colloquio tecnico sul codice non ha più senso"
         >
             <h2 className={styles.title}>
