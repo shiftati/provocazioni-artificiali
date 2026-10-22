@@ -40,7 +40,7 @@ export const APP_ASSETS_CATALOG = [
   "images/provocations/sviluppo-software-morto.jpeg",
   "images/provocations/colloquio-tecnico-inutile.jpeg",
   "images/provocations/esperti-verticali-inutili.jpeg",
-  "images/provocations/open-source-morto.jpeg.jpg",
+  "images/provocations/open-source-morto.jpg",
   "images/provocations/software-usa-e-getta.jpeg",
   "images/provocations/agile-morto.jpeg",
   "images/provocations/team-grandi-controproducenti.jpeg",

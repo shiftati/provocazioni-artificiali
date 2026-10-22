@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import { useState, useCallback, useEffect, type FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { Stage } from "../../components/layout/Stage";
 import { useAppState } from "../../state/AppStateContext";
@@ -16,7 +16,13 @@ import {
   ArrowRightIcon,
 } from "../../components/icons";
 import { KlippySaw } from "../presentation/slides/KlippySaw";
+import { SlideTransition } from "../presentation/components/SlideTransition";
+import { getCachedBlobUrl } from "../../utils/precacheAllAssets";
 import styles from "./GameView.module.scss";
+
+const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
 
 export const GameView: FC = () => {
   const navigate = useNavigate();
@@ -30,9 +36,64 @@ export const GameView: FC = () => {
   } = useAppState();
   const allProvocationIds = PROVOCATIONS.map((p) => p.id);
 
+  const [navigationDirection, setNavigationDirection] = useState<
+    "forward" | "backward" | "none"
+  >("forward");
+
   const isStopCallsOverlayVisible =
     stopCallsOverlayOpen ||
     (Boolean(session.stopCallsShown) && isSessionActive && !session.endedAt);
+
+  // Precarica e decodifica anticipatamente nella memoria GPU tutte le immagini delle provocazioni
+  useEffect(() => {
+    PROVOCATIONS.forEach((provocation) => {
+      if (!provocation.image) return;
+      const cleanImageName = provocation.image.replace(/^images\/provocations\//, "");
+      const imageUrl = cleanImageName.startsWith("images/")
+        ? `${BASE_URL}${encodeURI(cleanImageName.normalize("NFC"))}`
+        : `${BASE_URL}images/provocations/${encodeURI(cleanImageName.normalize("NFC"))}`;
+      const effectiveUrl = getCachedBlobUrl(imageUrl) || imageUrl;
+      const img = new Image();
+      img.src = effectiveUrl;
+      if (typeof img.decode === "function") {
+        img.decode().catch(() => {});
+      }
+    });
+  }, []);
+
+  const handlePlay = useCallback(() => {
+    setNavigationDirection("forward");
+    dispatchGame({ type: "PLAY", allProvocationIds });
+  }, [dispatchGame, allProvocationIds]);
+
+  const handleChallengeSkip = useCallback(() => {
+    setNavigationDirection("backward");
+    dispatchGame({ type: "CHALLENGE_TIMEOUT", allProvocationIds });
+  }, [dispatchGame, allProvocationIds]);
+
+  const handleChallengeAccept = useCallback(() => {
+    setNavigationDirection("forward");
+    dispatchGame({ type: "ACCEPT_PROVOCATION", allProvocationIds });
+  }, [dispatchGame, allProvocationIds]);
+
+  const handleProvocationSkip = useCallback(() => {
+    setNavigationDirection("forward");
+    dispatchGame({ type: "SKIP_PROVOCATION", allProvocationIds });
+  }, [dispatchGame, allProvocationIds]);
+
+  const handleProvocationAccept = useCallback(() => {
+    setNavigationDirection("forward");
+    dispatchGame({ type: "ACCEPT_PROVOCATION", allProvocationIds });
+  }, [dispatchGame, allProvocationIds]);
+
+  const handleTogglePause = useCallback(() => {
+    dispatchGame({ type: "TOGGLE_PAUSE_DISCUSSION" });
+  }, [dispatchGame]);
+
+  const handleNextProvocation = useCallback(() => {
+    setNavigationDirection("forward");
+    dispatchGame({ type: "NEXT_PROVOCATION" });
+  }, [dispatchGame]);
 
   // Keyboard navigation:
   // - onNext:
@@ -47,6 +108,7 @@ export const GameView: FC = () => {
   //   - IDLE: torna alle slide di presentazione
   useKeyboardNavigation({
     onNext: () => {
+      setNavigationDirection("forward");
       if (game.step === "IDLE") {
         dispatchGame({ type: "PLAY", allProvocationIds });
       } else if (game.step === "CHALLENGE" || game.step === "PROVOCATION") {
@@ -57,10 +119,12 @@ export const GameView: FC = () => {
     },
     onPrev: () => {
       if (game.step === "PROVOCATION") {
+        setNavigationDirection("forward");
         dispatchGame({ type: "SKIP_PROVOCATION", allProvocationIds });
       } else if (game.step === "DISCUSSION") {
         dispatchGame({ type: "TOGGLE_PAUSE_DISCUSSION" });
       } else if (game.step === "CHALLENGE") {
+        setNavigationDirection("backward");
         dispatchGame({ type: "CHALLENGE_TIMEOUT", allProvocationIds });
       } else {
         setMode("presentation");
@@ -74,6 +138,7 @@ export const GameView: FC = () => {
   const challengeCountdown = useCountdown({
     targetTimestamp: game.step === "CHALLENGE" ? game.timerDeadline : null,
     onExpire: () => {
+      setNavigationDirection("forward");
       dispatchGame({ type: "CHALLENGE_TIMEOUT", allProvocationIds });
     },
   });
@@ -84,6 +149,7 @@ export const GameView: FC = () => {
     isPaused: game.isTimerPaused,
     remainingWhenPaused: game.remainingWhenPaused,
     onExpire: () => {
+      setNavigationDirection("forward");
       dispatchGame({ type: "NEXT_PROVOCATION" });
     },
   });
@@ -96,6 +162,11 @@ export const GameView: FC = () => {
     ? currentProvocation.component
     : null;
 
+  const slideTransitionType = currentProvocation?.transition ?? "fade-scale";
+  const slideTransitionDuration = currentProvocation?.transitionDurationMs ?? 600;
+
+  const currentTransitionKey = `${game.step}-${game.currentProvocationId ?? "none"}-${game.timerDeadline ?? 0}-${game.discussedCount}-${game.skippedProvocationIds.length}`;
+
   return (
     <div className={styles.gameWrapper}>
       {/* Top right game status: discussed counter */}
@@ -107,168 +178,171 @@ export const GameView: FC = () => {
       </div> */}
 
       <Stage>
-        {/* STEP 1: IDLE */}
-        {game.step === "IDLE" && (
-          <KlippySaw>
-            <div className={styles.idleControls}>
-              <Button
-                variant="primary"
-                size="xl"
-                onClick={() => dispatchGame({ type: "PLAY", allProvocationIds })}
-                leftIcon={<PlayIcon size={32} />}
-                className={styles.idleButton}
-              >
-                Inizia il gioco
-              </Button>
-            </div>
-          </KlippySaw>
-        )}
-
-        {/* STEP 2: CHALLENGE (30 seconds) */}
-        {game.step === "CHALLENGE" && (
-          <div className={styles.challengeContainer}>
-            <span className={styles.challengeHeading}>
-              Sfida Accettata? Decidi in fretta!
-            </span>
-
-            <div className={styles.challengeCountdown}>
-              <CountdownDisplay
-                remainingSeconds={challengeCountdown.remainingSeconds}
-                size="xl"
-                dangerThresholdSeconds={10}
-                warningThresholdSeconds={20}
-                ariaLabel="Tempo rimasto per accettare la provocazione"
-              />
-            </div>
-
-            <div className={styles.challengeControls}>
-              <Button
-                variant="secondary"
-                size="lg"
-                onClick={() =>
-                  dispatchGame({ type: "CHALLENGE_TIMEOUT", allProvocationIds })
-                }
-              >
-                Salta
-              </Button>
-
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={() =>
-                  dispatchGame({ type: "ACCEPT_PROVOCATION", allProvocationIds })
-                }
-                leftIcon={<CheckIcon size={24} />}
-              >
-                Accetta Provocazione
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* STEP 2A: PROVOCATION (Displaying unused provocation) */}
-        {game.step === "PROVOCATION" && (
-          <div className={styles.provocationWrapper}>
-            {ProvocationComponent ? (
-              <ProvocationComponent />
-            ) : (
-              <div className={styles.idleContainer}>
-                <h2
-                  className={styles.idleTitle}
-                  style={{ color: "var(--color-danger)" }}
+        <SlideTransition
+          currentKey={currentTransitionKey}
+          direction={navigationDirection}
+          transitionType={slideTransitionType}
+          durationMs={slideTransitionDuration}
+        >
+          {/* STEP 1: IDLE */}
+          {game.step === "IDLE" && (
+            <KlippySaw key="game-idle">
+              <div className={styles.idleControls}>
+                <Button
+                  variant="primary"
+                  size="xl"
+                  onClick={handlePlay}
+                  leftIcon={<PlayIcon size={32} />}
+                  className={styles.idleButton}
                 >
-                  Provocazioni Esaurite!
-                </h2>
-                <p className={styles.idleSubtitle}>
-                  Tutte le provocazioni disponibili per questa sessione sono
-                  state discusse o scartate. Puoi comunque accettare e avviare
-                  una discussione (senza titolo).
-                </p>
+                  Inizia il gioco
+                </Button>
               </div>
-            )}
+            </KlippySaw>
+          )}
 
-            {/* Bottom-right action controls */}
-            <div className={styles.provocationControls}>
-              <Button
-                variant="secondary"
-                size="lg"
-                onClick={() =>
-                  dispatchGame({ type: "SKIP_PROVOCATION", allProvocationIds })
-                }
-                disabled={allProvocationIds.length <= 1}
-                leftIcon={<ShuffleIcon size={22} />}
-              >
-                Cambia provocazione
-              </Button>
-
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={() =>
-                  dispatchGame({
-                    type: "ACCEPT_PROVOCATION",
-                    allProvocationIds,
-                  })
-                }
-                leftIcon={<CheckIcon size={24} />}
-              >
-                Accetta provocazione
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* STEP 3: DISCUSSION (5 minutes) */}
-        {game.step === "DISCUSSION" && (
-          <div className={styles.discussionContainer}>
-            <div className={styles.discussionHeader}>
-              <span className={styles.discussionEyebrow}>
-                Tempo di Discussione
+          {/* STEP 2: CHALLENGE (30 seconds) */}
+          {game.step === "CHALLENGE" && (
+            <div
+              key={`game-challenge-${game.timerDeadline ?? "start"}`}
+              className={styles.challengeContainer}
+            >
+              <span className={styles.challengeHeading}>
+                Sfida Accettata? Decidi in fretta!
               </span>
-            </div>
 
-            <div className={styles.discussionCountdownWrapper}>
-              <CountdownDisplay
-                remainingSeconds={discussionCountdown.remainingSeconds}
-                size="xl"
-                dangerThresholdSeconds={60}
-                warningThresholdSeconds={180}
-                ariaLabel="Tempo discussione"
-              />
-              {game.isTimerPaused && (
-                <Badge variant="danger">PAUSA IN CORSO</Badge>
+              <div className={styles.challengeCountdown}>
+                <CountdownDisplay
+                  remainingSeconds={challengeCountdown.remainingSeconds}
+                  size="xl"
+                  dangerThresholdSeconds={10}
+                  warningThresholdSeconds={20}
+                  ariaLabel="Tempo rimasto per accettare la provocazione"
+                />
+              </div>
+
+              <div className={styles.challengeControls}>
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  onClick={handleChallengeSkip}
+                >
+                  Salta
+                </Button>
+
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={handleChallengeAccept}
+                  leftIcon={<CheckIcon size={24} />}
+                >
+                  Accetta Provocazione
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 2A: PROVOCATION (Displaying unused provocation) */}
+          {game.step === "PROVOCATION" && (
+            <div
+              key={`game-provocation-${game.currentProvocationId ?? "exhausted"}`}
+              className={styles.provocationWrapper}
+            >
+              {ProvocationComponent ? (
+                <ProvocationComponent />
+              ) : (
+                <div className={styles.idleContainer}>
+                  <h2
+                    className={styles.idleTitle}
+                    style={{ color: "var(--color-danger)" }}
+                  >
+                    Provocazioni Esaurite!
+                  </h2>
+                  <p className={styles.idleSubtitle}>
+                    Tutte le provocazioni disponibili per questa sessione sono
+                    state discusse o scartate. Puoi comunque accettare e avviare
+                    una discussione (senza titolo).
+                  </p>
+                </div>
               )}
-            </div>
 
-            <div className={styles.discussionControls}>
-              <Button
-                variant="secondary"
-                size="lg"
-                onClick={() =>
-                  dispatchGame({ type: "TOGGLE_PAUSE_DISCUSSION" })
-                }
-                leftIcon={
-                  game.isTimerPaused ? (
-                    <PlayIcon size={24} />
-                  ) : (
-                    <PauseIcon size={24} />
-                  )
-                }
-              >
-                {game.isTimerPaused ? "Riprendi" : "Pausa"}
-              </Button>
+              {/* Bottom-right action controls */}
+              <div className={styles.provocationControls}>
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  onClick={handleProvocationSkip}
+                  disabled={allProvocationIds.length <= 1}
+                  leftIcon={<ShuffleIcon size={22} />}
+                >
+                  Cambia provocazione
+                </Button>
 
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={() => dispatchGame({ type: "NEXT_PROVOCATION" })}
-                rightIcon={<ArrowRightIcon size={24} />}
-              >
-                Prossima provocazione
-              </Button>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={handleProvocationAccept}
+                  leftIcon={<CheckIcon size={24} />}
+                >
+                  Accetta provocazione
+                </Button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* STEP 3: DISCUSSION (5 minutes) */}
+          {game.step === "DISCUSSION" && (
+            <div
+              key={`game-discussion-${game.currentProvocationId ?? "discuss"}`}
+              className={styles.discussionContainer}
+            >
+              <div className={styles.discussionHeader}>
+                <span className={styles.discussionEyebrow}>
+                  Tempo di Discussione
+                </span>
+              </div>
+
+              <div className={styles.discussionCountdownWrapper}>
+                <CountdownDisplay
+                  remainingSeconds={discussionCountdown.remainingSeconds}
+                  size="xl"
+                  dangerThresholdSeconds={60}
+                  warningThresholdSeconds={180}
+                  ariaLabel="Tempo discussione"
+                />
+                {game.isTimerPaused && (
+                  <Badge variant="danger">PAUSA IN CORSO</Badge>
+                )}
+              </div>
+
+              <div className={styles.discussionControls}>
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  onClick={handleTogglePause}
+                  leftIcon={
+                    game.isTimerPaused ? (
+                      <PlayIcon size={24} />
+                    ) : (
+                      <PauseIcon size={24} />
+                    )
+                  }
+                >
+                  {game.isTimerPaused ? "Riprendi" : "Pausa"}
+                </Button>
+
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={handleNextProvocation}
+                  rightIcon={<ArrowRightIcon size={24} />}
+                >
+                  Prossima provocazione
+                </Button>
+              </div>
+            </div>
+          )}
+        </SlideTransition>
       </Stage>
     </div>
   );

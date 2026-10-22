@@ -72,6 +72,8 @@ export interface ProvocationDefinition {
   subtitle?: string;
   component: ComponentType;
   image?: string;
+  transition?: SlideTransitionType;
+  transitionDurationMs?: number;
 }
 
 export interface SlideStat {

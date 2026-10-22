@@ -12,7 +12,7 @@ import styles from "./SlideTransition.module.scss";
 
 export interface SlideTransitionProps {
   currentKey: string | number;
-  slideIndex: number;
+  slideIndex?: number;
   direction?: "forward" | "backward" | "none";
   transitionType?: SlideTransitionType;
   durationMs?: number;

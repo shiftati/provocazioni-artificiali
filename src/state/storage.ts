@@ -27,7 +27,7 @@ export const DEFAULT_CONFIG: TalkConfig = {
   theme: "dark",
   conclusionMinutes: 5,
   introEndSlide: 10,
-  navOnSlide: true,
+  navOnSlide: false,
   audioRecordingEnabled: false,
   audioDeviceId: "default",
 };
