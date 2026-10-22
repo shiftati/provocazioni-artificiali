@@ -48,8 +48,8 @@ export const APP_ASSETS_CATALOG = [
   "images/provocations/documentazione-inutile.webp",
 
   // 1c. Game assets
-  "images/game/saw-background.jpg",
-  "images/game/klippy-saw.png",
+  "images/game/saw-background.webp",
+  "images/game/klippy-saw.webp",
 
   // 2. Visual assets & overlays
   "images/stop-alle-telefonate.webp",
