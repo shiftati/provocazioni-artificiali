@@ -355,7 +355,7 @@ export const Finale: FC<SlideProps> = ({ step: stepProp, isReplay = false }) => 
   }
 
   return (
-    <ImageSlide imageName="14-finale.jpg" title="Finale">
+    <ImageSlide imageName="ritorno-al-futuro-treno.jpg" title="Finale">
       <div className={styles.slideContainer}>
         {/* Audio background elemento */}
         <audio

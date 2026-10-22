@@ -7,8 +7,8 @@ import { DanielESte } from "./slides/DanielESte";
 import { RitornoAlFuturo } from "./slides/RitornoAlFuturo";
 import { KlippySaw } from "./slides/KlippySaw";
 import { FightClub } from "./slides/FightClub";
-import { KlippyLottaTraAi } from "./slides/KlippyLottaTraAi";
-import { KlippyMatrix } from "./slides/KlippyMatrix";
+import { KlippyLottaTraAi } from "../game/provocations/KlippyLottaTraAi";
+import { KlippyMatrix } from "../game/provocations/KlippyMatrix";
 import { IoSonoEccellenza } from "./slides/IoSonoEccellenza";
 import { Selfie } from "./slides/Selfie";
 import { Finale } from "./slides/Finale";
@@ -74,7 +74,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     transition: "fade-scale",
     transitionDurationMs: 600,
     assets: [
-      "images/slides/7-ritorno-al-futuro.jpg",
+      "images/slides/ritorno-al-futuro.jpg",
       "images/slides/klippy-einstein.png",
     ],
   },
@@ -85,7 +85,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     transition: "fade-scale",
     transitionDurationMs: 600,
     assets: [
-      "images/slides/8-gioco-saw.jpg",
+      "images/slides/saw-background.jpg",
       "images/slides/klippy-saw.png",
     ],
   },
@@ -95,7 +95,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     component: FightClub,
     transition: "fade-scale",
     transitionDurationMs: 600,
-    assets: ["images/slides/9-fight-club.jpg"],
+    assets: ["images/slides/fight-club.jpg"],
   },
   {
     id: "klippy-lotta-ai",
@@ -103,7 +103,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     component: KlippyLottaTraAi,
     transition: "fade-scale",
     transitionDurationMs: 600,
-    assets: ["images/slides/10-klippy-lotta-tra-ai.jpg"],
+    assets: ["images/slides/cybersicurezza-lotta-tra-ai.jpg"],
   },
   {
     id: "klippy-matrix",
@@ -111,7 +111,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     component: KlippyMatrix,
     transition: "fade-scale",
     transitionDurationMs: 600,
-    assets: ["images/slides/11-klippy-matrix.jpg"],
+    assets: ["images/slides/documentazione-inutile.jpg"],
   },
   {
     id: "io-sono-eccellenza",
@@ -119,7 +119,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     component: IoSonoEccellenza,
     transition: "fade-scale",
     transitionDurationMs: 600,
-    assets: ["images/slides/12-io-sono-eccellenza.jpg"],
+    assets: ["images/slides/io-sono-eccellenza.jpg"],
   },
   {
     id: "selfie",
@@ -127,7 +127,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     component: Selfie,
     transition: "fade-scale",
     transitionDurationMs: 600,
-    assets: ["images/slides/13-selfie.jpg"],
+    assets: ["images/slides/selfie.jpg"],
   },
   {
     id: "finale",
@@ -136,7 +136,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     transition: "fade-scale",
     transitionDurationMs: 600,
     assets: [
-      "images/slides/14-finale.jpg",
+      "images/slides/ritorno-al-futuro-treno.jpg",
       "images/qr-shiftati.svg",
     ],
   },

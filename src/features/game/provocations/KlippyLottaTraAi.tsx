@@ -1,18 +1,18 @@
 import type { FC } from "react";
-import { ImageSlide } from "../layouts/ImageSlide";
+import { ProvocationCard } from "./ProvocationCard";
 import styles from "./KlippyLottaTraAi.module.scss";
 
 export const KlippyLottaTraAi: FC = () => {
   return (
-    <ImageSlide
-      imageName="10-klippy-lotta-tra-ai.jpg"
-      title="Klippy lotta tra AI"
+    <ProvocationCard
+      imageName="cybersicurezza-lotta-tra-ai.jpg"
+      ariaLabel="Klippy lotta tra AI"
     >
       <div className={styles.captionContainer}>
         <div className={styles.captionBadge}>
           La cybersicurezza sarà una lotta tra AI
         </div>
       </div>
-    </ImageSlide>
+    </ProvocationCard>
   );
 };

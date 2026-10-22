@@ -21,7 +21,9 @@ export const ProvocationCard: FC<ProvocationCardProps> = ({
 }) => {
   const cleanImageName = imageName?.replace(/^images\/provocations\//, "");
   const imageUrl = cleanImageName
-    ? `${BASE_URL}images/provocations/${encodeURI(cleanImageName.normalize("NFC"))}`
+    ? cleanImageName.startsWith("images/")
+      ? `${BASE_URL}${encodeURI(cleanImageName.normalize("NFC"))}`
+      : `${BASE_URL}images/provocations/${encodeURI(cleanImageName.normalize("NFC"))}`
     : "";
   const effectiveImageUrl = useCachedAsset(imageUrl);
 

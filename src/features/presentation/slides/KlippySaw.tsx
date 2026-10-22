@@ -129,7 +129,7 @@ export const KlippySaw: FC<KlippySawProps> = ({
   }
 
   return (
-    <ImageSlide imageName="8-gioco-saw.jpg" title="Klippy saw" className={className}>
+    <ImageSlide imageName="saw-background.jpg" title="Klippy saw" className={className}>
       <div className={styles.sceneContainer}>
         {/* Overlay d'atmosfera cupa e horror flicker al momento dell'entrata */}
         <div

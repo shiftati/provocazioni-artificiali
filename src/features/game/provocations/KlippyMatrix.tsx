@@ -1,15 +1,18 @@
 import type { FC } from "react";
-import { ImageSlide } from "../layouts/ImageSlide";
+import { ProvocationCard } from "./ProvocationCard";
 import styles from "./KlippyMatrix.module.scss";
 
 export const KlippyMatrix: FC = () => {
   return (
-    <ImageSlide imageName="11-klippy-matrix.jpg" title="Klippy matrix">
+    <ProvocationCard
+      imageName="documentazione-inutile.jpg"
+      ariaLabel="Klippy matrix"
+    >
       <div className={styles.captionContainer}>
         <div className={styles.captionBadge}>
           La documentazione non ha più senso
         </div>
       </div>
-    </ImageSlide>
+    </ProvocationCard>
   );
 };

@@ -27,18 +27,12 @@ export const APP_ASSETS_CATALOG = [
   "images/slides/codemotion-blue-bg.png",
   "images/slides/metroman.png",
   "images/slides/macchinetta-caffe.jpg",
-  "images/slides/5-daniel-e-ste.jpg",
-  "images/slides/6-klippy.png",
-  "images/slides/7-ritorno-al-futuro.jpg",
+  "images/slides/ritorno-al-futuro.jpg",
   "images/slides/klippy-einstein.png",
-  "images/slides/8-gioco-saw.jpg",
-  "images/slides/klippy-saw.png",
-  "images/slides/9-fight-club.jpg",
-  "images/slides/10-klippy-lotta-tra-ai.jpg",
-  "images/slides/11-klippy-matrix.jpg",
-  "images/slides/12-io-sono-eccellenza.jpg",
-  "images/slides/13-selfie.jpg",
-  "images/slides/14-finale.jpg",
+  "images/slides/fight-club.jpg",
+  "images/slides/io-sono-eccellenza.jpg",
+  "images/slides/selfie.jpg",
+  "images/slides/ritorno-al-futuro-treno.jpg",
 
   // 1b. Provocations backgrounds
   "images/provocations/saas-morto.jpeg",
@@ -50,17 +44,22 @@ export const APP_ASSETS_CATALOG = [
   "images/provocations/software-usa-e-getta.jpeg",
   "images/provocations/agile-morto.jpeg",
   "images/provocations/team-grandi-controproducenti.jpeg",
+  "images/provocations/cybersicurezza-lotta-tra-ai.jpg",
+  "images/provocations/documentazione-inutile.jpg",
+
+  // 1c. Game assets
+  "images/game/saw-background.jpg",
+  "images/game/klippy-saw.png",
 
   // 2. Visual assets & overlays
   "images/stop-alle-telefonate.jpg",
   "images/klippy.png",
-  "images/daniel.png",
-  "images/stefano.png",
-  "images/qr-daniel.svg",
-  "images/qr-stefano.svg",
+  "images/klippy-shattered.png",
+  "images/klippy-shattered2.png",
   "images/qr-shiftati.svg",
 
   // 3. Audio tracks
+  "audio/back-to-the-future.mp3",
   "audio/back-to-the-future_short.mp3",
 
   // 4. Brand and conference logos
