@@ -10,8 +10,7 @@ export const Titolo: FC = () => {
   const bgImg = useCachedAsset(
     `${BASE_URL}images/slides/codemotion-blue-title.jpg`,
   );
-  const steImg = useCachedAsset(`${BASE_URL}images/slides/intro-ste.png`);
-  const danielImg = useCachedAsset(`${BASE_URL}images/slides/intro-daniel.png`);
+  const klippyImg = useCachedAsset(`${BASE_URL}images/klippy-shattered.png`);
 
   return (
     <div
@@ -45,22 +44,12 @@ export const Titolo: FC = () => {
         </p>
       </header>
 
-      {/* 3. Le due persone con movimento fluttuante */}
-      {/* In basso a sinistra: Stefano (intro-ste.png) */}
-      <div className={styles.speakerLeftWrapper}>
+      {/* 3. Klippy sconvolto in basso a destra */}
+      <div className={styles.klippyWrapper}>
         <img
-          src={steImg}
-          alt="Stefano Bruno"
-          className={styles.speakerLeftImg}
-        />
-      </div>
-
-      {/* In basso a destra: Daniel (intro-daniel.png) */}
-      <div className={styles.speakerRightWrapper}>
-        <img
-          src={danielImg}
-          alt="Daniel Zotti"
-          className={styles.speakerRightImg}
+          src={klippyImg}
+          alt="Klippy sconvolto"
+          className={styles.klippyImg}
         />
       </div>
     </div>

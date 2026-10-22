@@ -23,8 +23,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     transitionDurationMs: 600,
     assets: [
       "images/slides/codemotion-blue-title.jpg",
-      "images/slides/intro-ste.png",
-      "images/slides/intro-daniel.png",
+      "images/klippy-shattered.png",
     ],
   },
   {
