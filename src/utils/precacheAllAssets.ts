@@ -74,7 +74,6 @@ export const APP_ASSETS_CATALOG = [
     "logo/codemotion-logo-black.svg",
 
     // 5. Local typography
-    "fonts/alfa-slab-one.ttf",
     "fonts/ibm-plex-sans-400.woff2",
     "fonts/ibm-plex-sans-600.woff2",
     "fonts/ibm-plex-sans-700.woff2",

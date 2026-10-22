@@ -12,7 +12,7 @@ export const SviluppatoreQualunque: FC = () => {
 
   return (
     <ImageSlide
-      imageName="codemotion-blue-bg.png"
+      imageName="codemotion-blue-bg.webp"
       title="Developer qualunque"
     >
       <div className={styles.metromanContainer}>
@@ -25,4 +25,3 @@ export const SviluppatoreQualunque: FC = () => {
     </ImageSlide>
   );
 };
-
