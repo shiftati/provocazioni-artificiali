@@ -4,7 +4,7 @@ import styles from "./ProvocationCard.module.scss";
 
 export interface ProvocationCardProps {
   imageName?: string;
-  children: ReactNode;
+  children?: ReactNode;
   className?: string;
   ariaLabel?: string;
 }
