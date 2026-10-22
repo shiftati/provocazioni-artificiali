@@ -506,7 +506,7 @@ export const ConfigView: FC = () => {
                 leftIcon={<RefreshIcon size={18} />}
                 title="Imposta la slide alla numero 1 e il gioco allo stato IDLE (KlippySaw)"
               >
-                Reset (Slide 1 & KlippySaw)
+                Reset
               </Button>
               {hasActiveSession && (
                 <IconButton
