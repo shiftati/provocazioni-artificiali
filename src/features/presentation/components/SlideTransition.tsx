@@ -182,6 +182,9 @@ export const SlideTransition: FC<SlideTransitionProps> = ({
     } else if (activeTransitionType === "epic") {
       animOutgoingClass = styles.animEpicOutgoing ?? "";
       animIncomingClass = styles.animEpicIncoming ?? "";
+    } else if (activeTransitionType === "glitch") {
+      animOutgoingClass = styles.animGlitchOutgoing ?? "";
+      animIncomingClass = styles.animGlitchIncoming ?? "";
     } else {
       // Default: "fade-scale"
       animOutgoingClass = styles.animFadeScaleOutgoing ?? "";
@@ -219,6 +222,15 @@ export const SlideTransition: FC<SlideTransitionProps> = ({
           <div className={styles.epicFlashFlare} />
           <div className={styles.epicShockwaveRing} />
           <div className={styles.epicLaserStripe} />
+        </div>
+      )}
+
+      {/* Glitch & Alarm Overlay */}
+      {isTransitioning && activeTransitionType === "glitch" && (
+        <div className={styles.glitchOverlay} aria-hidden="true">
+          <div className={styles.glitchScanlines} />
+          <div className={styles.glitchFlash} />
+          <div className={styles.glitchBars} />
         </div>
       )}
     </div>

@@ -163,11 +163,18 @@ export const GameView: FC = () => {
     : null;
 
   const isDiscussion = game.step === "DISCUSSION";
+  const isChallenge = game.step === "CHALLENGE";
+
   const slideTransitionType = isDiscussion
     ? "epic"
+    : isChallenge
+    ? "glitch"
     : (currentProvocation?.transition ?? "fade-scale");
+
   const slideTransitionDuration = isDiscussion
     ? 850
+    : isChallenge
+    ? 750
     : (currentProvocation?.transitionDurationMs ?? 600);
 
   // currentTransitionKey non include timerDeadline per evitare transizioni indesiderate
