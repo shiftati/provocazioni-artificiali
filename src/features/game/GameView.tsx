@@ -162,10 +162,17 @@ export const GameView: FC = () => {
     ? currentProvocation.component
     : null;
 
-  const slideTransitionType = currentProvocation?.transition ?? "fade-scale";
-  const slideTransitionDuration = currentProvocation?.transitionDurationMs ?? 600;
+  const isDiscussion = game.step === "DISCUSSION";
+  const slideTransitionType = isDiscussion
+    ? "epic"
+    : (currentProvocation?.transition ?? "fade-scale");
+  const slideTransitionDuration = isDiscussion
+    ? 850
+    : (currentProvocation?.transitionDurationMs ?? 600);
 
-  const currentTransitionKey = `${game.step}-${game.currentProvocationId ?? "none"}-${game.timerDeadline ?? 0}-${game.discussedCount}-${game.skippedProvocationIds.length}`;
+  // currentTransitionKey non include timerDeadline per evitare transizioni indesiderate
+  // quando si mette in pausa o si riprende il countdown durante la discussione.
+  const currentTransitionKey = `${game.step}-${game.currentProvocationId ?? "none"}-${game.discussedCount}-${game.skippedProvocationIds.length}`;
 
   return (
     <div className={styles.gameWrapper}>

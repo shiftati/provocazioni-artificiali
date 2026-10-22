@@ -179,6 +179,9 @@ export const SlideTransition: FC<SlideTransitionProps> = ({
         animOutgoingClass = styles.animSlideOutgoingForward ?? "";
         animIncomingClass = styles.animSlideIncomingForward ?? "";
       }
+    } else if (activeTransitionType === "epic") {
+      animOutgoingClass = styles.animEpicOutgoing ?? "";
+      animIncomingClass = styles.animEpicIncoming ?? "";
     } else {
       // Default: "fade-scale"
       animOutgoingClass = styles.animFadeScaleOutgoing ?? "";
@@ -209,6 +212,15 @@ export const SlideTransition: FC<SlideTransitionProps> = ({
       >
         {children}
       </div>
+
+      {/* Epic Flash & Shockwave Overlay */}
+      {isTransitioning && activeTransitionType === "epic" && (
+        <div className={styles.epicShockwaveOverlay} aria-hidden="true">
+          <div className={styles.epicFlashFlare} />
+          <div className={styles.epicShockwaveRing} />
+          <div className={styles.epicLaserStripe} />
+        </div>
+      )}
     </div>
   );
 };

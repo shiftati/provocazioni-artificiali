@@ -50,7 +50,7 @@ export interface AppStats {
   skippedCount: number;
 }
 
-export type SlideTransitionType = "fade-scale" | "fade" | "slide" | "cut";
+export type SlideTransitionType = "fade-scale" | "fade" | "slide" | "cut" | "epic";
 
 export interface SlideProps {
   step?: number;
