@@ -32,6 +32,7 @@ import {
 } from "./replayUtils";
 import { ReplayControlBar } from "./ReplayControlBar";
 import { KlippySaw } from "../presentation/slides/KlippySaw";
+import { ProvocationCard } from "../game/provocations/ProvocationCard";
 import styles from "./SessionReplayView.module.scss";
 import cardStyles from "../game/provocations/ProvocationCard.module.scss";
 
@@ -540,7 +541,7 @@ export const SessionReplayView: FC = () => {
                   {ProvocationComponent ? (
                     <ProvocationComponent />
                   ) : activeProvocation.title ? (
-                    <div className={cardStyles.provocationCard}>
+                    <ProvocationCard imageName={activeProvocation.image}>
                       <div className={cardStyles.contentWrapper}>
                         <h2 className={cardStyles.title}>
                           {activeProvocation.title}
@@ -551,7 +552,7 @@ export const SessionReplayView: FC = () => {
                           </p>
                         )}
                       </div>
-                    </div>
+                    </ProvocationCard>
                   ) : (
                     (() => {
                       const FallbackComp = PROVOCATIONS[0]!.component;

@@ -1,68 +1,77 @@
 import type { ProvocationDefinition } from "../../types";
-import { Provocation01 } from "./provocations/Provocation01";
-import { Provocation02 } from "./provocations/Provocation02";
-import { Provocation03 } from "./provocations/Provocation03";
-import { Provocation04 } from "./provocations/Provocation04";
-import { Provocation05 } from "./provocations/Provocation05";
-import { Provocation06 } from "./provocations/Provocation06";
-import { Provocation07 } from "./provocations/Provocation07";
-import { Provocation08 } from "./provocations/Provocation08";
-import { Provocation09 } from "./provocations/Provocation09";
+import { SaasMorto } from "./provocations/SaasMorto";
+import { ConsulenzaFallisce } from "./provocations/ConsulenzaFallisce";
+import { LavoroSviluppatoreFinito } from "./provocations/LavoroSviluppatoreFinito";
+import { ColloquioTecnicoInutile } from "./provocations/ColloquioTecnicoInutile";
+import { EspertiVerticaliInutili } from "./provocations/EspertiVerticaliInutili";
+import { OpenSourceMorto } from "./provocations/OpenSourceMorto";
+import { SoftwareUsaEGetta } from "./provocations/SoftwareUsaEGetta";
+import { AgileMorto } from "./provocations/AgileMorto";
+import { TeamGrandiControproducenti } from "./provocations/TeamGrandiControproducenti";
 
 export const PROVOCATIONS: readonly ProvocationDefinition[] = [
   {
     id: "saas-morto",
     title: "Il SaaS è morto: meglio un software generato su misura",
     subtitle: "Software su misura per la propria azienda vs licenze SaaS",
-    component: Provocation01,
+    component: SaasMorto,
+    image: "images/provocations/saas-morto.jpeg",
   },
   {
     id: "societa-consulenza",
     title: "Le società di consulenza falliranno",
     subtitle: "La crisi del body rental e delle tariffe orarie",
-    component: Provocation02,
+    component: ConsulenzaFallisce,
+    image: "images/provocations/consulenza-fallisce.jpeg",
   },
   {
     id: "sviluppo-software-morto",
     title: "Il mondo dello sviluppo software è morto",
     subtitle: "I dev lavoreranno più a contatto col “mondo reale”",
-    component: Provocation03,
+    component: LavoroSviluppatoreFinito,
+    image: "images/provocations/sviluppo-software-morto.jpeg",
   },
   {
     id: "colloquio-tecnico",
     title: "Il colloquio tecnico sul codice non ha più senso",
     subtitle: "La fine dei puzzle algoritmici su LeetCode",
-    component: Provocation04,
+    component: ColloquioTecnicoInutile,
+    image: "images/provocations/colloquio-tecnico-inutile.jpeg",
   },
   {
     id: "esperto-tecnologia",
     title: "Non ha più senso diventare esperti in una tecnologia specifica",
     subtitle: "Dalla sintassi dei framework all'orchestrazione architetturale",
-    component: Provocation05,
+    component: EspertiVerticaliInutili,
+    image: "images/provocations/esperti-verticali-inutili.jpeg",
   },
   {
     id: "open-source-morto",
     title: "L’open source è morto",
     subtitle: "Modelli proprietari, licenze e crisi del patto con la community",
-    component: Provocation06,
+    component: OpenSourceMorto,
+    image: "images/provocations/open-source-morto.jpeg.jpg",
   },
   {
     id: "software-usa-e-getta",
     title: "Il Software diventerà usa e getta",
     subtitle: "Rigenerare da zero batte la manutenzione del debito legacy",
-    component: Provocation07,
+    component: SoftwareUsaEGetta,
+    image: "images/provocations/software-usa-e-getta.jpeg",
   },
   {
     id: "agile-morto",
     title: "AGILE è finalmente morto",
     subtitle: "La fine delle cerimonie burocratiche e degli sprint infiniti",
-    component: Provocation08,
+    component: AgileMorto,
+    image: "images/provocations/agile-morto.jpeg",
   },
   {
     id: "team-grandi-controproducenti",
     title: "I team grandi (da 2 persone in su) sono controproducenti",
     subtitle: "Il sovraccarico di coordinamento vs la velocità del singolo dev con AI",
-    component: Provocation09,
+    component: TeamGrandiControproducenti,
+    image: "images/provocations/team-grandi-controproducenti.jpeg",
   },
 ] as const;
 

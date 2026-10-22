@@ -21,6 +21,7 @@ export interface ResolvedReplayProvocation {
   Component: React.ComponentType | null;
   title: string;
   subtitle?: string;
+  image?: string;
   isCustom: boolean;
 }
 
@@ -124,6 +125,7 @@ export function resolveReplayProvocation(
         Component: def.component,
         title: def.title,
         subtitle: def.subtitle,
+        image: def.image,
         isCustom: false,
       };
     }
@@ -137,6 +139,7 @@ export function resolveReplayProvocation(
         Component: byId.component,
         title: byId.title,
         subtitle: byId.subtitle,
+        image: byId.image,
         isCustom: false,
       };
     }
@@ -324,6 +327,7 @@ export function resolveReplayProvocation(
     Component: fallback.component,
     title: fallback.title,
     subtitle: fallback.subtitle,
+    image: fallback.image,
     isCustom: false,
   };
 }

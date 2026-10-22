@@ -40,6 +40,17 @@ export const APP_ASSETS_CATALOG = [
   "images/slides/13-selfie.jpg",
   "images/slides/14-finale.jpg",
 
+  // 1b. Provocations backgrounds
+  "images/provocations/saas-morto.jpeg",
+  "images/provocations/consulenza-fallisce.jpeg",
+  "images/provocations/sviluppo-software-morto.jpeg",
+  "images/provocations/colloquio-tecnico-inutile.jpeg",
+  "images/provocations/esperti-verticali-inutili.jpeg",
+  "images/provocations/open-source-morto.jpeg.jpg",
+  "images/provocations/software-usa-e-getta.jpeg",
+  "images/provocations/agile-morto.jpeg",
+  "images/provocations/team-grandi-controproducenti.jpeg",
+
   // 2. Visual assets & overlays
   "images/stop-alle-telefonate.jpg",
   "images/klippy.png",
