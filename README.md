@@ -1,4 +1,4 @@
-# Shiftati di Testa — Codemotion Presentation, Game & Analytics App
+# Shiftati di Testa at Codemotion Milan 2026 (Presentation, Game & Analytics App)
 
 Web application offline-first progettata per gestire talk interattivi dal vivo sul palco di **Codemotion**: stage 16:9 con auto-scaling nativo (`1920×1080`), navigazione per telecomando da palco e tastiera, countdown globale bifase anti-drift, modalità gioco Klippy Saw ("Voglio fare un gioco con te"), overlay automatico "Stop alle telefonate", tema dinamico Dark/Light in stile Neo-Brutalist, suite completa di **Dashboard Analytics**, pacchetti di **Export/Import ZIP con audio** e motore di **Session Replay** con sincronizzazione audio per rivivere ogni secondo del talk.
 
