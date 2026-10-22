@@ -18,9 +18,9 @@ export default defineConfig({
         navigateFallback: `${REPO_BASE}index.html`,
       },
       manifest: {
-        name: "Shiftati di Testa — Codemotion",
+        name: "Shiftati di Testa | Codemotion Milano 2026",
         short_name: "Shiftati",
-        description: "Web app per talk e presentazione interattiva sul palco di Codemotion",
+        description: "Il Talk dei Shiftati di Testa sul palco di Codemotion Milano 28-29 Ottobre 2026",
         lang: "it",
         theme_color: "#0e1e30",
         background_color: "#0e1e30",
