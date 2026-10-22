@@ -44,13 +44,15 @@ export const Titolo: FC = () => {
         </p>
       </header>
 
-      {/* 3. Klippy sconvolto in basso a destra */}
+      {/* 3. Klippy sconvolto che entra e corre tra destra e sinistra */}
       <div className={styles.klippyWrapper}>
-        <img
-          src={klippyImg}
-          alt="Klippy sconvolto"
-          className={styles.klippyImg}
-        />
+        <div className={styles.klippyRunner}>
+          <img
+            src={klippyImg}
+            alt="Klippy sconvolto"
+            className={styles.klippyImg}
+          />
+        </div>
       </div>
     </div>
   );
