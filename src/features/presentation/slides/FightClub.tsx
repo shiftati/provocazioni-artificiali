@@ -14,10 +14,10 @@ export const FightClub: FC<SlideProps> = ({step: stepProp, isReplay = false}) =>
     ).current;
 
     // Step 0: Nessuna card (solo sfondo Fight Club)
-    // Step 1: 1° click -> compare card sinistra (30 secondi) con ingresso da sinistra
-    // Step 2: 2° click -> compare card destra (5 minuti) con ingresso da destra
-    // Step 3: 3° click -> compare card in basso al centro (riparte il giro) con ingresso dal basso
-    // 4° click -> avanza alla slide successiva (slide 9)
+    // Step 1: 1° click -> compare card sinistra (Dovete parlare) con ingresso da sinistra
+    // Step 2: 2° click -> compare card destra (30 secondi) con ingresso da destra
+    // Step 3: 3° click -> compare card in basso al centro (5 minuti categorici) con ingresso dal basso
+    // 4° click -> avanza alla slide successiva
     const [localStep, setLocalStep] = useState<number>(() => (isEnteredBackwards ? 3 : 0));
     const stepRef = useRef(localStep);
     stepRef.current = localStep;
@@ -25,28 +25,19 @@ export const FightClub: FC<SlideProps> = ({step: stepProp, isReplay = false}) =>
     // Se siamo in modalità replay di sessione, utilizziamo il passo fornito come prop
     const currentStep = stepProp !== undefined ? stepProp : localStep;
 
-    // Traccia le card entrate in avanti per attivare l'animazione di ingresso con keyframe
-    const [enteredForward, setEnteredForward] = useState<{
-        card1: boolean;
-        card2: boolean;
-        card3: boolean;
-    }>(() => ({
-        card1: !isEnteredBackwards && currentStep >= 1,
-        card2: !isEnteredBackwards && currentStep >= 2,
-        card3: !isEnteredBackwards && currentStep >= 3,
-    }));
+    // Traccia la direzione di navigazione sincronizzata direttamente durante il rendering
+    const [direction, setDirection] = useState<"forward" | "backward" | "none">(
+        () => (isEnteredBackwards ? "none" : "forward"),
+    );
 
     const prevStepRef = useRef<number>(currentStep);
-    useEffect(() => {
-        if (currentStep > prevStepRef.current) {
-            setEnteredForward((prev) => ({
-                card1: prev.card1 || currentStep === 1,
-                card2: prev.card2 || currentStep === 2,
-                card3: prev.card3 || currentStep === 3,
-            }));
-        }
+    if (currentStep !== prevStepRef.current) {
+        const newDirection = currentStep > prevStepRef.current ? "forward" : "backward";
         prevStepRef.current = currentStep;
-    }, [currentStep]);
+        if (direction !== newDirection) {
+            setDirection(newDirection);
+        }
+    }
 
     useEffect(() => {
         if (isReplay) return;
@@ -56,6 +47,7 @@ export const FightClub: FC<SlideProps> = ({step: stepProp, isReplay = false}) =>
                 if (stepRef.current < 3) {
                     const nextStep = stepRef.current + 1;
                     stepRef.current = nextStep;
+                    setDirection("forward");
                     setLocalStep(nextStep);
                     return true; // Consumato: non cambia slide
                 }
@@ -65,6 +57,7 @@ export const FightClub: FC<SlideProps> = ({step: stepProp, isReplay = false}) =>
                 if (stepRef.current > 0) {
                     const prevStep = stepRef.current - 1;
                     stepRef.current = prevStep;
+                    setDirection("backward");
                     setLocalStep(prevStep);
                     return true; // Consumato: non cambia slide
                 }
@@ -73,11 +66,11 @@ export const FightClub: FC<SlideProps> = ({step: stepProp, isReplay = false}) =>
             getCurrentStep: () => stepRef.current,
             getStepDescription: (s) =>
                 s === 1
-                    ? "Card 30 secondi per proporre la provocazione"
+                    ? "Regola 1: Dovete parlare"
                     : s === 2
-                        ? "Card 5 minuti per discutere"
+                        ? "Regola 2: 30 secondi per proporre"
                         : s === 3
-                            ? "Card finiti i 5 minuti riparte il giro"
+                            ? "Regola 3: 5 minuti categorici per discutere"
                             : "Nessuna card (inizio)",
         });
 
@@ -90,20 +83,22 @@ export const FightClub: FC<SlideProps> = ({step: stepProp, isReplay = false}) =>
     const isCard2Visible = currentStep >= 2;
     const isCard3Visible = currentStep >= 3;
 
+    const isForward = direction === "forward" || isReplay;
+
     const card1Class = isCard1Visible
-        ? !isEnteredBackwards && enteredForward.card1 && currentStep === 1
+        ? isForward && currentStep === 1
             ? styles.card1Entrance
             : styles.card1Static
         : styles.card1Hidden;
 
     const card2Class = isCard2Visible
-        ? !isEnteredBackwards && enteredForward.card2 && currentStep === 2
+        ? isForward && currentStep === 2
             ? styles.card2Entrance
             : styles.card2Static
         : styles.card2Hidden;
 
     const card3Class = isCard3Visible
-        ? !isEnteredBackwards && enteredForward.card3 && currentStep === 3
+        ? isForward && currentStep === 3
             ? styles.card3Entrance
             : styles.card3Static
         : styles.card3Hidden;
@@ -114,11 +109,11 @@ export const FightClub: FC<SlideProps> = ({step: stepProp, isReplay = false}) =>
             title="Fight club"
             className={styles.slideContainer}
         >
-            {/* 1° Card: Sinistra - 30 secondi */}
+            {/* 1° Card: Sinistra - Dovete parlare */}
             <div
                 className={`${styles.ruleCard} ${styles.card1} ${card1Class}`}
                 role="region"
-                aria-label="Regola 1: 30 secondi per proporre la vostra provocazione"
+                aria-label="Regola 1: Dovete parlare"
                 aria-hidden={!isCard1Visible}
             >
                 <div className={`${styles.badge} ${styles.badge1}`}>
@@ -132,11 +127,11 @@ export const FightClub: FC<SlideProps> = ({step: stepProp, isReplay = false}) =>
                 </p>
             </div>
 
-            {/* 2° Card: Destra - 5 minuti */}
+            {/* 2° Card: Destra - 30 secondi per proporre */}
             <div
                 className={`${styles.ruleCard} ${styles.card2} ${card2Class}`}
                 role="region"
-                aria-label="Regola 2: 5 minuti categorici per discutere sulla provocazione"
+                aria-label="Regola 2: 30 secondi per proporre la vostra provocazione"
                 aria-hidden={!isCard2Visible}
             >
                 <div className={`${styles.badge} ${styles.badge2}`}>
@@ -151,11 +146,11 @@ export const FightClub: FC<SlideProps> = ({step: stepProp, isReplay = false}) =>
                 </p>
             </div>
 
-            {/* 3° Card: In basso al centro - Riparte il giro */}
+            {/* 3° Card: In basso al centro - 5 minuti categorici */}
             <div
                 className={`${styles.ruleCard} ${styles.card3} ${card3Class}`}
                 role="region"
-                aria-label="Regola 3: E finiti i 5 minuti riparte il giro!"
+                aria-label="Regola 3: 5 minuti categorici per discutere sulla provocazione"
                 aria-hidden={!isCard3Visible}
             >
                 <div className={`${styles.badge} ${styles.badge3}`}>

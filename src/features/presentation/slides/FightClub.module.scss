@@ -20,7 +20,7 @@
   box-sizing: border-box;
 }
 
-/* 1. Card 1 - Sinistra (30 secondi) */
+/* 1. Card 1 - Sinistra (Dovete parlare) */
 .card1 {
   top: 250px;
   left: 80px;
@@ -29,7 +29,7 @@
   box-shadow: 12px 12px 0 0 var(--color-brand-yellow, #ffd100), 12px 12px 0 3px #000000;
 }
 
-/* 2. Card 2 - Destra (5 minuti) */
+/* 2. Card 2 - Destra (30 secondi) */
 .card2 {
   top: 250px;
   right: 80px;
@@ -38,7 +38,7 @@
   box-shadow: 12px 12px 0 0 var(--color-brand-mint, #5ef2b8), 12px 12px 0 3px #000000;
 }
 
-/* 3. Card 3 - In basso al centro (Riparte il giro) */
+/* 3. Card 3 - In basso al centro (5 minuti categorici) */
 .card3 {
   bottom: 85px;
   left: 50%;
@@ -81,7 +81,7 @@
 
 .badge3 {
   background-color: var(--color-brand-blue, #ff5500);
-  color: #FFF; //071526;
+  color: #FFF;
 }
 
 /* Tipografia */
@@ -127,9 +127,9 @@
 }
 
 .card1Entrance {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-  animation: entranceFromLeft 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  transform: translate3d(-680px, 0, 0);
+  animation: entranceFromLeft 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .card1Static {
@@ -146,9 +146,9 @@
 }
 
 .card2Entrance {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-  animation: entranceFromRight 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  transform: translate3d(680px, 0, 0);
+  animation: entranceFromRight 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .card2Static {
@@ -165,9 +165,9 @@
 }
 
 .card3Entrance {
-  opacity: 1;
-  transform: translate3d(-50%, 0, 0);
-  animation: entranceFromBottom 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  transform: translate3d(-50%, 350px, 0);
+  animation: entranceFromBottom 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .card3Static {
