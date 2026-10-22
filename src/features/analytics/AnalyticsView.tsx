@@ -19,6 +19,7 @@ import { MultiSessionChart } from "./MultiSessionChart";
 import { SessionEditorModal } from "./SessionEditorModal";
 import { ProvocationEditorModal } from "./ProvocationEditorModal";
 import { JsonImportModal } from "./JsonImportModal";
+import { AudioImportModal } from "./AudioImportModal";
 import { SessionTimeline } from "./SessionTimeline";
 import {
   DownloadIcon,
@@ -28,12 +29,15 @@ import {
   CopyIcon,
   PlayIcon,
   CheckIcon,
+  MicIcon,
 } from "../../components/icons";
 import type { TalkSessionRecord, ProvocationStat } from "../../types";
 import {
   getAudioRecording,
+  saveAudioRecording,
   deleteAudioRecording,
   downloadAudioFile,
+  inferAudioMimeType,
   type StoredAudioRecording,
 } from "../../utils/audioStorage";
 import styles from "./AnalyticsView.module.scss";
@@ -63,6 +67,7 @@ export const AnalyticsView: FC = () => {
   // Modal states
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [isAudioImportOpen, setIsAudioImportOpen] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [confirmClearAllOpen, setConfirmClearAllOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -86,7 +91,7 @@ export const AnalyticsView: FC = () => {
     return found ?? sessions[0] ?? null;
   }, [sessions, selectedSessionId]);
 
-// Audio recording states
+  // Audio recording states
   const [audioRecording, setAudioRecording] = useState<StoredAudioRecording | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [confirmDeleteAudio, setConfirmDeleteAudio] = useState(false);
@@ -140,6 +145,55 @@ export const AnalyticsView: FC = () => {
       hasAudio: false,
     });
     showToast("Registrazione audio eliminata.");
+  };
+
+  const handleImportAudio = async (
+    targetSessionId: string,
+    file: File,
+    durationSeconds?: number
+  ) => {
+    const target = sessions.find((s) => s.id === targetSessionId);
+    if (!target) return;
+
+    const mime = inferAudioMimeType(file.name, file.type);
+    const effectiveDuration =
+      durationSeconds && durationSeconds > 0
+        ? durationSeconds
+        : target.totalDurationSeconds > 0
+        ? target.totalDurationSeconds
+        : undefined;
+
+    await saveAudioRecording({
+      sessionId: targetSessionId,
+      blob: file,
+      mimeType: mime,
+      durationSeconds: effectiveDuration,
+      createdAt: Date.now(),
+    });
+
+    const updatedSession: TalkSessionRecord = {
+      ...target,
+      hasAudio: true,
+      audioMimeType: mime,
+      audioDurationSeconds: effectiveDuration,
+    };
+
+    updateSessionRecord(updatedSession);
+
+    if (targetSessionId === selectedSessionId) {
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
+      const rec = await getAudioRecording(targetSessionId, effectiveDuration);
+      setAudioRecording(rec);
+      if (rec) {
+        setAudioUrl(URL.createObjectURL(rec.blob));
+      }
+    } else {
+      setSelectedSessionId(targetSessionId);
+    }
+
+    showToast(`Audio associato con successo al talk "${target.name}"!`);
   };
 
   // Determine the effective intro end slide for the selected session
@@ -277,7 +331,7 @@ export const AnalyticsView: FC = () => {
           <div className={styles.emptyIcon}>📊</div>
           <h3>Nessuna sessione registrata ancora</h3>
           <p style={{ marginBottom: "var(--space-6)" }}>
-            Ogni volta che avvii un talk con il pulsante "Inizia Talk", viene
+            Ogni volta che avvii un talk con il pulsante &quot;Inizia Talk&quot;, viene
             registrata automaticamente una nuova sessione con tutti i tempi
             delle slide e delle provocazioni.
           </p>
@@ -402,6 +456,16 @@ export const AnalyticsView: FC = () => {
               <Button
                 variant="ghost"
                 size="md"
+                onClick={() => setIsAudioImportOpen(true)}
+                leftIcon={<MicIcon size={16} />}
+                title="Importa file audio precedentemente esportato e associalo al talk"
+              >
+                Importa Audio
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="md"
                 onClick={() => setIsImportOpen(true)}
                 leftIcon={<UploadIcon size={16} />}
                 title="Importa file JSON"
@@ -429,8 +493,8 @@ export const AnalyticsView: FC = () => {
             </div>
           )}
 
-          {/* Audio Recording Player Card */}
-          {currentViewSession && audioUrl && audioRecording && (
+          {/* Audio Recording Player Card or Prompt to Import Audio */}
+          {currentViewSession && audioUrl && audioRecording ? (
             <TalkAudioPlayer
               audioUrl={audioUrl}
               audioRecording={audioRecording}
@@ -444,7 +508,23 @@ export const AnalyticsView: FC = () => {
                 navigate(`/replay/${currentViewSession.id}?startAt=${targetMs}`);
               }}
             />
-          )}
+          ) : currentViewSession ? (
+            <div className={styles.noAudioBanner}>
+              <div className={styles.noAudioLeft}>
+                <MicIcon size={20} style={{ color: "var(--color-text-muted)" }} />
+                <span>Nessuna traccia audio registrata per questa sessione.</span>
+              </div>
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={() => setIsAudioImportOpen(true)}
+                leftIcon={<UploadIcon size={14} />}
+                title="Importa e associa un file audio esportato a questa sessione"
+              >
+                Importa Audio
+              </Button>
+            </div>
+          ) : null}
 
           {/* High-Level KPI Cards */}
           {currentViewSession && <KPIStatsCards session={currentViewSession} />}
@@ -457,7 +537,7 @@ export const AnalyticsView: FC = () => {
                 size="md"
                 onClick={() => setViewTab("charts")}
               >
-                📊 Grafici & Visualizzazioni
+                📊 Grafici &amp; Visualizzazioni
               </Button>
               <Button
                 variant={viewTab === "tables" ? "primary" : "ghost"}
@@ -715,6 +795,15 @@ export const AnalyticsView: FC = () => {
         </>
       )}
 
+      {/* Audio Import Modal */}
+      <AudioImportModal
+        isOpen={isAudioImportOpen}
+        onClose={() => setIsAudioImportOpen(false)}
+        sessions={sessions}
+        initialSessionId={currentViewSession?.id ?? ""}
+        onImportAudio={handleImportAudio}
+      />
+
       {/* Confirm Delete Audio Modal */}
       <Modal
         isOpen={confirmDeleteAudio}
@@ -737,7 +826,7 @@ export const AnalyticsView: FC = () => {
           }}
         >
           Sei sicuro di voler eliminare la traccia audio registrata di questa sessione dalla memoria del browser?
-          L'operazione è definitiva e il file non potrà essere recuperato.
+          L&apos;operazione è definitiva e il file non potrà essere recuperato.
         </p>
         <div
           style={{

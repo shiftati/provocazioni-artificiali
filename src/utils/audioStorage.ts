@@ -46,10 +46,68 @@ export function getSupportedAudioMimeType(): string {
 
 export function getAudioFileExtension(mimeType: string): string {
   if (mimeType.includes("webm")) return "webm";
-  if (mimeType.includes("mp4")) return "mp4";
+  if (mimeType.includes("mpeg") || mimeType.includes("mp3")) return "mp3";
+  if (mimeType.includes("mp4") || mimeType.includes("m4a")) return "mp4";
   if (mimeType.includes("ogg")) return "ogg";
   if (mimeType.includes("wav")) return "wav";
   return "webm";
+}
+
+export function inferAudioMimeType(fileName: string, detectedType?: string): string {
+  if (detectedType && detectedType.startsWith("audio/")) {
+    return detectedType;
+  }
+  const lower = fileName.toLowerCase();
+  if (lower.endsWith(".webm")) return "audio/webm";
+  if (lower.endsWith(".mp3")) return "audio/mpeg";
+  if (lower.endsWith(".wav")) return "audio/wav";
+  if (lower.endsWith(".ogg")) return "audio/ogg";
+  if (lower.endsWith(".m4a") || lower.endsWith(".mp4") || lower.endsWith(".aac")) return "audio/mp4";
+  return detectedType || "audio/webm";
+}
+
+export async function detectAudioDuration(blob: Blob): Promise<number | undefined> {
+  return new Promise((resolve) => {
+    try {
+      const audio = document.createElement("audio");
+      const url = URL.createObjectURL(blob);
+      audio.preload = "metadata";
+
+      let settled = false;
+      const cleanup = () => {
+        if (!settled) {
+          settled = true;
+          URL.revokeObjectURL(url);
+          audio.removeAttribute("src");
+          audio.load();
+        }
+      };
+
+      audio.onloadedmetadata = () => {
+        const d = audio.duration;
+        cleanup();
+        if (Number.isFinite(d) && d > 0) {
+          resolve(Math.round(d));
+        } else {
+          resolve(undefined);
+        }
+      };
+
+      audio.onerror = () => {
+        cleanup();
+        resolve(undefined);
+      };
+
+      setTimeout(() => {
+        cleanup();
+        resolve(undefined);
+      }, 3000);
+
+      audio.src = url;
+    } catch {
+      resolve(undefined);
+    }
+  });
 }
 
 /**
