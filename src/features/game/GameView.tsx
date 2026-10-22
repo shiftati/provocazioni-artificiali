@@ -144,7 +144,7 @@ export const GameView: FC = () => {
             <div className={styles.challengeControls}>
               <Button
                 variant="secondary"
-                size="xl"
+                size="lg"
                 onClick={() =>
                   dispatchGame({ type: "CHALLENGE_TIMEOUT", allProvocationIds })
                 }
@@ -154,11 +154,11 @@ export const GameView: FC = () => {
 
               <Button
                 variant="primary"
-                size="xl"
+                size="lg"
                 onClick={() =>
                   dispatchGame({ type: "ACCEPT_PROVOCATION", allProvocationIds })
                 }
-                leftIcon={<CheckIcon size={28} />}
+                leftIcon={<CheckIcon size={24} />}
               >
                 Accetta Provocazione
               </Button>

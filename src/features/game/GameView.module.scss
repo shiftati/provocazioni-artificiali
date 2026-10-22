@@ -50,7 +50,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   text-align: center;
   padding: var(--space-12);
   background: transparent;
@@ -78,8 +78,12 @@
 .challengeControls {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: var(--space-6);
+  background-color: var(--color-decal-bg);
+  padding: var(--space-3) var(--space-6);
+  border: 3px solid #000000;
+  border-radius: 0;
+  box-shadow: var(--shadow-box-offset);
 }
 
 /* PROVOCATION Step */
@@ -126,24 +130,25 @@
 }
 
 .discussionHeader {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
+  background-color: var(--color-decal-bg);
+  border: 3px solid #000000;
+  border-radius: 0;
+  box-shadow: var(--shadow-box-offset);
+  padding: var(--space-3) var(--space-6);
+  font-family: var(--font-mono);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-decal-text);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-4);
 }
 
 .discussionEyebrow {
-  background-color: var(--color-decal-bg);
-  color: var(--color-accent);
-  padding: var(--space-1) var(--space-4);
-  border: 2px solid #000000;
-  border-radius: 0;
-  box-shadow: 4px 4px 0 -1px var(--color-accent), 4px 4px 0 0 #000000;
-  font-family: var(--font-mono);
-  font-size: 1.3rem;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  font-weight: 700;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
 }
 
 .discussionTitle {
