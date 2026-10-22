@@ -4,7 +4,7 @@ import { ImageSlide } from "../layouts/ImageSlide";
 export const MacchinettaDelCaffe: FC = () => {
   return (
     <ImageSlide
-      imageName="macchinetta-caffe.jpg"
+      imageName="macchinetta-caffe.webp"
       title="Macchinetta del caffè"
     />
   );

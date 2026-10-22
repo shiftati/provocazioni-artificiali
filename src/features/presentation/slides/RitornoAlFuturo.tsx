@@ -33,7 +33,7 @@ export const RitornoAlFuturo: FC = () => {
   );
 
   return (
-    <ImageSlide imageName="ritorno-al-futuro.jpg" title="Ritorno al Futuro">
+    <ImageSlide imageName="ritorno-al-futuro.webp" title="Ritorno al Futuro">
       <div
         className={`${styles.klippyContainer} ${isVisible ? styles.klippyVisible : ""}`}
       >
