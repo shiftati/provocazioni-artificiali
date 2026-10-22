@@ -9,7 +9,7 @@ export const KlippyMatrix: FC = () => {
             ariaLabel="Klippy matrix"
         >
             <div className={styles.title}>
-                La documentazione <br/> non ha più senso
+                La documentazione non ha più senso
             </div>
         </ProvocationCard>
     );

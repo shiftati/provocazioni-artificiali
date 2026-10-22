@@ -40,6 +40,10 @@ import {
   inferAudioMimeType,
   type StoredAudioRecording,
 } from "../../utils/audioStorage";
+import {
+  exportSingleSessionWithAudio,
+  exportAllSessionsWithAudio,
+} from "../../utils/talkExportImport";
 import styles from "./AnalyticsView.module.scss";
 
 export const AnalyticsView: FC = () => {
@@ -91,6 +95,10 @@ export const AnalyticsView: FC = () => {
     return found ?? sessions[0] ?? null;
   }, [sessions, selectedSessionId]);
 
+  // Exporting & audio refresh state
+  const [isExporting, setIsExporting] = useState(false);
+  const [audioRefreshKey, setAudioRefreshKey] = useState(0);
+
   // Audio recording states
   const [audioRecording, setAudioRecording] = useState<StoredAudioRecording | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -122,7 +130,7 @@ export const AnalyticsView: FC = () => {
         URL.revokeObjectURL(objectUrl);
       }
     };
-  }, [currentViewSession?.id]);
+  }, [currentViewSession?.id, currentViewSession?.hasAudio, audioRefreshKey]);
 
   const handleDownloadAudio = () => {
     if (!audioRecording || !currentViewSession) return;
@@ -234,33 +242,41 @@ export const AnalyticsView: FC = () => {
     showToast("Provocazione eliminata.");
   };
 
-  // Export a single session to JSON file
-  const handleExportSingle = (sessionRecord: TalkSessionRecord) => {
-    const filename = `talk_session_${sessionRecord.name.toLowerCase().replace(/[^a-z0-9]/g, "_")}_${new Date(sessionRecord.startedAt).toISOString().slice(0, 10)}.json`;
-    const jsonStr = JSON.stringify(sessionRecord, null, 2);
-    const blob = new Blob([jsonStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast("Sessione esportata con successo!");
+  // Export a single session (con audio se presente in archivio .zip, altrimenti .json)
+  const handleExportSingle = async (sessionRecord: TalkSessionRecord) => {
+    try {
+      setIsExporting(true);
+      const result = await exportSingleSessionWithAudio(sessionRecord);
+      if (result.type === "zip") {
+        showToast("Talk e registrazione audio esportati con successo (.zip)!");
+      } else {
+        showToast("Talk esportato in JSON con successo!");
+      }
+    } catch (err) {
+      console.error("Errore esportazione talk:", err);
+      showToast("Errore durante l'esportazione del talk.");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
-  // Export all sessions to JSON file
-  const handleExportAll = () => {
+  // Export all sessions (con audio in archivio .zip se presenti tracce, altrimenti .json)
+  const handleExportAll = async () => {
     if (sessions.length === 0) return;
-    const filename = `all_talk_sessions_${new Date().toISOString().slice(0, 10)}.json`;
-    const jsonStr = JSON.stringify(sessions, null, 2);
-    const blob = new Blob([jsonStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast(`Esportate ${sessions.length} sessioni con successo!`);
+    try {
+      setIsExporting(true);
+      const result = await exportAllSessionsWithAudio(sessions);
+      if (result.type === "zip") {
+        showToast(`Esportate ${sessions.length} sessioni e ${result.audioCount} tracce audio (.zip)!`);
+      } else {
+        showToast(`Esportate ${sessions.length} sessioni con successo!`);
+      }
+    } catch (err) {
+      console.error("Errore esportazione sessioni:", err);
+      showToast("Errore durante l'esportazione delle sessioni.");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   // Copy single session JSON to clipboard
@@ -290,12 +306,17 @@ export const AnalyticsView: FC = () => {
   };
 
   // Import handler
-  const handleImport = (importedList: TalkSessionRecord[]) => {
+  const handleImport = (importedList: TalkSessionRecord[], audioCount = 0) => {
     importSessionsRecords(importedList);
     if (importedList.length > 0 && importedList[0]) {
       setSelectedSessionId(importedList[0].id);
     }
-    showToast(`Importate ${importedList.length} sessioni con successo!`);
+    setAudioRefreshKey((k) => k + 1);
+    if (audioCount > 0) {
+      showToast(`Importate ${importedList.length} sessioni e ${audioCount} tracce audio!`);
+    } else {
+      showToast(`Importate ${importedList.length} sessioni con successo!`);
+    }
   };
 
   const isTalkRunning = isSessionActive;
@@ -357,7 +378,7 @@ export const AnalyticsView: FC = () => {
               onClick={() => setIsImportOpen(true)}
               leftIcon={<UploadIcon size={20} />}
             >
-              Importa JSON
+              Importa (JSON o ZIP)
             </Button>
           </div>
         </div>
@@ -436,9 +457,14 @@ export const AnalyticsView: FC = () => {
                     size="md"
                     onClick={() => handleExportSingle(currentViewSession)}
                     leftIcon={<DownloadIcon size={16} />}
-                    title="Esporta questa sessione in JSON"
+                    disabled={isExporting}
+                    title={
+                      currentViewSession.hasAudio
+                        ? "Esporta talk e traccia audio associata (.zip)"
+                        : "Esporta questa sessione in JSON"
+                    }
                   >
-                    Esporta
+                    {isExporting ? "Esportazione..." : "Esporta"}
                   </Button>
                   <Button
                     variant="ghost"
@@ -468,7 +494,7 @@ export const AnalyticsView: FC = () => {
                 size="md"
                 onClick={() => setIsImportOpen(true)}
                 leftIcon={<UploadIcon size={16} />}
-                title="Importa file JSON"
+                title="Importa file JSON o archivio ZIP con audio"
               >
                 Importa
               </Button>
@@ -478,9 +504,10 @@ export const AnalyticsView: FC = () => {
                 size="md"
                 onClick={handleExportAll}
                 leftIcon={<DownloadIcon size={16} />}
-                title="Esporta tutte le sessioni"
+                disabled={isExporting}
+                title="Esporta tutte le sessioni e gli audio associati (.zip)"
               >
-                Esporta tutte ({sessions.length})
+                {isExporting ? "Esportazione..." : `Esporta tutte (${sessions.length})`}
               </Button>
             </div>
           </section>

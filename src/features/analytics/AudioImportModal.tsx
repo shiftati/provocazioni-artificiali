@@ -6,6 +6,7 @@ import {
   type DragEvent,
   type FC,
 } from "react";
+import JSZip from "jszip";
 import type { TalkSessionRecord } from "../../types";
 import { Modal } from "../../components/ui/Modal";
 import { Button } from "../../components/ui/Button";
@@ -17,6 +18,7 @@ import {
 } from "../../components/icons";
 import { formatDateTime, formatDurationSeconds } from "../../utils/time";
 import { detectAudioDuration, inferAudioMimeType } from "../../utils/audioStorage";
+import { isZipFile } from "../../utils/talkExportImport";
 import styles from "./AudioImportModal.module.scss";
 
 interface AudioImportModalProps {
@@ -33,7 +35,8 @@ interface AudioImportModalProps {
 
 const SUPPORTED_EXTENSIONS = [".webm", ".mp3", ".wav", ".m4a", ".mp4", ".ogg", ".aac"];
 
-function isAudioFile(file: File): boolean {
+function isAudioOrZipFile(file: File): boolean {
+  if (isZipFile(file)) return true;
   if (file.type && file.type.startsWith("audio/")) return true;
   const name = file.name.toLowerCase();
   return SUPPORTED_EXTENSIONS.some((ext) => name.endsWith(ext));
@@ -84,27 +87,78 @@ export const AudioImportModal: FC<AudioImportModalProps> = ({
 
   const targetSession = sessions.find((s) => s.id === selectedSessionId);
 
-  const handleProcessFile = async (file: File) => {
+  const handleProcessFile = async (rawFile: File) => {
     setErrorMessage(null);
 
-    if (!isAudioFile(file)) {
+    if (!isAudioOrZipFile(rawFile)) {
       setErrorMessage(
-        "Il file selezionato non sembra un formato audio supportato (.webm, .mp3, .wav, .m4a, .ogg)."
+        "Il file selezionato non sembra un formato audio supportato (.webm, .mp3, .wav, .m4a, .ogg) o un archivio ZIP."
       );
       return;
+    }
+
+    let fileToUse = rawFile;
+
+    // Se l'utente ha selezionato un file ZIP, estraiamo la traccia audio corrispondente
+    if (isZipFile(rawFile)) {
+      setIsDetectingDuration(true);
+      try {
+        const zip = await JSZip.loadAsync(rawFile);
+        let matchedEntry: JSZip.JSZipObject | null = null;
+
+        // Cerca file audio che corrisponde alla sessione selezionata
+        if (selectedSessionId) {
+          for (const [path, entry] of Object.entries(zip.files)) {
+            if (entry.dir) continue;
+            const lower = path.toLowerCase();
+            const isAudio = SUPPORTED_EXTENSIONS.some((ext) => lower.endsWith(ext));
+            if (isAudio && (path.includes(selectedSessionId) || lower.includes(selectedSessionId.toLowerCase()))) {
+              matchedEntry = entry;
+              break;
+            }
+          }
+        }
+
+        // Se non trovato per ID, prendi il primo file audio presente nel zip
+        if (!matchedEntry) {
+          for (const [path, entry] of Object.entries(zip.files)) {
+            if (entry.dir) continue;
+            const lower = path.toLowerCase();
+            if (SUPPORTED_EXTENSIONS.some((ext) => lower.endsWith(ext))) {
+              matchedEntry = entry;
+              break;
+            }
+          }
+        }
+
+        if (!matchedEntry) {
+          setErrorMessage("Nessun file audio trovato all'interno dell'archivio ZIP caricato.");
+          setIsDetectingDuration(false);
+          return;
+        }
+
+        const blob = await matchedEntry.async("blob");
+        const cleanName = matchedEntry.name.split("/").pop() || "audio.webm";
+        const inferredMime = inferAudioMimeType(cleanName, blob.type);
+        fileToUse = new File([blob], cleanName, { type: inferredMime });
+      } catch {
+        setErrorMessage("Impossibile estrarre la traccia audio dall'archivio ZIP.");
+        setIsDetectingDuration(false);
+        return;
+      }
     }
 
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
 
-    const newUrl = URL.createObjectURL(file);
-    setSelectedFile(file);
+    const newUrl = URL.createObjectURL(fileToUse);
+    setSelectedFile(fileToUse);
     setPreviewUrl(newUrl);
     setIsDetectingDuration(true);
 
     try {
-      const dur = await detectAudioDuration(file);
+      const dur = await detectAudioDuration(fileToUse);
       setDetectedDuration(dur);
     } catch {
       setDetectedDuration(undefined);
@@ -211,9 +265,8 @@ export const AudioImportModal: FC<AudioImportModalProps> = ({
         Importa Registrazione Audio
       </h2>
       <p className={styles.modalSubtitle}>
-        Carica un file audio registrato o esportato in precedenza (.webm, .mp3,
-        .wav, .m4a, .ogg) e associalo alla sessione talk selezionata per ascoltarlo
-        o riprodurlo sincronizzato con il Replay.
+        Carica un file audio registrato (.webm, .mp3, .wav, .m4a, .ogg) oppure un archivio .zip
+        esportato e associalo alla sessione talk selezionata.
       </p>
 
       {errorMessage && <div className={styles.errorAlert}>{errorMessage}</div>}
@@ -256,14 +309,14 @@ export const AudioImportModal: FC<AudioImportModalProps> = ({
       <input
         ref={fileInputRef}
         type="file"
-        accept="audio/*,.webm,.mp3,.wav,.m4a,.mp4,.ogg,.aac"
+        accept="audio/*,.webm,.mp3,.wav,.m4a,.mp4,.ogg,.aac,.zip,application/zip"
         style={{ display: "none" }}
         onChange={handleFileInputChange}
       />
 
       {/* File Dropzone or Preview */}
       <div className={styles.formGroup}>
-        <label className={styles.formLabel}>File Audio:</label>
+        <label className={styles.formLabel}>File Audio / Archivio ZIP:</label>
 
         {!selectedFile ? (
           <div
@@ -286,10 +339,10 @@ export const AudioImportModal: FC<AudioImportModalProps> = ({
               <UploadIcon size={36} />
             </div>
             <p className={styles.dropzonePrompt}>
-              Trascina qui il file audio o clicca per sfogliare
+              Trascina qui il file audio o archivio ZIP, o clicca per sfogliare
             </p>
             <span className={styles.dropzoneSub}>
-              Supporta formati WebM, MP3, WAV, M4A, OGG, AAC
+              Supporta formati WebM, MP3, WAV, M4A, OGG, AAC e archivi ZIP
             </span>
             <Button
               variant="secondary"

@@ -150,4 +150,5 @@ export interface TalkSessionRecord {
   hasAudio?: boolean;           // true se è presente una registrazione audio in IndexedDB
   audioMimeType?: string;       // es. "audio/webm;codecs=opus"
   audioDurationSeconds?: number;// durata stimata dell'audio registrato
+  audioFile?: string;           // riferimento al file audio relativo all'interno dell'archivio zip esportato
 }

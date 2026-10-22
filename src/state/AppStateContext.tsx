@@ -1499,10 +1499,15 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const importSessionsRecords = useCallback((imported: TalkSessionRecord[]) => {
     setSessionsState((prev) => {
-      // Merge imported sessions by ID
+      // Merge imported sessions by ID: update existing records with imported fields (e.g. hasAudio), and prepend new ones
+      const importedMap = new Map(imported.map((s) => [s.id, s]));
+      const updatedExisting = prev.map((s) => {
+        const matching = importedMap.get(s.id);
+        return matching ? { ...s, ...matching } : s;
+      });
       const existingIds = new Set(prev.map((s) => s.id));
       const newItems = imported.filter((item) => !existingIds.has(item.id));
-      const updatedList = [...newItems, ...prev];
+      const updatedList = [...newItems, ...updatedExisting];
       appStorage.saveSessions(updatedList);
       return updatedList;
     });
