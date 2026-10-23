@@ -44,6 +44,9 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
     isSessionActive,
     isRecordingAudio,
     stopAudioRecording,
+    isRecordingVideo,
+    stopVideoRecording,
+    videoRecordedFileName,
     theme,
     setTheme,
     replaySlideAnimation,
@@ -250,7 +253,22 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
             aria-label="Registrazione audio in corso. Clicca per interrompere."
           >
             <span className={styles.recordingDot} />
-            <span className={styles.recordingText}>REC</span>
+            <span className={styles.recordingText}>REC MIC</span>
+            <span className={styles.recordingStopHint}>✕</span>
+          </button>
+        )}
+
+        {isRecordingVideo && (
+          <button
+            type="button"
+            className={styles.recordingBadge}
+            onClick={stopVideoRecording}
+            title={`Registrazione video webcam attiva su disco (${videoRecordedFileName || "file video"}). Fai clic per interrompere.`}
+            role="status"
+            aria-label="Registrazione video webcam in corso. Clicca per interrompere."
+          >
+            <span className={styles.recordingDot} />
+            <span className={styles.recordingText}>REC CAM</span>
             <span className={styles.recordingStopHint}>✕</span>
           </button>
         )}

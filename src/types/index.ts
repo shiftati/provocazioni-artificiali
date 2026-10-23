@@ -13,6 +13,8 @@ export interface TalkConfig {
   navOnSlide?: boolean;       // true: sopra la slide (default); false: nell'intestazione
   audioRecordingEnabled?: boolean; // true: registra audio dal microfono durante il talk
   audioDeviceId?: string;     // id dispositivo microfono selezionato ('default' o deviceId specifico)
+  videoRecordingEnabled?: boolean; // true: registra video dalla webcam durante il talk
+  videoDeviceId?: string;     // id dispositivo webcam selezionato ('default' o deviceId specifico)
 }
 
 export interface AppSessionState {
@@ -153,4 +155,6 @@ export interface TalkSessionRecord {
   audioMimeType?: string;       // es. "audio/webm;codecs=opus"
   audioDurationSeconds?: number;// durata stimata dell'audio registrato
   audioFile?: string;           // riferimento al file audio relativo all'interno dell'archivio zip esportato
+  hasVideo?: boolean;           // true se la sessione dispone di una registrazione video
+  videoFileName?: string;       // nome del file video salvato su disco tramite File System Access API
 }

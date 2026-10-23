@@ -16,6 +16,11 @@ import { PROVOCATIONS, PROVOCATION_MAP } from "../features/game/provocations.reg
 import { SLIDES } from "../features/presentation/slides.registry";
 import { createSampleSessions } from "../features/analytics/sampleData";
 import { saveAudioRecording, getSupportedAudioMimeType } from "../utils/audioStorage";
+import {
+  getSupportedVideoMimeType,
+  DiskChunkWriter,
+  saveVideoFileHandle,
+} from "../utils/videoRecording";
 import type {
   TalkConfig,
   AppSessionState,
@@ -50,6 +55,10 @@ export interface AppStateContextValue {
   isRecordingAudio: boolean;
   audioRecordingError: string | null;
   stopAudioRecording: () => void;
+  isRecordingVideo: boolean;
+  videoRecordingError: string | null;
+  videoRecordedFileName: string | null;
+  stopVideoRecording: () => void;
   // Sessions & Analytics
   sessions: TalkSessionRecord[];
   currentSessionId: string | null;
@@ -57,7 +66,10 @@ export interface AppStateContextValue {
   updateConfig: (cfg: TalkConfig) => void;
   setTheme: (theme: AppTheme) => void;
   setNavOnSlide: (navOnSlide: boolean) => void;
-  startTalk: (configOverrides?: Partial<TalkConfig>) => void;
+  startTalk: (
+    configOverrides?: Partial<TalkConfig>,
+    videoFileHandle?: FileSystemFileHandle | null
+  ) => void;
   endTalk: () => void;
   setSlideIndex: (index: number) => void;
   setMode: (mode: AppMode) => void;
@@ -96,11 +108,19 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [isRecordingAudio, setIsRecordingAudio] = useState<boolean>(false);
   const [audioRecordingError, setAudioRecordingError] = useState<string | null>(null);
 
+  const [isRecordingVideo, setIsRecordingVideo] = useState<boolean>(false);
+  const [videoRecordingError, setVideoRecordingError] = useState<string | null>(null);
+  const [videoRecordedFileName, setVideoRecordedFileName] = useState<string | null>(null);
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioStreamRef = useRef<MediaStream | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingSessionIdRef = useRef<string | null>(null);
   const recordingStartTimeRef = useRef<number | null>(null);
+
+  const videoRecorderRef = useRef<MediaRecorder | null>(null);
+  const videoStreamRef = useRef<MediaStream | null>(null);
+  const videoWriterRef = useRef<DiskChunkWriter | null>(null);
 
   const stopAudioRecording = useCallback(() => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
@@ -123,11 +143,33 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
   }, []);
 
+  const stopVideoRecording = useCallback(() => {
+    if (videoRecorderRef.current && videoRecorderRef.current.state !== "inactive") {
+      try {
+        videoRecorderRef.current.stop();
+      } catch (e) {
+        console.error("Error stopping video recorder:", e);
+      }
+    }
+    if (videoStreamRef.current) {
+      videoStreamRef.current.getTracks().forEach((t) => t.stop());
+      videoStreamRef.current = null;
+    }
+    if (videoWriterRef.current) {
+      videoWriterRef.current.close().catch((err) => {
+        console.error("Error closing video disk writer:", err);
+      });
+      videoWriterRef.current = null;
+    }
+    setIsRecordingVideo(false);
+  }, []);
+
   useEffect(() => {
     return () => {
       stopAudioRecording();
+      stopVideoRecording();
     };
-  }, [stopAudioRecording]);
+  }, [stopAudioRecording, stopVideoRecording]);
 
   const [session, setSessionState] = useState<AppSessionState>(() => {
     const saved = appStorage.getSession();
@@ -584,8 +626,12 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   }, [theme, updateActiveSession]);
 
   // Start new talk: creates a brand new session in storage and begins recording
-  const startTalk = useCallback((configOverrides?: Partial<TalkConfig>) => {
-    const now = Date.now();
+  const startTalk = useCallback(
+    (
+      configOverrides?: Partial<TalkConfig>,
+      videoFileHandle?: FileSystemFileHandle | null
+    ) => {
+      const now = Date.now();
     const activeConfig = { ...appStorage.getConfig(), ...configOverrides };
 
     // 1. Finalize any ongoing active session
@@ -813,6 +859,125 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     } else {
       setIsRecordingAudio(false);
     }
+
+    // Start video recording if enabled in activeConfig and videoFileHandle provided
+    if (
+      activeConfig.videoRecordingEnabled &&
+      typeof navigator !== "undefined" &&
+      navigator.mediaDevices
+    ) {
+      if (videoRecorderRef.current && videoRecorderRef.current.state !== "inactive") {
+        try {
+          videoRecorderRef.current.stop();
+        } catch (e) {
+          console.error("Error stopping previous video recorder:", e);
+        }
+      }
+      if (videoStreamRef.current) {
+        videoStreamRef.current.getTracks().forEach((t) => t.stop());
+        videoStreamRef.current = null;
+      }
+      if (videoWriterRef.current) {
+        videoWriterRef.current.close().catch(() => {});
+        videoWriterRef.current = null;
+      }
+
+      if (videoFileHandle) {
+        const videoConstraints: MediaTrackConstraints | boolean =
+          activeConfig.videoDeviceId && activeConfig.videoDeviceId !== "default"
+            ? { deviceId: { exact: activeConfig.videoDeviceId } }
+            : true;
+
+        const audioConstraints: MediaTrackConstraints | boolean =
+          activeConfig.audioDeviceId && activeConfig.audioDeviceId !== "default"
+            ? { deviceId: { exact: activeConfig.audioDeviceId } }
+            : true;
+
+        const acquireStream = async () => {
+          try {
+            return await navigator.mediaDevices.getUserMedia({
+              video: videoConstraints,
+              audio: audioConstraints,
+            });
+          } catch {
+            return await navigator.mediaDevices.getUserMedia({
+              video: videoConstraints,
+            });
+          }
+        };
+
+        acquireStream()
+          .then(async (vStream) => {
+            videoStreamRef.current = vStream;
+            const mimeType = getSupportedVideoMimeType();
+            const options: MediaRecorderOptions = mimeType ? { mimeType } : {};
+            const recorder = new MediaRecorder(vStream, options);
+            videoRecorderRef.current = recorder;
+
+            const writable = await videoFileHandle.createWritable();
+            const writer = new DiskChunkWriter(writable);
+            videoWriterRef.current = writer;
+
+            setVideoRecordedFileName(videoFileHandle.name);
+
+            saveVideoFileHandle(newSessionId, videoFileHandle).catch((err) => {
+              console.warn("Impossibile salvare il video handle in IndexedDB:", err);
+            });
+
+            updateActiveSession((curr) => ({
+              ...curr,
+              hasVideo: true,
+              videoFileName: videoFileHandle.name,
+            }));
+
+            recorder.ondataavailable = (e) => {
+              if (e.data && e.data.size > 0) {
+                writer.write(e.data);
+              }
+            };
+
+            recorder.onstop = async () => {
+              try {
+                if (videoWriterRef.current) {
+                  await videoWriterRef.current.close();
+                  videoWriterRef.current = null;
+                }
+              } catch (err) {
+                console.error("Errore chiusura stream video su disco:", err);
+              }
+              if (videoStreamRef.current) {
+                videoStreamRef.current.getTracks().forEach((t) => t.stop());
+                videoStreamRef.current = null;
+              }
+              setIsRecordingVideo(false);
+              videoRecorderRef.current = null;
+            };
+
+            recorder.onerror = (event) => {
+              console.error("Video MediaRecorder error:", event);
+              setVideoRecordingError("Errore durante la registrazione video");
+              setIsRecordingVideo(false);
+            };
+
+            recorder.start(1000);
+            setIsRecordingVideo(true);
+            setVideoRecordingError(null);
+          })
+          .catch((err) => {
+            console.error("getUserMedia video error:", err);
+            setVideoRecordingError(
+              err.name === "NotAllowedError" || err.name === "PermissionDeniedError"
+                ? "Permesso videocamera negato"
+                : "Impossibile accedere alla videocamera selezionata"
+            );
+            setIsRecordingVideo(false);
+          });
+      } else {
+        console.warn("Registrazione video abilitata ma nessun file selezionato per lo streaming.");
+      }
+    } else {
+      setIsRecordingVideo(false);
+    }
   }, [config.endTime, config.endTimestamp, updateActiveSession]);
 
   const finalizeActiveDiscussion = useCallback(
@@ -861,6 +1026,8 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
     // Stop audio recording if active
     stopAudioRecording();
+    // Stop video recording if active
+    stopVideoRecording();
 
     logSessionEvent("SESSION_END", "Concluso talk e terminata sessione", undefined, now);
 
@@ -1545,6 +1712,10 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         isRecordingAudio,
         audioRecordingError,
         stopAudioRecording,
+        isRecordingVideo,
+        videoRecordingError,
+        videoRecordedFileName,
+        stopVideoRecording,
         sessions,
         currentSessionId,
         activeSessionRecord,

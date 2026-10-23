@@ -29,7 +29,13 @@ import {
   FinishIcon,
   MicIcon,
   MicOffIcon,
+  VideoIcon,
+  VideoOffIcon,
 } from "../../components/icons";
+import {
+  isFileSystemAccessSupported,
+  promptVideoSaveFilePicker,
+} from "../../utils/videoRecording";
 import { usePwaInstall } from "../../hooks/usePwaInstall";
 import { useOfflineCache } from "../../hooks/useOfflineCache";
 import styles from "./ConfigView.module.scss";
@@ -52,6 +58,9 @@ export const ConfigView: FC = () => {
     isSessionActive,
     isRecordingAudio,
     stopAudioRecording,
+    isRecordingVideo,
+    stopVideoRecording,
+    videoRecordedFileName,
   } = useAppState();
   const { requestFullscreen } = useFullscreen();
   const { isInstallable, isInstalled, installApp } = usePwaInstall();
@@ -104,6 +113,23 @@ export const ConfigView: FC = () => {
     "prompt" | "granted" | "denied"
   >("prompt");
   const [isTestingMic, setIsTestingMic] = useState(false);
+
+  // Video Recording configuration state
+  const [videoRecordingEnabled, setVideoRecordingEnabled] = useState<boolean>(
+    () => config.videoRecordingEnabled ?? false
+  );
+  const [videoDeviceId, setVideoDeviceId] = useState<string>(
+    () => config.videoDeviceId ?? "default"
+  );
+  const [availableCameras, setAvailableCameras] = useState<
+    Array<{ deviceId: string; label: string }>
+  >([]);
+  const [cameraPermissionState, setCameraPermissionState] = useState<
+    "prompt" | "granted" | "denied"
+  >("prompt");
+  const [isTestingCamera, setIsTestingCamera] = useState(false);
+  const videoPreviewRef = useRef<HTMLVideoElement | null>(null);
+  const testVideoStreamRef = useRef<MediaStream | null>(null);
   const [audioLevel, setAudioLevel] = useState<number>(0);
 
   const testStreamRef = useRef<MediaStream | null>(null);
@@ -229,6 +255,96 @@ export const ConfigView: FC = () => {
     };
   }, [stopMicTest]);
 
+  const refreshCameras = useCallback(async () => {
+    if (typeof navigator === "undefined" || !navigator.mediaDevices?.enumerateDevices) return;
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoInputs = devices
+        .filter((d) => d.kind === "videoinput")
+        .map((d, index) => ({
+          deviceId: d.deviceId,
+          label: d.label || `Videocamera ${index + 1}`,
+        }));
+      setAvailableCameras(videoInputs);
+      const hasLabels = videoInputs.some((d) => Boolean(d.label));
+      if (hasLabels) {
+        setCameraPermissionState("granted");
+      }
+    } catch (err) {
+      console.warn("Error enumerating video devices:", err);
+    }
+  }, []);
+
+  const requestCameraPermission = async () => {
+    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) return;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      setCameraPermissionState("granted");
+      stream.getTracks().forEach((t) => t.stop());
+      await refreshCameras();
+    } catch (err) {
+      console.warn("Camera permission denied:", err);
+      setCameraPermissionState("denied");
+    }
+  };
+
+  const stopCameraTest = useCallback(() => {
+    if (testVideoStreamRef.current) {
+      testVideoStreamRef.current.getTracks().forEach((t) => t.stop());
+      testVideoStreamRef.current = null;
+    }
+    if (videoPreviewRef.current) {
+      videoPreviewRef.current.srcObject = null;
+    }
+    setIsTestingCamera(false);
+  }, []);
+
+  const startCameraTest = async () => {
+    if (isTestingCamera) {
+      stopCameraTest();
+      return;
+    }
+
+    try {
+      const constraints: MediaStreamConstraints = {
+        video:
+          videoDeviceId && videoDeviceId !== "default"
+            ? { deviceId: { exact: videoDeviceId } }
+            : true,
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      testVideoStreamRef.current = stream;
+      setCameraPermissionState("granted");
+      refreshCameras();
+      setIsTestingCamera(true);
+
+      if (videoPreviewRef.current) {
+        videoPreviewRef.current.srcObject = stream;
+      }
+    } catch (err) {
+      console.warn("Camera test error:", err);
+      setCameraPermissionState("denied");
+      stopCameraTest();
+    }
+  };
+
+  useEffect(() => {
+    if (typeof navigator !== "undefined" && navigator.mediaDevices) {
+      refreshCameras();
+      navigator.mediaDevices.addEventListener?.("devicechange", refreshCameras);
+      return () => {
+        navigator.mediaDevices.removeEventListener?.("devicechange", refreshCameras);
+      };
+    }
+  }, [refreshCameras]);
+
+  useEffect(() => {
+    return () => {
+      stopCameraTest();
+    };
+  }, [stopCameraTest]);
+
   const [hasSavedToast, setHasSavedToast] = useState<boolean>(false);
   const [hasResetToast, setHasResetToast] = useState<boolean>(false);
   const [confirmResetOpen, setConfirmResetOpen] = useState<boolean>(false);
@@ -286,6 +402,8 @@ export const ConfigView: FC = () => {
       navOnSlide,
       audioRecordingEnabled,
       audioDeviceId,
+      videoRecordingEnabled,
+      videoDeviceId,
     });
 
     setHasSavedToast(true);
@@ -295,6 +413,34 @@ export const ConfigView: FC = () => {
   const proceedStart = async () => {
     if (!parsedTarget) return;
     stopMicTest();
+    stopCameraTest();
+
+    let videoFileHandle: FileSystemFileHandle | null = null;
+    if (videoRecordingEnabled) {
+      if (!isFileSystemAccessSupported()) {
+        alert(
+          "La registrazione video su disco richiede un browser con supporto File System Access API (es. Chrome, Edge su desktop)."
+        );
+        return;
+      }
+      try {
+        const formattedDate = new Date()
+          .toISOString()
+          .replace(/[:.]/g, "-")
+          .slice(0, 19);
+        videoFileHandle = await promptVideoSaveFilePicker(
+          `talk-video-${formattedDate}.webm`
+        );
+      } catch (err: unknown) {
+        if ((err as Error)?.name === "AbortError") {
+          // L'utente ha chiuso o annullato la scelta del file
+          return;
+        }
+        console.error("Errore selezione file video:", err);
+        alert("Impossibile selezionare il file di destinazione per il video.");
+        return;
+      }
+    }
 
     const newConfigData = {
       endTime: timeValue,
@@ -306,6 +452,8 @@ export const ConfigView: FC = () => {
       navOnSlide,
       audioRecordingEnabled,
       audioDeviceId,
+      videoRecordingEnabled,
+      videoDeviceId,
     };
 
     // Save configuration
@@ -315,7 +463,7 @@ export const ConfigView: FC = () => {
     await requestFullscreen();
 
     // Start presentation session (resets previous talk session, cards and progress like "Ricomincia da capo")
-    startTalk(newConfigData);
+    startTalk(newConfigData, videoFileHandle);
     navigate("/presentation");
   };
 
@@ -333,6 +481,7 @@ export const ConfigView: FC = () => {
 
   const handleResume = async () => {
     stopMicTest();
+    stopCameraTest();
     await requestFullscreen();
     if (session.mode === "game") {
       navigate("/game");
@@ -772,6 +921,160 @@ export const ConfigView: FC = () => {
                         {isTestingMic ? `Livello: ${audioLevel}%` : "Inattivo"}
                       </span>
                     </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Video Recording Section */}
+            <div className={styles.themeSection}>
+              <div className={styles.micHeader}>
+                <label className={styles.themeLabel} id="video-recording-label">
+                  Registrazione video webcam
+                </label>
+                {isRecordingVideo ? (
+                  <Badge variant="danger">
+                    ● Registrazione in corso
+                  </Badge>
+                ) : videoRecordingEnabled ? (
+                  <Badge variant="accent">
+                    {isTestingCamera ? "Anteprima in corso" : "Attiva su disco al via"}
+                  </Badge>
+                ) : null}
+              </div>
+              <SegmentedControl<"enabled" | "disabled">
+                options={[
+                  { value: "disabled", label: "Disabilitata" },
+                  { value: "enabled", label: "📹 Abilitata" },
+                ]}
+                value={videoRecordingEnabled ? "enabled" : "disabled"}
+                onChange={(val) => {
+                  const enabled = val === "enabled";
+                  setVideoRecordingEnabled(enabled);
+                  if (enabled && cameraPermissionState === "prompt") {
+                    requestCameraPermission();
+                  }
+                  if (!enabled) {
+                    if (isTestingCamera) {
+                      stopCameraTest();
+                    }
+                    if (isRecordingVideo) {
+                      stopVideoRecording();
+                    }
+                  }
+                }}
+                ariaLabel="Abilita o disabilita registrazione video"
+              />
+              <span className={styles.themeHint}>
+                {videoRecordingEnabled
+                  ? isFileSystemAccessSupported()
+                    ? "Registra il video dalla sorgente/webcam selezionata e lo scrive in streaming continuo su un file a scelta sul tuo disco via File System Access API. Zero consumo di RAM."
+                    : "⚠️ Questo browser non supporta la File System Access API. Per salvare il video direttamente su disco senza saturare la memoria è necessario un browser desktop basato su Chromium (es. Chrome, Edge)."
+                  : "Nessun video verrà registrato durante il talk."}
+              </span>
+
+              {isRecordingVideo && (
+                <div className={styles.recordingActiveNotice}>
+                  <div className={styles.recordingActiveInfo}>
+                    <span className={styles.recordingActiveDot} />
+                    <div className={styles.recordingActiveText}>
+                      <strong>Registrazione video webcam attiva su disco</strong>
+                      <span>
+                        File in scrittura: {videoRecordedFileName || "video.webm"}
+                      </span>
+                    </div>
+                  </div>
+                  <Button
+                    variant="danger"
+                    size="md"
+                    onClick={stopVideoRecording}
+                    leftIcon={<VideoOffIcon size={16} />}
+                  >
+                    Ferma Registrazione Video
+                  </Button>
+                </div>
+              )}
+
+              {videoRecordingEnabled && (
+                <div className={styles.micSettingsWrapper}>
+                  {!isFileSystemAccessSupported() && (
+                    <div className={styles.permissionErrorBanner} role="alert">
+                      <VideoOffIcon size={18} />
+                      <span>
+                        File System Access API non supportata su questo browser.
+                        Usa Google Chrome o Microsoft Edge su desktop per lo streaming del video su disco.
+                      </span>
+                    </div>
+                  )}
+
+                  {cameraPermissionState === "denied" && (
+                    <div className={styles.permissionErrorBanner} role="alert">
+                      <VideoOffIcon size={18} />
+                      <span>
+                        Accesso alla videocamera negato nel browser.
+                        Abilita il permesso per selezionare e registrare la webcam.
+                      </span>
+                    </div>
+                  )}
+
+                  {cameraPermissionState === "prompt" && (
+                    <div className={styles.permissionBanner}>
+                      <span>
+                        Per selezionare la videocamera o scheda d'acquisizione specifica, è richiesta l'autorizzazione.
+                      </span>
+                      <Button
+                        variant="secondary"
+                        size="md"
+                        onClick={requestCameraPermission}
+                        leftIcon={<VideoIcon size={16} />}
+                      >
+                        Autorizza Videocamera
+                      </Button>
+                    </div>
+                  )}
+
+                  <SelectInput
+                    id="talk-video-device"
+                    label="Videocamera da utilizzare"
+                    value={videoDeviceId}
+                    onChange={(e) => {
+                      setVideoDeviceId(e.target.value);
+                      if (isTestingCamera) {
+                        stopCameraTest();
+                      }
+                    }}
+                    options={[
+                      { value: "default", label: "Videocamera predefinita di sistema" },
+                      ...availableCameras
+                        .filter((c) => c.deviceId !== "default")
+                        .map((c) => ({
+                          value: c.deviceId,
+                          label: c.label,
+                        })),
+                    ]}
+                    hint="Scegli la webcam o sorgente video esterna (es. camlink, capture card) da cui catturare lo speaker."
+                  />
+
+                  <div className={styles.videoPreviewWrapper}>
+                    <Button
+                      variant={isTestingCamera ? "primary" : "secondary"}
+                      size="md"
+                      onClick={startCameraTest}
+                      leftIcon={isTestingCamera ? <VideoOffIcon size={16} /> : <VideoIcon size={16} />}
+                    >
+                      {isTestingCamera ? "Chiudi Anteprima" : "Testa Videocamera"}
+                    </Button>
+
+                    {isTestingCamera && (
+                      <video
+                        ref={videoPreviewRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        className={styles.videoPreview}
+                        aria-label="Anteprima videocamera in tempo reale"
+                      />
+                    )}
                   </div>
                 </div>
               )}
