@@ -8,27 +8,38 @@ const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 
-export const DanielESte: FC<SlideProps> = ({ step: stepProp, isReplay = false }) => {
+export const DanielESte: FC<SlideProps> = ({
+  step: stepProp,
+  isReplay = false,
+}) => {
   const { registerSlideStepHandler, previousSlideIndex } = useAppState();
 
   const bgImg = useCachedAsset(
     `${BASE_URL}images/slides/codemotion-blue-bg.webp`,
   );
   const steImg = useCachedAsset(`${BASE_URL}images/slides/intro-ste.webp`);
-  const danielImg = useCachedAsset(`${BASE_URL}images/slides/intro-daniel.webp`);
-  const klippyImg = useCachedAsset(`${BASE_URL}images/slides/intro-klippy.webp`);
+  const danielImg = useCachedAsset(
+    `${BASE_URL}images/slides/intro-daniel.webp`,
+  );
+  const klippyImg = useCachedAsset(
+    `${BASE_URL}images/slides/intro-klippy.webp`,
+  );
 
   // Se si naviga all'indietro partendo da una slide successiva (slide 6 o oltre),
   // inizializziamo con tutti i personaggi visibili (step 2)
   const isEnteredBackwards = useRef(
-    !isReplay && typeof previousSlideIndex === "number" && previousSlideIndex > 4,
+    !isReplay &&
+      typeof previousSlideIndex === "number" &&
+      previousSlideIndex > 4,
   ).current;
 
   // Step 0: Ste visibile immediatamente
   // Step 1: Daniel compare al 1° click freccia destra
   // Step 2: Klippy compare al 2° click freccia destra
   // Click successivo: avanza alla slide 6
-  const [localStep, setLocalStep] = useState<number>(() => (isEnteredBackwards ? 2 : 0));
+  const [localStep, setLocalStep] = useState<number>(() =>
+    isEnteredBackwards ? 2 : 0,
+  );
   const stepRef = useRef(localStep);
   stepRef.current = localStep;
 
@@ -77,8 +88,8 @@ export const DanielESte: FC<SlideProps> = ({ step: stepProp, isReplay = false })
         s === 1
           ? "Compare Daniel"
           : s === 2
-          ? "Compare Klippy"
-          : "Solo Stefano",
+            ? "Compare Klippy"
+            : "Solo Stefano",
     });
 
     return () => {
@@ -120,9 +131,7 @@ export const DanielESte: FC<SlideProps> = ({ step: stepProp, isReplay = false })
       {/* Freccia indicatore per Stefano */}
       <div
         className={`${styles.indicatorStefano} ${
-          isEnteredBackwards
-            ? styles.indicatorStatic
-            : styles.indicatorEntrance
+          isEnteredBackwards ? styles.indicatorStatic : styles.indicatorEntrance
         }`}
         aria-hidden="true"
       >
@@ -155,9 +164,7 @@ export const DanielESte: FC<SlideProps> = ({ step: stepProp, isReplay = false })
       {isDanielVisible && (
         <div
           className={`${styles.indicatorDaniel} ${
-            isDanielStatic
-              ? styles.indicatorStatic
-              : styles.indicatorEntrance
+            isDanielStatic ? styles.indicatorStatic : styles.indicatorEntrance
           }`}
           aria-hidden="true"
         >
@@ -201,35 +208,6 @@ export const DanielESte: FC<SlideProps> = ({ step: stepProp, isReplay = false })
         />
         <div className={styles.klippyFloorShadow} aria-hidden="true" />
       </div>
-
-      {/* Freccia indicatore per Klippy */}
-      {isKlippyVisible && (
-        <div
-          className={`${styles.indicatorKlippy} ${
-            isKlippyStatic
-              ? styles.indicatorStatic
-              : styles.indicatorEntrance
-          }`}
-          aria-hidden="true"
-        >
-          <span className={styles.indicatorBadge}>Klippy</span>
-          <svg
-            className={styles.indicatorArrow}
-            width="48"
-            height="54"
-            viewBox="0 0 42 48"
-            fill="none"
-          >
-            <path
-              d="M16 0H26V24H38L21 44L4 24H16V0Z"
-              fill="#ffd100"
-              stroke="#071526"
-              strokeWidth="3.5"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-      )}
     </div>
   );
 };
