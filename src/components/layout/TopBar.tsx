@@ -21,9 +21,11 @@ import {
   FinishIcon,
   NavOnSlideIcon,
   NavInHeaderIcon,
+  SpeakerNoteIcon,
 } from "../icons";
 import { useAppState } from "../../state/AppStateContext";
 import { useFullscreen } from "../../hooks/useFullscreen";
+import { useSpeakerWindow } from "../../features/speaker/useSpeakerWindow";
 // import { usePwaInstall } from "../../hooks/usePwaInstall";
 import { SLIDES } from "../../features/presentation/slides.registry";
 import { formatSecondsToMMSS } from "../../utils/time";
@@ -39,6 +41,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
   const {
     globalRemainingSeconds,
     session,
+    game,
     config,
     setMode,
     isSessionActive,
@@ -140,6 +143,11 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
     endTalk();
     navigate("/analytics");
   };
+
+  const { openSpeakerWindow, isWindowOpen } = useSpeakerWindow(session, game, {
+    onNext: handleHeaderNext,
+    onPrev: handleHeaderPrev,
+  });
 
   return (
     <header className={styles.topBar}>
@@ -335,6 +343,17 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
           className={styles.topBarBtn}
         >
           {theme === "dark" ? <SunIcon size={20} /> : <MoonIcon size={20} />}
+        </IconButton>
+
+        <IconButton
+          aria-label="Supporto testuale per relatore"
+          isActive={isWindowOpen}
+          onClick={openSpeakerWindow}
+          title="Supporto testuale / Note relatore (apre finestra sincronizzata per lo speaker)"
+          className={styles.topBarBtn}
+          style={isWindowOpen ? { color: "var(--color-accent)" } : undefined}
+        >
+          <SpeakerNoteIcon size={20} />
         </IconButton>
 
         <IconButton

@@ -8,6 +8,7 @@ import { PresentationView } from "./features/presentation/PresentationView";
 import { GameView } from "./features/game/GameView";
 import { AnalyticsView } from "./features/analytics/AnalyticsView";
 import { SessionReplayView } from "./features/replay/SessionReplayView";
+import { SpeakerView } from "./features/speaker/SpeakerView";
 
 export const App: FC = () => {
   return (
@@ -15,6 +16,7 @@ export const App: FC = () => {
       <AppStateProvider>
         <HashRouter>
           <Routes>
+            <Route path="/speaker" element={<SpeakerView />} />
             <Route path="/replay/:sessionId?" element={<SessionReplayView />} />
             <Route
               path="*"
