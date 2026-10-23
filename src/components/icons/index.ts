@@ -33,5 +33,7 @@ export * from "./NavOnSlideIcon";
 export * from "./NavInHeaderIcon";
 export * from "./MicIcon";
 export * from "./MicOffIcon";
+export * from "./VideoIcon";
+export * from "./VideoOffIcon";
 export * from "./VolumeHighIcon";
 export * from "./VolumeMuteIcon";

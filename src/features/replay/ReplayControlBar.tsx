@@ -8,6 +8,7 @@ import {
   StepForwardIcon,
   CloseIcon,
   MicIcon,
+  VideoIcon,
   VolumeHighIcon,
   VolumeMuteIcon,
 } from "../../components/icons";
@@ -24,6 +25,9 @@ export interface ReplayControlBarProps {
   hasAudio?: boolean;
   isMuted?: boolean;
   onToggleMute?: () => void;
+  hasVideo?: boolean;
+  isVideoVisible?: boolean;
+  onToggleVideo?: () => void;
   onTogglePlay: () => void;
   onSeek: (seconds: number) => void;
   onSetSpeed: (speed: number) => void;
@@ -46,6 +50,9 @@ export const ReplayControlBar: FC<ReplayControlBarProps> = ({
   hasAudio = false,
   isMuted = false,
   onToggleMute,
+  hasVideo = false,
+  isVideoVisible = true,
+  onToggleVideo,
   onTogglePlay,
   onSeek,
   onSetSpeed,
@@ -192,6 +199,27 @@ export const ReplayControlBar: FC<ReplayControlBarProps> = ({
                 <span>AUDIO SYNC</span>
               </span>
             </div>
+          )}
+
+          {hasVideo && (
+            <button
+              type="button"
+              className={`${styles.videoBadge} ${!isVideoVisible ? styles.inactiveBadge : ""}`}
+              onClick={onToggleVideo}
+              title={
+                isVideoVisible
+                  ? "Nascondi video webcam sincronizzato (V)"
+                  : "Mostra video webcam sincronizzato (V)"
+              }
+              aria-label={
+                isVideoVisible
+                  ? "Nascondi riquadro video webcam"
+                  : "Mostra riquadro video webcam"
+              }
+            >
+              <VideoIcon size={12} />
+              <span>{isVideoVisible ? "VIDEO ON" : "VIDEO OFF"}</span>
+            </button>
           )}
         </div>
 

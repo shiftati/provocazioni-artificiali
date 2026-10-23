@@ -31,6 +31,13 @@ import {
   resolveReplayProvocation,
 } from "./replayUtils";
 import { ReplayControlBar } from "./ReplayControlBar";
+import { ReplayVideoOverlay } from "./ReplayVideoOverlay";
+import {
+  getVideoFileHandle,
+  resolveVideoFile,
+  saveVideoFileHandle,
+  promptVideoOpenFilePicker,
+} from "../../utils/videoRecording";
 import { KlippySaw } from "../presentation/slides/KlippySaw";
 import { ProvocationCard } from "../game/provocations/ProvocationCard";
 import styles from "./SessionReplayView.module.scss";
@@ -105,6 +112,63 @@ export const SessionReplayView: FC = () => {
       }
     };
   }, [session?.id, session?.totalDurationSeconds]);
+
+  // Video recording state
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [isVideoVisible, setIsVideoVisible] = useState<boolean>(true);
+  const videoFileHandleRef = useRef<FileSystemFileHandle | null>(null);
+
+  const hasVideo = useMemo(() => {
+    return Boolean(session?.hasVideo || session?.videoFileName || videoUrl);
+  }, [session?.hasVideo, session?.videoFileName, videoUrl]);
+
+  useEffect(() => {
+    let isCurrent = true;
+    let url: string | null = null;
+
+    if (session?.id) {
+      getVideoFileHandle(session.id).then(async (handle) => {
+        if (!isCurrent) return;
+        if (handle) {
+          videoFileHandleRef.current = handle;
+          const file = await resolveVideoFile(handle, false);
+          if (!isCurrent) return;
+          if (file) {
+            url = URL.createObjectURL(file);
+            setVideoUrl(url);
+          }
+        }
+      });
+    }
+
+    return () => {
+      isCurrent = false;
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    };
+  }, [session?.id]);
+
+  const handleLinkVideoFile = useCallback(async () => {
+    try {
+      const { file, handle } = await promptVideoOpenFilePicker();
+      const url = URL.createObjectURL(file);
+      setVideoUrl(url);
+      setIsVideoVisible(true);
+      if (handle && session?.id) {
+        videoFileHandleRef.current = handle;
+        await saveVideoFileHandle(session.id, handle);
+      }
+    } catch (err: unknown) {
+      if ((err as Error)?.name !== "AbortError") {
+        console.warn("Errore selezione file video:", err);
+      }
+    }
+  }, [session?.id]);
+
+  const handleToggleVideo = useCallback(() => {
+    setIsVideoVisible((prev) => !prev);
+  }, []);
 
   const totalDurationSeconds = useMemo(() => {
     if (!session) return 60;
@@ -367,6 +431,9 @@ export const SessionReplayView: FC = () => {
       } else if (e.key === "m" || e.key === "M") {
         e.preventDefault();
         handleToggleMute();
+      } else if (e.key === "v" || e.key === "V") {
+        e.preventDefault();
+        handleToggleVideo();
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
         if (e.shiftKey) {
@@ -646,6 +713,21 @@ export const SessionReplayView: FC = () => {
         </Stage>
       </div>
 
+      {/* Draggable Replay Webcam Video Overlay */}
+      {hasVideo && isVideoVisible && (
+        <ReplayVideoOverlay
+          videoUrl={videoUrl}
+          fileName={session.videoFileName}
+          currentTime={currentTime}
+          isPlaying={isPlaying}
+          playbackSpeed={playbackSpeed}
+          isMuted={isMuted}
+          hasAudioTrack={Boolean(audioUrl)}
+          onClose={handleToggleVideo}
+          onLinkVideoFile={handleLinkVideoFile}
+        />
+      )}
+
       {/* Floating Bottom Media Player Dock */}
       <ReplayControlBar
         currentTime={currentTime}
@@ -658,6 +740,9 @@ export const SessionReplayView: FC = () => {
         hasAudio={Boolean(audioUrl)}
         isMuted={isMuted}
         onToggleMute={handleToggleMute}
+        hasVideo={hasVideo}
+        isVideoVisible={isVideoVisible}
+        onToggleVideo={handleToggleVideo}
         onTogglePlay={handleTogglePlay}
         onSeek={handleSeek}
         onSetSpeed={setPlaybackSpeed}

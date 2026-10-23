@@ -30,6 +30,8 @@ export const DEFAULT_CONFIG: TalkConfig = {
   navOnSlide: false,
   audioRecordingEnabled: false,
   audioDeviceId: "default",
+  videoRecordingEnabled: false,
+  videoDeviceId: "default",
 };
 
 export const DEFAULT_SESSION: AppSessionState = {
@@ -107,6 +109,12 @@ export const appStorage = {
           : false,
       audioDeviceId:
         typeof cfg.audioDeviceId === "string" ? cfg.audioDeviceId : "default",
+      videoRecordingEnabled:
+        typeof cfg.videoRecordingEnabled === "boolean"
+          ? cfg.videoRecordingEnabled
+          : false,
+      videoDeviceId:
+        typeof cfg.videoDeviceId === "string" ? cfg.videoDeviceId : "default",
     };
   },
   saveConfig(config: TalkConfig): void {
