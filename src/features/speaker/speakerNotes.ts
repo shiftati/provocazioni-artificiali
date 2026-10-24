@@ -235,167 +235,50 @@ export const PROVOCATION_NOTES: Record<string, SpeakerNote> = {
   "saas-morto": {
     provocationId: "saas-morto",
     title: "Il SaaS è morto",
-    notes: `*Tesi: Il SaaS è morto, meglio un software generato su misura*
+    notes: `[[STE]]*Il SaaS è morto, meglio un software generato su misura*
 
-[[Daniel]]:
-[Dire qui: 'Chi di voi paga 50 tool SaaS diversi in azienda per fare tre cose in croce? Alzate le mani!']
+[Per alzata di mano → chi è d'accordo con questa frase?]
 
-[[Ste]]:
-- Con l'AI generativa il costo di creare tool verticali su misura sta crollando.
-- Perché pagare licenze ricorrenti per un software generico quando puoi farti generare l'esatto workflow che serve a te?
+- Il reparto IT dell'azienda si riscrive da zero il prodotto e lo fa specifico per il suo caso.
+- Rifare *Trello* è facile e ci posso aggiungere le funzionalità premium con un prompt
+- Un gestionale aziendale sovrastrutturato magari ha funzionalità inutili che rendono il software complicato. Magari alla mia azienda basta una schermata personalizzata per utente...
 
-[[Entrambi]] - *Punti di dibattito con la sala*:
-- *Pro*: Nessun lock-in, zero bloatware, dati sotto il proprio controllo.
-- *Contro*: Manutenzione, patch di sicurezza, chi garantisce la compliance?
+[[DANIEL]] *Il Saas vivrà (lunga vita al SaaS!)*
+- Se il SaaS è basato su *INFRASTRUTTURE COMPLESSE* però non puoi farlo: rifare *Google Drive* → è facile a livello di codice, ma replicare l'infrastruttura ha un costo spropositato
+- Non tutti hanno le conoscenze del *DOMINIO* per farlo (bene): *Iubenda* senza conoscenze specifiche della parte legale/burocratica è un rischio da rifare.
 `,
-    hints:
-      "Aspettatevi forte reazione da chi gestisce infrastrutture SaaS. Ottimo spunto per esplorare la differenza tra tool semplici e piattaforme complesse.",
   },
   "software-usa-e-getta": {
     provocationId: "software-usa-e-getta",
     title: "Il Software diventerà usa e getta",
-    notes: `*Tesi: Il software diventerà usa e getta*
-
-[[Ste]]:
-[Dire qui: 'E se riscrivere un'app da zero con l'AI costasse meno che manutenere 10 anni di debito tecnico?']
-
-[[Daniel]]:
-- Storicamente manutenere software costava l'80% del budget IT.
-- Oggi generiamo script, interfacce temporanee per eventi, prototipi in 5 minuti.
-- Il software sta diventando un bene di consumo rapido, non più un monumento di pietra.
-
-[[Entrambi]] - *Domanda alla platea*:
-- [Dire qui: 'Chi butterebbe via la propria codebase legacy domattina se potesse rigenerarla in un pomeriggio?']
-`,
-    hints:
-      "Citate esempi pratici (script usa e getta, micro-app per eventi o campagne). Chiedete chi soffre di debito tecnico pesante in azienda.",
   },
   "agile-morto": {
     provocationId: "agile-morto",
-    title: "AGILE è finalmente morto",
-    notes: `*Tesi: AGILE è finalmente morto*
-
-[[Daniel]]:
-[Dire qui: 'Non i valori del Manifesto Agile... ma la liturgia di sprint, daily standup, poker planning e story point: siete sinceri, quanto tempo sprecate in riunioni cerimoniali?']
-
-[[Ste]]:
-- Agile è stato inglobato dalla burocrazia aziendale e trasformato in un waterfall a fette di 2 settimane.
-- Con team iper-rapidi potenziati da AI, il ciclo di pianificazione rigido diventa un collo di bottiglia.
-
-[[Entrambi]] - *Provocazione alla sala*:
-- Quanti story point servono per cambiare una riga di codice?
-`,
-    hints:
-      "Questa provoca discussioni accesissime tra Scrum Master e Dev. Tenete il dibattito vivo dando spazio sia a chi lo difende sia a chi è frustrato.",
+    title: "AGILE è finalmente morto",    
   },
   "societa-consulenza": {
     provocationId: "societa-consulenza",
     title: "Le società di consulenza falliranno",
-    notes: `*Tesi: Le società di consulenza tradizionali falliranno*
-
-[[Ste]]:
-[Dire qui: 'Il modello body-rental basato su 'ti fatturo junior developer a ore' è al capolinea.']
-
-[[Daniel]]:
-- Se un dev con AI produce in 2 ore quello che un team faceva in una settimana, fatturare 'a giornate uomo' penalizza chi è veloce!
-- Vinceranno le boutique specializzate su valore, risultati e architetture critiche.
-
-[[Entrambi]] - *Punti di discussione*:
-- Ci sono consulenti in sala? Come sta cambiando il vostro pricing con i clienti?
-`,
-    hints:
-      "Probabilmente in sala ci sono molti colleghi consulenti: tono empatico ma trasparente sul cambio di modello di business verso il valore.",
   },
   "team-grandi-controproducenti": {
     provocationId: "team-grandi-controproducenti",
     title: "I team grandi sono controproducenti",
-    notes: `*Tesi: I team grandi (da 2 persone in su) sono controproducenti*
-
-[[Daniel]]:
-[Dire qui: 'Legge di Brooks all'ennesima potenza: aggiungere persone aumenta il coordinamento, i conflitti e i meeting, non la produttività!']
-
-[[Ste]]:
-- 1 o 2 sviluppatori 'full-context' con AI possono muoversi 10 volte più veloci di un team da 12 con 4 PM e 3 meeting al giorno.
-- Il futuro è dei 'micro-team' autonomi ad altissima densità di competenze.
-
-[[Entrambi]] - *Interazione*:
-- Chi lavora in team con più di 8 persone? Sentite l'attrito dei sync infiniti?
-`,
-    hints:
-      "La soglia 'da 2 in su' è volutamente estrema per far sorridere e far riflettere sul costo nascosto della comunicazione interna.",
   },
   "open-source-morto": {
     provocationId: "open-source-morto",
     title: "L'open source è morto",
-    notes: `*Tesi: L'open source è morto*
-
-[[Ste]]:
-[Dire qui: 'I grandi modelli sono stati addestrati su miliardi di righe di codice open source, ma i pesi e i profitti sono finiti in mano a poche big tech chiuse.']
-
-[[Daniel]]:
-- Il patto originale della community si è incrinato: si dona codice libero e si ricevono API a pagamento.
-- Cambio di licenze celebri: Redis, Elastic, HashiCorp... è l'inizio della fine dell'illusione?
-
-[[Entrambi]] - *Riflessione con la platea*:
-- Chi di voi continua a pubblicare open source? Come vi sentite sapendo che il vostro codice alimenta modelli commerciali?
-`,
-    hints:
-      "Argomento identitario profondo per gli sviluppatori. Lasciate che la platea esprima la propria frustrazione o speranza.",
   },
   "colloquio-tecnico": {
     provocationId: "colloquio-tecnico",
     title: "Il colloquio tecnico sul codice non ha più senso",
-    notes: `*Tesi: Il colloquio tecnico sul codice non ha più senso*
-
-[[Daniel]]:
-[Dire qui: 'In produzione usi Claude, Copilot, Google e Stack Overflow... e al colloquio ti chiedono di invertire un albero binario su una lavagna senza internet?!']
-
-[[Ste]]:
-- Valutiamo la memoria sintattica invece della capacità di giudizio critico, architettura e debug.
-- Il colloquio del futuro deve valutare come sai orchestrare strumenti AI, comprendere trade-off e comunicare requisiti.
-
-[[Entrambi]] - *Chiedere alla sala*:
-- Quanti hanno fatto colloqui assurdi scollegati dalla vita reale di tutti i giorni?
-`,
-    hints:
-      "Tutti hanno storie horror sui colloqui tecnici: risate assicurate. Chiedete se qualcuno tra i manager in sala ha già aggiornato i test di selezione.",
   },
   "sviluppo-software-morto": {
     provocationId: "sviluppo-software-morto",
     title: "Il mondo dello sviluppo software è morto",
-    notes: `*Tesi: Il mestiere tradizionale dello sviluppo software è morto*
-
-[[Ste]]:
-[Dire qui: 'La figura del 'code monkey' che traduce specifiche Jira in codice riga per riga è finita.']
-
-[[Daniel]]:
-- Non diciamo che non ci sarà lavoro: diciamo che non sarà più scrivere sintassi!
-- Diventiamo designer di sistemi, esperti di dominio, validatori e architetti.
-- Chi amava solo digitare codice si sentirà perso; chi ama risolvere problemi avrà superpoteri mai visti.
-
-[[Entrambi]]:
-- Non è una cattiva notizia: è l'evoluzione naturale del nostro ruolo!
-`,
-    hints:
-      "Provocazione esistenziale: portate un messaggio positivo e costruttivo. Non è la fine del dev, è la sua trasformazione in architetto.",
   },
   "esperto-tecnologia": {
     provocationId: "esperto-tecnologia",
     title: "Non ha più senso diventare esperti in tecnologia",
-    notes: `*Tesi: Non ha più senso diventare iper-esperti in un singolo framework o linguaggio*
-
-[[Daniel]]:
-[Dire qui: 'Valeva la pena passare 5 anni a imparare a memoria ogni singola eccezione di un framework che domani viene rimpiazzato?']
-
-[[Ste]]:
-- La sintassi si delega in un secondo; i fondamenti sistemici (concorrenza, reti, architetture, sicurezza) rimangono per sempre.
-- Il valore non è più la specializzazione verticale estrema su un tool effimero, ma l'adattabilità e la visione d'insieme.
-
-[[Entrambi]] - *Domanda*:
-- Chi sta studiando un framework nuovo proprio ora? Come cambiate il modo di imparare?
-`,
-    hints:
-      "Rassicurate la sala: i fondamentali di computer science contano PIÙ di prima, ciò che scade velocemente sono le librerie di moda.",
   },
 };
 
@@ -403,15 +286,8 @@ export const PROVOCATION_NOTES: Record<string, SpeakerNote> = {
 export const GAME_STATE_NOTES: Record<string, SpeakerNote> = {
   IDLE: {
     title: "Avvio Gioco Klippy Saw",
-    notes: `*Fase Schermata SAW (Inizio Gioco)*:
-
-[[Klippy]]:
-[Dire qui: 'Volete fare un gioco con me?']
-
-[[Entrambi]]:
-- Verificare che il pubblico sia pronto e carico!
-- [Dire qui: 'Ora estrarremo le provocazioni una per volta. Siete pronti a votare e a parlare?']
-- Premere il pulsante *'Inizia il gioco'* sullo stage oppure tasto *AVANTI* sul telecomando.
+    notes: `[[DANIEL]]
+    Vista l’ora e viste le facce, direi di fare un esempio pratico XD
 `,
     hints:
       "Prima provocazione: il primo loop salta il timer di sfida ed entra direttamente nella card della provocazione.",
