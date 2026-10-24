@@ -30,8 +30,14 @@ import {
   PlayIcon,
   CheckIcon,
   MicIcon,
+  TranscriptIcon,
 } from "../../components/icons";
+import { TranscriptionModal } from "./TranscriptionModal";
 import type { TalkSessionRecord, ProvocationStat } from "../../types";
+import {
+  getTranscription,
+  type StoredTranscription,
+} from "../../utils/transcriptionStorage";
 import {
   getAudioRecording,
   saveAudioRecording,
@@ -103,6 +109,28 @@ export const AnalyticsView: FC = () => {
   const [audioRecording, setAudioRecording] = useState<StoredAudioRecording | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [confirmDeleteAudio, setConfirmDeleteAudio] = useState(false);
+
+  // Transcription modal state
+  const [transcription, setTranscription] = useState<StoredTranscription | null>(null);
+  const [isTranscriptionModalOpen, setIsTranscriptionModalOpen] = useState(false);
+
+  useEffect(() => {
+    let isCurrent = true;
+    if (currentViewSession?.id) {
+      getTranscription(currentViewSession.id)
+        .then((tx) => {
+          if (isCurrent) setTranscription(tx);
+        })
+        .catch(() => {
+          if (isCurrent) setTranscription(null);
+        });
+    } else {
+      setTranscription(null);
+    }
+    return () => {
+      isCurrent = false;
+    };
+  }, [currentViewSession?.id, audioRefreshKey]);
 
   useEffect(() => {
     let isCurrent = true;
@@ -399,6 +427,7 @@ export const AnalyticsView: FC = () => {
                 {sessions.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.hasAudio ? "🎙️ " : ""}
+                    {s.hasTranscription ? "📝 " : ""}
                     {s.name} ({formatDateTime(s.startedAt)})
                     {s.id === currentSessionId ? " [IN CORSO]" : ""}
                   </option>
@@ -434,6 +463,17 @@ export const AnalyticsView: FC = () => {
                   >
                     Replay Talk
                   </Button>
+                  {(transcription || currentViewSession.hasTranscription) && (
+                    <Button
+                      variant="secondary"
+                      size="md"
+                      onClick={() => setIsTranscriptionModalOpen(true)}
+                      leftIcon={<TranscriptIcon size={16} />}
+                      title="Visualizza trascrizione del talk, ricerca e esporta testo"
+                    >
+                      Trascrizione
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     size="md"
@@ -990,6 +1030,33 @@ export const AnalyticsView: FC = () => {
           </Button>
         </div>
       </Modal>
+
+      {/* Full Transcription Viewer & Search Modal */}
+      {currentViewSession && (
+        <TranscriptionModal
+          isOpen={isTranscriptionModalOpen}
+          onClose={() => setIsTranscriptionModalOpen(false)}
+          session={currentViewSession}
+          transcription={transcription}
+          onSeekAudio={(sec) => {
+            const audioEl = document.querySelector("audio");
+            if (audioEl) {
+              audioEl.currentTime = sec;
+              audioEl.play().catch(() => {});
+            }
+          }}
+          onLaunchReplay={(sec) => {
+            const targetMs = Math.round(
+              currentViewSession.startedAt + sec * 1000
+            );
+            navigate(`/replay/${currentViewSession.id}?startAt=${targetMs}`);
+          }}
+          onUpdateTranscription={(updated) => {
+            setTranscription(updated);
+            showToast("Trascrizione aggiornata e salvata con successo!");
+          }}
+        />
+      )}
 
       {/* Toast Feedback */}
       {toastMessage && (

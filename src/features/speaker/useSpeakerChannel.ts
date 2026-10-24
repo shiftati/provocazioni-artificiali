@@ -29,6 +29,20 @@ export type SpeakerMessage =
     }
   | {
       type: "NAV_PREV";
+    }
+  | {
+      type: "TRANSCRIPTION_CHUNK";
+      payload: {
+        text: string;
+        timestamp: [number, number | null];
+      };
+    }
+  | {
+      type: "TRANSCRIPTION_STATUS";
+      payload: {
+        status: "idle" | "listening" | "stopped";
+        language?: "it" | "en";
+      };
     };
 
 export function getCachedSpeakerState(): SpeakerMessagePayload | null {

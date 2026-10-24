@@ -13,6 +13,8 @@ export interface TalkConfig {
   navOnSlide?: boolean;       // true: sopra la slide (default); false: nell'intestazione
   audioRecordingEnabled?: boolean; // true: registra audio dal microfono durante il talk
   audioDeviceId?: string;     // id dispositivo microfono selezionato ('default' o deviceId specifico)
+  transcriptionEnabled?: boolean; // true: trascrive l'audio in ingresso con Hugging Face Transformers.js
+  transcriptionLanguage?: "it" | "en"; // lingua trascrizione: "it" (default) o "en"
   videoRecordingEnabled?: boolean; // true: registra video dalla webcam durante il talk
   videoDeviceId?: string;     // id dispositivo webcam selezionato ('default' o deviceId specifico)
 }
@@ -157,4 +159,23 @@ export interface TalkSessionRecord {
   audioFile?: string;           // riferimento al file audio relativo all'interno dell'archivio zip esportato
   hasVideo?: boolean;           // true se la sessione dispone di una registrazione video
   videoFileName?: string;       // nome del file video salvato su disco tramite File System Access API
+  videoOffsetSeconds?: number;  // offset in secondi tra l'avvio della traccia audio e quella video
+  hasTranscription?: boolean;   // true se è presente la trascrizione audio
+  transcriptionLanguage?: "it" | "en"; // lingua della trascrizione effettuata
+}
+
+export interface TranscriptionChunk {
+  id?: string;
+  text: string;
+  timestamp: [number, number | null]; // [startSeconds, endSeconds]
+}
+
+export interface StoredTranscription {
+  sessionId: string;
+  text: string;
+  chunks: TranscriptionChunk[];
+  language: "it" | "en";
+  model: string;
+  createdAt: number;
+  durationSeconds?: number;
 }

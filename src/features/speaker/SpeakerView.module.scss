@@ -213,6 +213,83 @@
   margin: 0;
 }
 
+/* Live Transcription Feed in Speaker Notes */
+.liveTranscriptCard {
+  background-color: rgba(22, 27, 34, 0.9);
+  border: 1px solid rgba(88, 166, 255, 0.4);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.liveTranscriptHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.liveTranscriptTitle {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #58a6ff;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.livePulseDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #3fb950;
+  box-shadow: 0 0 8px #3fb950;
+  animation: pulseDot 1.5s infinite;
+}
+
+@keyframes pulseDot {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+}
+
+.liveTranscriptList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 130px;
+  overflow-y: auto;
+}
+
+.liveTranscriptItem {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #e6edf3;
+}
+
+.liveTranscriptTime {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  color: #8b949e;
+  flex-shrink: 0;
+}
+
 .footerControls {
   display: flex;
   justify-content: space-between;

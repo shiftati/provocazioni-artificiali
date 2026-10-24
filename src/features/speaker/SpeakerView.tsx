@@ -22,6 +22,10 @@ export const SpeakerView: FC = () => {
     return saved ? parseInt(saved, 10) : 18;
   });
   const [pipActive, setPipActive] = useState<boolean>(false);
+  const [liveChunks, setLiveChunks] = useState<
+    Array<{ id: string; time: string; text: string }>
+  >([]);
+  const [isTranscribing, setIsTranscribing] = useState(false);
 
   // Check if browser supports modern Document Picture-in-Picture
   const isDocumentPipSupported =
@@ -30,6 +34,17 @@ export const SpeakerView: FC = () => {
   const handleMessage = useCallback((msg: SpeakerMessage) => {
     if (msg.type === "STATE_UPDATE") {
       setState(msg.payload);
+    } else if (msg.type === "TRANSCRIPTION_CHUNK") {
+      const startSec = msg.payload.timestamp[0];
+      const m = Math.floor(startSec / 60);
+      const s = Math.floor(startSec % 60);
+      const timeStr = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+      setLiveChunks((prev) => [
+        ...prev.slice(-7),
+        { id: `${Date.now()}_${Math.random()}`, time: timeStr, text: msg.payload.text },
+      ]);
+    } else if (msg.type === "TRANSCRIPTION_STATUS") {
+      setIsTranscribing(msg.payload.status === "listening");
     }
   }, []);
 
@@ -273,6 +288,42 @@ export const SpeakerView: FC = () => {
             <div className={styles.hintsCard}>
               <span className={styles.hintsLabel}>💡 Suggerimento & Regia</span>
               <p className={styles.hintsBody}>{currentNote.hints}</p>
+            </div>
+          )}
+
+          {(isTranscribing || liveChunks.length > 0) && (
+            <div className={styles.liveTranscriptCard}>
+              <div className={styles.liveTranscriptHeader}>
+                <span className={styles.liveTranscriptTitle}>
+                  {isTranscribing && <span className={styles.livePulseDot} />}
+                  🎙️ Trascrizione AI dal vivo
+                </span>
+                {isTranscribing && (
+                  <span style={{ fontSize: "0.75rem", color: "#3fb950" }}>
+                    In ascolto...
+                  </span>
+                )}
+              </div>
+              <div className={styles.liveTranscriptList}>
+                {liveChunks.length === 0 ? (
+                  <span
+                    style={{
+                      fontSize: "0.85rem",
+                      color: "#8b949e",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    In attesa del parlato...
+                  </span>
+                ) : (
+                  liveChunks.map((chunk) => (
+                    <div key={chunk.id} className={styles.liveTranscriptItem}>
+                      <span className={styles.liveTranscriptTime}>[{chunk.time}]</span>
+                      <span>{chunk.text}</span>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           )}
 

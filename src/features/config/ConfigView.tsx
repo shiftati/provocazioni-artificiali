@@ -32,11 +32,13 @@ import {
   VideoIcon,
   VideoOffIcon,
   SpeakerNoteIcon,
+  TranscriptIcon,
 } from "../../components/icons";
 import {
   isFileSystemAccessSupported,
   promptVideoSaveFilePicker,
 } from "../../utils/videoRecording";
+import { transcriptionManager } from "../../services/transcriptionService";
 import { useSpeakerWindow } from "../speaker/useSpeakerWindow";
 import { usePwaInstall } from "../../hooks/usePwaInstall";
 import { useOfflineCache } from "../../hooks/useOfflineCache";
@@ -116,6 +118,47 @@ export const ConfigView: FC = () => {
     "prompt" | "granted" | "denied"
   >("prompt");
   const [isTestingMic, setIsTestingMic] = useState(false);
+
+  // Audio Transcription state
+  const [transcriptionEnabled, setTranscriptionEnabled] = useState<boolean>(
+    () => config.transcriptionEnabled ?? false
+  );
+  const [transcriptionLanguage, setTranscriptionLanguage] = useState<"it" | "en">(
+    () => config.transcriptionLanguage ?? "it"
+  );
+  const [modelState, setModelState] = useState<"idle" | "loading" | "ready" | "error">(
+    () => (transcriptionManager.isModelReady() ? "ready" : "idle")
+  );
+  const [modelProgress, setModelProgress] = useState<number>(0);
+  const [modelStatusText, setModelStatusText] = useState<string>("");
+
+  const handlePreloadModel = useCallback(async () => {
+    setModelState("loading");
+    setModelStatusText("Inizializzazione worker e download file Whisper ONNX...");
+    setModelProgress(5);
+    try {
+      await transcriptionManager.preloadModel((info) => {
+        if (typeof info.progress === "number") {
+          setModelProgress(info.progress);
+        }
+        if (info.message) {
+          setModelStatusText(info.message);
+        } else if (info.status) {
+          setModelStatusText(info.status);
+        }
+        if (info.status === "ready") {
+          setModelState("ready");
+        }
+      });
+      setModelState("ready");
+      setModelStatusText("Modello Whisper Base memorizzato e pronto all'uso locale");
+    } catch (err: unknown) {
+      setModelState("error");
+      setModelStatusText(
+        (err as Error)?.message || "Errore durante il download del modello Whisper"
+      );
+    }
+  }, []);
 
   // Video Recording configuration state
   const [videoRecordingEnabled, setVideoRecordingEnabled] = useState<boolean>(
@@ -405,6 +448,8 @@ export const ConfigView: FC = () => {
       navOnSlide,
       audioRecordingEnabled,
       audioDeviceId,
+      transcriptionEnabled,
+      transcriptionLanguage,
       videoRecordingEnabled,
       videoDeviceId,
     });
@@ -455,6 +500,8 @@ export const ConfigView: FC = () => {
       navOnSlide,
       audioRecordingEnabled,
       audioDeviceId,
+      transcriptionEnabled,
+      transcriptionLanguage,
       videoRecordingEnabled,
       videoDeviceId,
     };
@@ -875,21 +922,39 @@ export const ConfigView: FC = () => {
                     </div>
                   )}
 
-                  {micPermissionState === "prompt" && (
-                    <div className={styles.permissionBanner}>
-                      <span>
-                        Per selezionare il microfono specifico e visualizzare i nomi, è richiesta l'autorizzazione.
+                  <div className={styles.permissionActionRow}>
+                    <div className={styles.permissionStatusInfo}>
+                      <span className={styles.permissionStatusLabel}>
+                        Permesso Microfono:
                       </span>
-                      <Button
-                        variant="secondary"
-                        size="md"
-                        onClick={requestMicPermission}
-                        leftIcon={<MicIcon size={16} />}
+                      <Badge
+                        variant={
+                          micPermissionState === "granted"
+                            ? "accent"
+                            : micPermissionState === "denied"
+                            ? "danger"
+                            : "default"
+                        }
                       >
-                        Autorizza Microfono
-                      </Button>
+                        {micPermissionState === "granted"
+                          ? "✓ Concesso"
+                          : micPermissionState === "denied"
+                          ? "✗ Negato"
+                          : "Da autorizzare"}
+                      </Badge>
                     </div>
-                  )}
+                    <Button
+                      variant={micPermissionState === "granted" ? "ghost" : "secondary"}
+                      size="md"
+                      onClick={requestMicPermission}
+                      leftIcon={<MicIcon size={16} />}
+                      title="Richiedi o rinnova esplicitamente l'accesso al microfono prima di avviare il talk"
+                    >
+                      {micPermissionState === "granted"
+                        ? "Rinnova / Verifica Permesso"
+                        : "Autorizza Microfono Ora"}
+                    </Button>
+                  </div>
 
                   <SelectInput
                     id="talk-audio-device"
@@ -933,6 +998,110 @@ export const ConfigView: FC = () => {
                         {isTestingMic ? `Livello: ${audioLevel}%` : "Inattivo"}
                       </span>
                     </div>
+                  </div>
+
+                  {/* Automatic Speech Transcription (Whisper AI) */}
+                  <div className={styles.transcriptionBox}>
+                    <div className={styles.transcriptionHeader}>
+                      <label className={styles.transcriptionTitle} id="transcription-label">
+                        <TranscriptIcon size={18} />
+                        Trascrizione vocale AI in tempo reale (Whisper)
+                      </label>
+                      {transcriptionEnabled ? (
+                        <Badge variant={modelState === "ready" ? "accent" : "default"}>
+                          {modelState === "ready" ? "AI Pronta offline" : "Attiva al via"}
+                        </Badge>
+                      ) : null}
+                    </div>
+
+                    <SegmentedControl<"enabled" | "disabled">
+                      options={[
+                        { value: "disabled", label: "Disattivata" },
+                        { value: "enabled", label: "🎙️ Trascrivi Talk" },
+                      ]}
+                      value={transcriptionEnabled ? "enabled" : "disabled"}
+                      onChange={(val) => {
+                        const enabled = val === "enabled";
+                        setTranscriptionEnabled(enabled);
+                      }}
+                      ariaLabel="Abilita o disabilita trascrizione automatica del talk"
+                    />
+
+                    <span className={styles.themeHint}>
+                      {transcriptionEnabled
+                        ? "Trascrive in tempo reale le frasi pronunciate dal relatore usando Whisper di OpenAI/HuggingFace via WebAssembly e Web Worker. Nessun dato inviato a server cloud."
+                        : "Nessuna trascrizione automatica verrà eseguita."}
+                    </span>
+
+                    {transcriptionEnabled && (
+                      <>
+                        <SelectInput
+                          id="transcription-language"
+                          label="Lingua del parlato per Whisper"
+                          value={transcriptionLanguage}
+                          onChange={(e) =>
+                            setTranscriptionLanguage(e.target.value as "it" | "en")
+                          }
+                          options={[
+                            { value: "it", label: "Italiano (it)" },
+                            { value: "en", label: "Inglese (en)" },
+                          ]}
+                          hint="Scegli la lingua principale utilizzata durante la presentazione."
+                        />
+
+                        <div className={styles.modelCard}>
+                          <div className={styles.modelCardHeader}>
+                            <div className={styles.modelTitle}>
+                              Modello: Xenova/whisper-base (ONNX locale)
+                            </div>
+                            {modelState === "ready" ? (
+                              <Badge variant="accent">✓ Pronto in Cache</Badge>
+                            ) : modelState === "loading" ? (
+                              <Badge variant="accent">
+                                Download in corso {modelProgress > 0 ? `${modelProgress}%` : ""}
+                              </Badge>
+                            ) : (
+                              <Badge variant="default">Non in memoria</Badge>
+                            )}
+                          </div>
+                          <p className={styles.modelDesc}>
+                            Per consentire il funzionamento anche offline (es. sul palco o senza Wi-Fi),
+                            puoi scaricare e memorizzare in cache il modello Whisper prima del talk.
+                          </p>
+
+                          {modelState === "loading" && (
+                            <div className={styles.modelProgressTrack}>
+                              <div
+                                className={styles.modelProgressFill}
+                                style={{ width: `${Math.max(5, modelProgress)}%` }}
+                              />
+                            </div>
+                          )}
+
+                          {modelStatusText && (
+                            <span className={styles.modelStatusMessage}>
+                              {modelStatusText}
+                            </span>
+                          )}
+
+                          <div>
+                            <Button
+                              variant={modelState === "ready" ? "ghost" : "secondary"}
+                              size="md"
+                              disabled={modelState === "loading"}
+                              onClick={handlePreloadModel}
+                              leftIcon={<DownloadIcon size={14} />}
+                            >
+                              {modelState === "ready"
+                                ? "Verifica / Ricarica Modello Whisper"
+                                : modelState === "loading"
+                                ? `Scaricamento (${modelProgress}%)...`
+                                : "Pre-scarica Modello per Offline"}
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -1029,21 +1198,39 @@ export const ConfigView: FC = () => {
                     </div>
                   )}
 
-                  {cameraPermissionState === "prompt" && (
-                    <div className={styles.permissionBanner}>
-                      <span>
-                        Per selezionare la videocamera o scheda d'acquisizione specifica, è richiesta l'autorizzazione.
+                  <div className={styles.permissionActionRow}>
+                    <div className={styles.permissionStatusInfo}>
+                      <span className={styles.permissionStatusLabel}>
+                        Permesso Videocamera:
                       </span>
-                      <Button
-                        variant="secondary"
-                        size="md"
-                        onClick={requestCameraPermission}
-                        leftIcon={<VideoIcon size={16} />}
+                      <Badge
+                        variant={
+                          cameraPermissionState === "granted"
+                            ? "accent"
+                            : cameraPermissionState === "denied"
+                            ? "danger"
+                            : "default"
+                        }
                       >
-                        Autorizza Videocamera
-                      </Button>
+                        {cameraPermissionState === "granted"
+                          ? "✓ Concesso"
+                          : cameraPermissionState === "denied"
+                          ? "✗ Negato"
+                          : "Da autorizzare"}
+                      </Badge>
                     </div>
-                  )}
+                    <Button
+                      variant={cameraPermissionState === "granted" ? "ghost" : "secondary"}
+                      size="md"
+                      onClick={requestCameraPermission}
+                      leftIcon={<VideoIcon size={16} />}
+                      title="Richiedi o rinnova esplicitamente l'accesso alla webcam prima di avviare il talk"
+                    >
+                      {cameraPermissionState === "granted"
+                        ? "Rinnova / Verifica Permesso"
+                        : "Autorizza Videocamera Ora"}
+                    </Button>
+                  </div>
 
                   <SelectInput
                     id="talk-video-device"
