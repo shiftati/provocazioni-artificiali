@@ -17,14 +17,14 @@ audio** e motore di **Session Replay** con sincronizzazione audio per rivivere o
 3. [Modalità Gioco: "Voglio fare un gioco con te" (Klippy Saw)](#3-modalità-gioco-voglio-fare-un-gioco-con-te-klippy-saw)
 4. [Dashboard Analytics & Monitoraggio Sessioni](#4-dashboard-analytics--monitoraggio-sessioni)
 5. [Session Replay & Sincronizzazione Audio (`/replay`)](#5-session-replay--sincronizzazione-audio-replay)
-6. [Controlli da Tastiera e Telecomando](#6-controlli-da-tastiera-e-telecomando)
-7. [Design System: Neo-Brutalism & Temi (Dark & Light)](#7-design-system-neo-brutalism--temi-dark--light)
-8. [Stack Tecnologico](#8-stack-tecnologico)
-9. [Comandi Disponibili](#9-comandi-disponibili)
-10. [Base Path e Dominio Personalizzato (
-    `codemotion.shiftati.it`)](#10-base-path-e-dominio-personalizzato-codemotionshiftatiit)
-11. [Come Personalizzare Token di Brand e Logo](#13-come-personalizzare-token-di-brand-e-logo)
-12. [Offline, PWA & Gestione Cache](#14-offline-pwa--gestione-cache)
+6. [Note Relatore & Gobbo Elettronico (`/speaker`)](#6-note-relatore--gobbo-elettronico-speaker)
+7. [Controlli da Tastiera e Telecomando](#7-controlli-da-tastiera-e-telecomando)
+8. [Design System: Neo-Brutalism & Temi (Dark & Light)](#8-design-system-neo-brutalism--temi-dark--light)
+9. [Stack Tecnologico](#9-stack-tecnologico)
+10. [Comandi Disponibili](#10-comandi-disponibili)
+11. [Base Path e Dominio Personalizzato (`codemotion.shiftati.it`)](#11-base-path-e-dominio-personalizzato-codemotionshiftatiit)
+12. [Come Personalizzare Token di Brand e Logo](#12-come-personalizzare-token-di-brand-e-logo)
+13. [Offline, PWA & Gestione Cache](#13-offline-pwa--gestione-cache)
 
 ---
 
@@ -70,6 +70,7 @@ audio** e motore di **Session Replay** con sincronizzazione audio per rivivere o
 - **Session Replay ad alta fedeltà con Audio Sync (`/replay`)**: motore di riproduzione fotogramma per fotogramma per
   rivedere l'intero talk (slide, animazioni interne a step, fasi del gioco e overlay) sincronizzato all'audio vocale
   registrato tramite microfono.
+- **Note Relatore & Gobbo Elettronico Sincronizzato (`/speaker`)**: finestra dedicata per i relatori (apribile da TopBar, in popup o Document Picture-in-Picture) sincronizzata in tempo reale via `BroadcastChannel`. Include note contestuali per slide e provocazioni, formattazione con badge speaker (`[[Daniel]]`, `[[Ste]]`, `[[Klippy]]`, `[[Entrambi]]`), stile WhatsApp (`*grassetto*`, `_corsivo_`), citazioni di regia `[Dire qui: ...]`, controllo dimensione font e navigazione sincronizzata verso lo stage.
 - **Doppio Tema Dark / Light**: interfaccia con estetica Neo-Brutalist (bordi marcati, ombre nette sfalsate, alto
   contrasto visivo), commutabile dal pannello di configurazione.
 - **PWA Offline-First & Screen Wake Lock**: precache completo di tutte le immagini e asset con indicatore visivo di
@@ -288,7 +289,28 @@ implementa un motore ad alta fedeltà che ricostruisce il talk esattamente come 
 
 ---
 
-## 6. Controlli da Tastiera e Telecomando
+## 6. Note Relatore & Gobbo Elettronico (`/speaker`)
+
+Accessibile tramite l'icona del microfono/note relatore nella TopBar o direttamente all'URL `#/speaker`:
+
+- **Sincronizzazione Live Bidirezionale (`BroadcastChannel`)**:
+    - Si sincronizza istantaneamente con lo stage principale mostrando slide, provocazioni o stati di gioco in tempo reale.
+    - Premendo i pulsanti "Precedente" / "Successiva" o usando le frecce/spazio nella finestra speaker, lo stage principale avanza di pari passo.
+    - Supporto a cache locale per mostrare l'ultimo stato anche in caso di ricaricamento.
+- **Finestra Popup & Document Picture-in-Picture**:
+    - Pulsante dedicato per aprire una comoda finestra secondaria ottimizzata per monitor laterali.
+    - Supporto nativo per la moderna API **Document Picture-in-Picture** (`documentPictureInPicture`), mantenendo il gobbo sempre in primo piano sopra ogni finestra durante la presentazione.
+- **Formattazione Ricca dei Contenuti**:
+    - **Speaker Badge personalizzati**: tag come `[[Daniel]]`, `[[Ste]]`, `[[Entrambi]]` e `[[Klippy]]` renderizzati con badge dedicati e icone per individuare a colpo d'occhio chi deve intervenire.
+    - **Stile WhatsApp**: sintassi intuitiva con `*grassetto*` e `_corsivo_`.
+    - **Note di Regia e Citazioni Evidenziate**: blocchi evidenziati per battute e pause `[Dire qui: '...']` e `[Pausa d'effetto]`.
+    - **Elenchi Puntati**: visualizzazione chiara dei punti chiave da toccare.
+- **Regolazione Dinamica della Tipografia**:
+    - Pulsanti rapidi `A-` e `A+` per scalare la dimensione dei caratteri (14px – 32px) con salvataggio automatico in `localStorage`.
+
+---
+
+## 7. Controlli da Tastiera e Telecomando
 
 ### Controlli Presentazione sul Palco (Telecomando & Tastiera)
 
@@ -326,7 +348,7 @@ implementa un motore ad alta fedeltà che ricostruisce il talk esattamente come 
 
 ---
 
-## 7. Design System: Neo-Brutalism & Temi (Dark & Light)
+## 8. Design System: Neo-Brutalism & Temi (Dark & Light)
 
 L'applicazione adotta un design system **Neo-Brutalist** progettato per garantire massima leggibilità da grande distanza
 su proiettori di sala:
@@ -349,7 +371,7 @@ su proiettori di sala:
 
 ---
 
-## 8. Stack Tecnologico
+## 9. Stack Tecnologico
 
 - **React 19** + **TypeScript** (`strict: true`, zero `any`).
 - **Vite 6** con `@vitejs/plugin-react` e `vite-plugin-pwa`.
@@ -366,7 +388,7 @@ su proiettori di sala:
 
 ---
 
-## 9. Comandi Disponibili
+## 10. Comandi Disponibili
 
 ```bash
 # Installa le dipendenze
@@ -384,7 +406,7 @@ pnpm run preview # oppure npm run preview
 
 ---
 
-## 10. Base Path e Dominio Personalizzato (`codemotion.shiftati.it`)
+## 11. Base Path e Dominio Personalizzato (`codemotion.shiftati.it`)
 
 Nel file `vite.config.ts`, la costante `REPO_BASE` definisce il base path dell'applicazione:
 
@@ -404,7 +426,7 @@ export const REPO_BASE = "/";
 
 ---
 
-## 11. Come Personalizzare Token di Brand e Logo
+## 12. Come Personalizzare Token di Brand e Logo
 
 ### Palette Colori
 
@@ -444,7 +466,7 @@ Puoi sostituire i vettori SVG con nuove icone o file immagine preservando l'alli
 
 ---
 
-## 12. Offline, PWA & Gestione Cache
+## 13. Offline, PWA & Gestione Cache
 
 - **Font WOFF2 locali**: tutti i font (IBM Plex Sans, IBM Plex Mono, Roboto, Alfa Slab One) sono archiviati localmente
   in `public/fonts/`.

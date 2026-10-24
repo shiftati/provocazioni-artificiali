@@ -12,114 +12,222 @@ export const SLIDE_NOTES: Record<string, SpeakerNote> = {
     slideId: "titolo",
     title: "Titolo",
     notes:
-      "Benvenuti! Mentre la slide carica, salutate il pubblico e presentatevi brevemente.\n\n[Dire qui: 'Buongiorno a tutti, sono Daniel, oggi parliamo di provocazioni artificiali nel mondo dello sviluppo software.']\n\nRicordate di attivare il timer e controllare che il microfono sia acceso.",
+      `[[DANIEL]]
+      Quanti di voi si sentono _*DAVVERO*_ protagonisti del cambiamento che sta avvenendo nel mondo dello sviluppo software?
+      [Chiedere di alzare la mano]`,
     hints:
-      "Se c'è ritardo tecnico, fate una battuta sul fatto che anche Klippy ha i suoi giorni no. Sorridete.",
+      "Chiedere di alzare la mano",
   },
   "gli-esperti": {
     slideId: "gli-esperti",
     title: "Gli esperti",
     notes:
-      "Mostrate la slide degli esperti e lasciate che il pubblico la osservi per qualche secondo.\n\n[Dire qui: 'Quanti di voi si definirebbero esperti nel proprio campo?'] Aspettate che qualcuno alzi la mano.\n\nRiflettiamo insieme su cosa significa davvero essere esperti nell'era dell'AI.",
+      `[[STE]]
+Questo è il futuro descritto dagli _"esperti"_:
+[Pausa d'effetto]
+- Fai i soldi facili con l'AI
+- l'AI ci distruggerà tutti
+- l'AI come oracolo 
+- I Dev senza lavoro
+Sono tutti scenari che *subiamo*. 
+Ma in questo talk vogliamo fare l'*opposto*, 
+Vogliamo _cambiare questa prospettiva_.. Magari non cambieremo il mondo, ma possiamo trovare dei *nuovi modi per adattarci* ad esso! 
+In questo talk saremo tutti protagonisti...
+`,
     hints:
-      "Se nessuno alza la mano, sorridete e dite: 'Bene, siete già più intelligenti della media.' Se tutti alzano la mano, fate notare l'ironia.",
+      "Pausa d'effetto prima dell'elenco puntato per far assimilare l'immagine",
   },
   "developer-qualunque": {
     slideId: "developer-qualunque",
     title: "Developer qualunque",
     notes:
-      "La slide del developer qualunque. Ironizzate sulla figura dello sviluppatore medio che conosce tutto superficialmente.\n\n[Dire qui: 'Il developer qualunque sa fare un po' di tutto: un po' di React, un po' di Python, un po' di DevOps... e pochissimo di tutto.']\n\nQuesta slide serve a sdrammatizzare: siamo tutti un po' così.",
+      `[[DANIEL]]
+      …anche tu, sviluppatore qualunque!`,
     hints:
-      "È una slide comica, non didattica. Prendete tempo qui se il ritmo sembra troppo veloce. Il pubblico ride — assecondate.",
+      "È una slide comica, non didattica. Prendere tempo qui se il ritmo sembra troppo veloce. Se il pubblico ride, assecondiamo.",
   },
   "macchinetta-caffe": {
     slideId: "macchinetta-caffe",
     title: "Macchinetta del caffè",
     notes:
-      "[Dire qui: 'Volete sapere com'è programmare nel 2025 con l'AI? È come avere una macchinetta del caffè che fa anche le email — ma non capisce il tono.']\n\nQuesta metafora introduce il tema dell'AI come strumento: potente, ma con limiti precisi. Tenete il tono leggero.",
-    hints:
-      "Se avete il caffè in mano durante la presentazione, questo è il momento perfetto per berlo. La gente ride.",
+      `[[DANIEL]]
+      Alla macchinetta del caffè si dice vengano le idee migliori.
+Vogliamo _ricreare lo stesso ambiente_, qui, al Codemotion.
+
+Qui, non importa che tu sia il _CEO_ "mega presiden gran figli di put" o il _tirocinante sottopagato_ che fa data entry da 6 mesi, siete tutti *liberi di dare la propria opinione*, senza i vincoli dati da un meeting “ufficiale” da cui dipendono le sorti dell'azienda.
+
+Per ricreare questo ambiente, iniziamo con un piccolo passo: *conosciamoci meglio*!
+`,
   },
   "daniel-e-ste": {
     slideId: "daniel-e-ste",
     title: "Daniel e Ste",
-    notes:
-      "Presentazione degli speaker. Presentate prima Ste, poi Daniel, poi Klippy (l'AI).\n\n[Dire qui: 'Io sono Daniel, lui è Ste, e il nostro terzo collega — quello che non dorme mai e non chiede aumenti — è Klippy.']\n\nBreve, simpatico, non troppo lungo.",
-    hints:
-      "Non esagerate con le bio: 30 secondi a testa max. Il pubblico è qui per le provocazioni, non per il curriculum.",
+    notes: `
+- [[Ste]] Io sono Stefano, sto provando a diventare bravo in Age of Empire 4 (se qualcuno si vuole unire, scrivetemi), per il resto faccio il CTO per azienda del mondo Cyber Security.
+
+- [[Daniel]] Team Leader / Tech Leader in una società di consulenza di Milano. Sono un *"cercatore di esperienze"*. Adoro conoscere le persone, sono molto curioso, mi diverto a fare progetti creativi come cortometraggi, grafiche, applicazioni...E da qualche anno mi sono immerso nell'*Improvvisazione Teatrale* che mi ha insegnato che _non esistono errori ma solo infinite possibilità_
+  
+- [[Ste]] Ah giusto lui è [[Klippy]] e tutti e tre insieme siamo *Shiftati di Testa*, abbiamo un nostro podcast e una pagina Instagram dove parliamo di quello di cui abbiamo voglia di parlare.
+
+- [[Daniel]] E non so se ve ne siete accorti, ma Klippy è presente in ogni nsotra slide: è la nostra mascotte dolce e teneramente stupida.
+`,
   },
   "ritorno-al-futuro": {
     slideId: "ritorno-al-futuro",
     title: "Ritorno al Futuro",
-    notes:
-      "Slide di transizione tematica. Usiamo la metafora del viaggio nel tempo per introdurre il futuro dello sviluppo software.\n\n[Dire qui: 'Se tornaste nel 2015 e raccontaste l'AI di oggi, nessuno vi crederebbe. Ora immaginate tra 10 anni.']\n\nQuesto prepara il terreno per le provocazioni.",
+    notes: `[[Daniel]]
+    Ritorno al Futuro è un film che ha _sbagliato *TUTTE* le previsioni sul futuro_!
+
+Ci avevano promesso scarpe autoallaccianti, giacche termiche e squali olografici in 3D, e poi, nel bar ci sono ancora i televisori col tubo catodico.
+
+Eppure lo amiamo. 
+
+Perché quel film non doveva prevedere la realtà: doveva *accendere l'immaginazione*. 
+E infatti ha ispirato generazioni di registi: tutti i film che parlano di viaggi nel tempo, si sono ispirati proprio a Ritorno al Futuro.
+
+Ecco, oggi in questa stanza *noi dobbiamo essere esattamente come Ritorno al Futuro*.
+Dobbiamo:
+- Esagerare
+- Proporre idee che all'inizio sembrano assurde o ridicole. 
+- Anche un'ipotesi "sbagliata" ha un potere enorme: può essere la scintilla che accende l'intuizione geniale della persona seduta accanto a voi.
+- Quindi oggi niente censure, niente filtri, niente formalismi. 
+- Dite quello che vi passa per la testa, come vi viene in mente. 
+
+Fate conto che non siamo a un meeting aziendale dove quello che diremo deciderà le sorti dell'azienda: siamo davanti alla macchinetta del caffè. 
+
+_…portiamo questa *macchinetta a 88 miglia orarie* e vediamo dove arriviamo!_
+
+[[STE]]
+E io so già come fare…
+`,
     hints:
-      "Pausa drammatica dopo 'tra 10 anni.' Lasciate che la frase atterri. Non riempite il silenzio subito.",
+      `Cercare di essere energetico e soffermarsi su alcuni punti importanti come:
+      - Sbagliato tutte le previsioni
+      - Eppure lo amiamo
+      - accendere l'immaginazione`,
   },
   "klippy-saw": {
     slideId: "klippy-saw",
     title: "Klippy Saw",
-    notes:
-      "Slide di rottura del ritmo. Klippy nei panni di Jigsaw: 'Voglio giocare a un gioco.'\n\n[Dire qui: 'Come nel film, anche noi vogliamo mettere il pubblico in una situazione scomoda — ma con più umorismo e meno sangue.']\n\nQuesta introduce il gioco delle provocazioni.",
+    notes: `[[STE]]
+Faremo un gioco con voi!`,
     hints:
-      "Exaggerate l'espressione drammatica. La slide è volutamente assurda — ridete anche voi.",
+      "Esagerate l'espressione drammatica da Saw l'enigmista: è una slide volutamente comica e teatrale, ridete e coinvolgete il pubblico.",
   },
   "fight-club": {
     slideId: "fight-club",
     title: "Fight Club",
-    notes:
-      "[Dire qui: 'La prima regola del Fight Club del software è: non parlare delle decisioni architetturali prese alle 23 di venerdì.']\n\nQuesta slide introduce il tema della 'verità scomoda' che il talk vuole affrontare. Metafora del fight club = dire le cose che normalmente non si dicono.",
+    notes: `[[Ste]]
+    Il gioco si basa su una *PROVOCAZIONE*: un concetto assurdo/esagerato di cui si andrà a discutere.
+
+*REGOLA #1*
+Avete presente il Fight Club? _“prima regola del fight club, non si parla del fight club”_ → In questo caso *DOVETE* parlare!!
+  
+*REGOLA #2*:
+Parte un timer di _30 secondi_: il primo che alza la mano propone la provocazione
+
+*REGOLA #3*:
+Scelta la provocazione, partirà un altro timer di 5 minuti in cui tutti potremo dire la nostra.
+Quando vi viene in mente qualcosa alzate la mano e io o Daniel verremo a darvi la parola.
+
+[[DANIEL]] Quindi di base il talk lo farete voi!!! 
+
+
+[[STE]] Vi facciamo qualche esempio di provocazione:
+`,
     hints:
-      "Se il pubblico conosce il film, ci sarà una risata al 'prima regola'. Aspettate che finisca prima di continuare.",
+      "Daniel dice solo quella frase buttata lì per alleggerire la spiegazione delle regole",
   },
   "klippy-lotta-ai": {
     slideId: "klippy-lotta-ai",
     title: "Klippy lotta tra AI",
-    notes:
-      "Slide sulla cybersicurezza e la competizione tra modelli AI. Klippy combatte contro altre AI.\n\n[Dire qui: 'Non è fantascienza: già oggi i modelli competono su benchmark, si copiano gli stili, si 'attaccano' a vicenda tramite prompt injection.']\n\nQui si torna sul serio per un momento.",
+    notes: `[[STE]]
+*La cybersicurezza sarà una lotta tra AI*
+
+Ha ancora senso il ruolo dell'esperto di cybersicurezza quando saranno le AI a combattere tra loro?
+
+[[DANIEL]]
+[Far notare Daniel e Ste che bevono il tè]
+`,
     hints:
-      "Se avete esempi concreti di attacchi AI-vs-AI, citateli qui. Altrimenti la slide funziona anche senza.",
+      "Bisogna dire il titolo molto chiaramente e poi fare il commento in maniera più soft",
   },
   "klippy-matrix": {
     slideId: "klippy-matrix",
     title: "Klippy Matrix",
-    notes:
-      "Slide sulla documentazione insensata. Klippy precipita in un matrix di README mai letti.\n\n[Dire qui: 'Avete mai scritto documentazione che sapevate già che nessuno avrebbe mai letto? Alzate la mano. Sì, lo sapevo.']\n\nQui si ride, ma è anche un punto critico vero.",
-    hints:
-      "Questa slide è liberatoria. La gente ride perché si riconosce. Usatela per riprendere fiato prima delle provocazioni.",
+    notes: `[[STE]]
+*La documentazione non ha più senso*
+
+Che senso ha scrivere la documentazione in un mondo in cui è l'AI stessa a scrivere codice?
+
+[[DANIEL]]
+Vista l'ora e viste le facce, direi di fare un esempio pratico XD
+`,
   },
   "io-sono-eccellenza": {
     slideId: "io-sono-eccellenza",
     title: "Io sono eccellenza",
-    notes:
-      "[Dire qui: 'Tutti vogliamo essere 'eccellenti'. Ma eccellente rispetto a cosa? A chi? Misurato da chi?']\n\nQuesta slide critica il concetto di 'excellence culture' nel mondo tech. È provocatoria nel senso letterale.",
+    notes: `[[STE]]
+Abbiamo fatto un po' di provocazioni, abbiamo raccolto delle idee.
+
+La nostra domanda di base era _"di che cosa vale la pena parlare?"_.
+Io ed Dani ormai abbiamo più di 40 anni di esperienza in due in questo ambito eppure in questo periodo storico ci siamo chiesti:
+
+_abbiamo un *collega iper competente* che potenzialmente può fare tutto meglio di te, che ha la risposta a tutte le tue domande, quindi che cosa ci rende speciali?_
+
+Cosa possiamo fare per eccellere in questo mondo dove l'eccellenza tecnica è alla portata di tutti?
+
+E la risposta che ci siamo dati è che la nostra eccellenza è *saper unire i puntini*, prendere l'iniziativa e *unire competenze diverse* in vari ambiti che ci rendono speciali, cioè magari riuscire a far parlare le AI con il business, riuscire a far parlare il business con il junior, dare la nostra esperienza ancora per far diventare un junior, un senior, oppure riuscire a guidare, a mettere insieme cose diverse. 
+
+Cioè, *l'ECCELLENZA per noi è unire più competenze*. Non è solo l'idea di prendersi il manuale di Java e diventare il massimo esperto di Java, ma unire la nostra competenza tecnica con le nostre *doti che ci rendono UMANI*.
+`,
     hints:
-      "Non rispondete alla domanda che ponete — lasciatela aperta. Il punto è la riflessione, non la soluzione.",
+      "Dare importanza alla domanda del _*collega iper competente*_ e ovviamente a _*unire i puntini*_",
   },
   selfie: {
     slideId: "selfie",
     title: "Selfie",
-    notes:
-      "Momento interattivo! Chiedete al pubblico di fare un selfie con la slide o con voi.\n\n[Dire qui: 'Ok, momento social. Se volete condividere qualcosa del talk, questo è il momento perfetto. Hashtag... qualcosa.']\n\nÈ una pausa leggera e interattiva.",
+    notes: `[[DANIEL]]
+    
+    _*...e cosa c'è di più UMANO di quello che abbiamo fatto oggi?*_
+
+- Prima di tutto ci tengo a *RINGRAZIARE* di cuore chi ha partecipato (ci vuole coraggio nel mettersi in gioco!)... Il bello è che questo talk è irripetibile, perché ognuno di noi è UNICO con una propria PERSONALE esperienza, costruita giorno per giorno in 5, 10, 20 anni... la conoscenza dell'AI è solo una "media" di tutte le nostre esperienze (e neanche tutte perché si basa sul codice che ha "studiato") ma non su quello che ognuno di noi ha vissuto realmente.
+
+- Oggi abbiamo fatto una cosa molto utile: ci siamo *CONFRONTATI*. Una caratteristica che abbiamo noi umani è pensare fuori dagli schemi e quello che ci siamo dati oggi, sono delle prospettive diverse da cui possiamo prendere spunto.
+
+- Il confronto "accende" la *CREATIVITÀ* che porta a idee nuove, [...TODO...] e presi singolarmente siamo limitati al nostro pensiero (e a quello dell'AI che usiamo come consulente)! Siamo animali sociali e abbiamo bisogno gli uni degli altri per dare il meglio di noi. E la cosa bella è che oggi l'AI (che scrive codice per noi) ci permette di avere _più tempo da dedicare_ a quello che ci rende umani.
+
+- L'AI, almeno in questi ultimi anni, è per definizione "ricerca e sviluppo", nessuno può studiarla da un manuale (come si faceva con Java o React) per imparare ad usarla... Qui ci si sporca le mani ogni giorno, si sbaglia, si sbatte la tesa e si trovano soluzioni. Queste scoperte non si trovano (solo) nel codice, ma dentro l'esperienza personale di ognuno di noi ed è nostro dovere condividerla.
+
+Non voglio fare paternali o altro, volevo sfruttare l'opportunità che ho avuto oggi di stare qui sul palco davanti a tante persone per condividere un pensiero che avevo da tempo.
+
+Per chi non mi conosce, sono uno di quelli che adora fare selfie con le persone: se andate sul mio profilo Instagram troverete un muro di selfie con persone che ho trovato interessanti. E oggi vorrei immortalare questo bellissimo momento con voi con un mega selfie di gruppo!
+
+[SELFIE di gruppo]
+`,
     hints:
-      "Se avete un hashtag ufficiale dell'evento, menzinatelo qui. Sorridete per la foto.",
+      "Tenete lo smartphone già pronto a portata di mano per non creare tempi morti",
   },
   finale: {
     slideId: "finale",
     title: "Finale",
-    notes:
-      "Slide conclusiva. Ringraziamenti, QR code, invito alla discussione.\n\n[Dire qui: 'Grazie per essere stati con noi. Il nostro scopo non era darvi risposte, ma farvi fare le domande giuste. Il QR code porta alle slide e ai contatti.']\n\nLasciate 2-3 minuti per domande dal pubblico.",
+    notes: `[[STE]]
+Ci teniamo a salutarvi con questa ultima frase dal film che ha ispirato questo talk (qualcuno potrebbe già averla intuita): 
+
+[[STE]] _Il futuro è come ve lo creerete voi…_
+
+[[DANIEL]] _…perciò createvelo buono!_
+
+[MUSICA che parte con l'ultima parte della frase]
+`,
     hints:
-      "Se il tempo è scaduto, abbreviate e rimandare alle domande informali. Non prolungate oltre il tempo.",
+      "Quando parte la musica di Ritorno al Futuro, lasciare spazio all'audio orchestrale. Lasciare la card col QR visibile per le domande finali.",
   },
   nero: {
     slideId: "nero",
     title: "Schermo Nero",
-    notes:
-      "Schermo nero finale. Il talk è concluso.\n\n[Se siete ancora sul palco: salutate, ringraziate l'organizzazione, e indicare dove trovarvi per domande informali.]\n\nSe c'è musica o applauso, lasciate che sia.",
-    hints:
-      "Non dite nulla di sostanziale su questo schermo. È il sipario. Godetevelo.",
-  },
+    notes: `Non c'è nulla da dire qui, è uno schermo nero XD`,
+    }
 };
 
 // Mappa provocationId -> SpeakerNote
@@ -127,98 +235,211 @@ export const PROVOCATION_NOTES: Record<string, SpeakerNote> = {
   "saas-morto": {
     provocationId: "saas-morto",
     title: "Il SaaS è morto",
-    notes:
-      "[Provocazione: 'Il SaaS è morto: meglio un software generato su misura']\n\nIntroducete la provocazione leggendo il titolo con tono assertivo. Poi chiedete: 'Chi è d'accordo? Chi è contrario?'\n\nIl punto centrale è che con l'AI generativa, il costo di generare software su misura sta crollando, rendendo le licenze SaaS meno competitive per alcuni use case.",
+    notes: `*Tesi: Il SaaS è morto, meglio un software generato su misura*
+
+[[Daniel]]:
+[Dire qui: 'Chi di voi paga 50 tool SaaS diversi in azienda per fare tre cose in croce? Alzate le mani!']
+
+[[Ste]]:
+- Con l'AI generativa il costo di creare tool verticali su misura sta crollando.
+- Perché pagare licenze ricorrenti per un software generico quando puoi farti generare l'esatto workflow che serve a te?
+
+[[Entrambi]] - *Punti di dibattito con la sala*:
+- *Pro*: Nessun lock-in, zero bloatware, dati sotto il proprio controllo.
+- *Contro*: Manutenzione, patch di sicurezza, chi garantisce la compliance?
+`,
     hints:
-      "Aspettatevi resistenza dal pubblico tech che usa SaaS ogni giorno. È normale — è una provocazione, non una verità assoluta. Gestite il dibattito con curiosità, non con difensività.",
+      "Aspettatevi forte reazione da chi gestisce infrastrutture SaaS. Ottimo spunto per esplorare la differenza tra tool semplici e piattaforme complesse.",
   },
   "software-usa-e-getta": {
     provocationId: "software-usa-e-getta",
     title: "Il Software diventerà usa e getta",
-    notes:
-      "[Provocazione: 'Il Software diventerà usa e getta']\n\n[Dire qui: 'Immaginate un mondo in cui rigenerare un'app da zero è più conveniente che manutenere il debito tecnico. Fantascienza? Forse no.']\n\nL'argomento chiave: il costo marginale di generazione tende a zero, quindi il ciclo di vita del software si accorcia drasticamente.",
+    notes: `*Tesi: Il software diventerà usa e getta*
+
+[[Ste]]:
+[Dire qui: 'E se riscrivere un'app da zero con l'AI costasse meno che manutenere 10 anni di debito tecnico?']
+
+[[Daniel]]:
+- Storicamente manutenere software costava l'80% del budget IT.
+- Oggi generiamo script, interfacce temporanee per eventi, prototipi in 5 minuti.
+- Il software sta diventando un bene di consumo rapido, non più un monumento di pietra.
+
+[[Entrambi]] - *Domanda alla platea*:
+- [Dire qui: 'Chi butterebbe via la propria codebase legacy domattina se potesse rigenerarla in un pomeriggio?']
+`,
     hints:
-      "Citate esempi concreti se li avete: script generati al volo, micro-app usa-e-getta per eventi, ecc. Sono più convincenti delle teorie astratte.",
+      "Citate esempi pratici (script usa e getta, micro-app per eventi o campagne). Chiedete chi soffre di debito tecnico pesante in azienda.",
   },
   "agile-morto": {
     provocationId: "agile-morto",
     title: "AGILE è finalmente morto",
-    notes:
-      "[Provocazione: 'AGILE è finalmente morto']\n\n[Dire qui: 'Non stiamo dicendo che i principi Agile siano sbagliati. Diciamo che la liturgia degli sprint, dei daily standup e degli story point è diventata una burocrazia peggiore di quella che voleva sostituire.']\n\nDistinguete tra i principi del Manifesto Agile (buoni) e l'implementazione industriale di Scrum/SAFe (discutibile).",
+    notes: `*Tesi: AGILE è finalmente morto*
+
+[[Daniel]]:
+[Dire qui: 'Non i valori del Manifesto Agile... ma la liturgia di sprint, daily standup, poker planning e story point: siete sinceri, quanto tempo sprecate in riunioni cerimoniali?']
+
+[[Ste]]:
+- Agile è stato inglobato dalla burocrazia aziendale e trasformato in un waterfall a fette di 2 settimane.
+- Con team iper-rapidi potenziati da AI, il ciclo di pianificazione rigido diventa un collo di bottiglia.
+
+[[Entrambi]] - *Provocazione alla sala*:
+- Quanti story point servono per cambiare una riga di codice?
+`,
     hints:
-      "Questa provocazione fa molto rumore. Preparatevi a opinioni forti in entrambe le direzioni. Tenete il dibattito sui fatti, non sulle emozioni.",
+      "Questa provoca discussioni accesissime tra Scrum Master e Dev. Tenete il dibattito vivo dando spazio sia a chi lo difende sia a chi è frustrato.",
   },
   "societa-consulenza": {
     provocationId: "societa-consulenza",
     title: "Le società di consulenza falliranno",
-    notes:
-      "[Provocazione: 'Le società di consulenza falliranno']\n\n[Dire qui: 'Il modello 'ti affitto un developer a giornata' è sotto pressione. Se l'AI può fare il lavoro di un junior in un'ora, perché pagare 8 ore di body rental?']\n\nIl punto non è che tutte le consulenze falliranno, ma che il modello puro di vendita di ore è insostenibile a lungo termine.",
+    notes: `*Tesi: Le società di consulenza tradizionali falliranno*
+
+[[Ste]]:
+[Dire qui: 'Il modello body-rental basato su 'ti fatturo junior developer a ore' è al capolinea.']
+
+[[Daniel]]:
+- Se un dev con AI produce in 2 ore quello che un team faceva in una settimana, fatturare 'a giornate uomo' penalizza chi è veloce!
+- Vinceranno le boutique specializzate su valore, risultati e architetture critiche.
+
+[[Entrambi]] - *Punti di discussione*:
+- Ci sono consulenti in sala? Come sta cambiando il vostro pricing con i clienti?
+`,
     hints:
-      "Probabilmente in sala ci sono consulenti. Siate delicati ma onesti. La provocazione serve ad aprire una discussione, non ad offendere qualcuno.",
+      "Probabilmente in sala ci sono molti colleghi consulenti: tono empatico ma trasparente sul cambio di modello di business verso il valore.",
   },
   "team-grandi-controproducenti": {
     provocationId: "team-grandi-controproducenti",
     title: "I team grandi sono controproducenti",
-    notes:
-      "[Provocazione: 'I team grandi (da 2 persone in su) sono controproducenti']\n\n[Dire qui: 'Un developer con l'AI può fare il lavoro di un team di 5. Aggiungere persone aggiunge coordinamento, meeting, e conflitti — non necessariamente output.']\n\nCitate la legge di Brooks: 'Aggiungere persone a un progetto in ritardo lo fa ritardare ancora di più.'",
+    notes: `*Tesi: I team grandi (da 2 persone in su) sono controproducenti*
+
+[[Daniel]]:
+[Dire qui: 'Legge di Brooks all'ennesima potenza: aggiungere persone aumenta il coordinamento, i conflitti e i meeting, non la produttività!']
+
+[[Ste]]:
+- 1 o 2 sviluppatori 'full-context' con AI possono muoversi 10 volte più veloci di un team da 12 con 4 PM e 3 meeting al giorno.
+- Il futuro è dei 'micro-team' autonomi ad altissima densità di competenze.
+
+[[Entrambi]] - *Interazione*:
+- Chi lavora in team con più di 8 persone? Sentite l'attrito dei sync infiniti?
+`,
     hints:
-      "La soglia '2 persone' è volutamente estrema per stimolare il dibattito. Se qualcuno la attacca, è un buon segno: significa che sta pensando.",
+      "La soglia 'da 2 in su' è volutamente estrema per far sorridere e far riflettere sul costo nascosto della comunicazione interna.",
   },
   "open-source-morto": {
     provocationId: "open-source-morto",
     title: "L'open source è morto",
-    notes:
-      "[Provocazione: 'L'open source è morto']\n\n[Dire qui: 'I grandi modelli AI sono addestrati su codice open source, ma i pesi rimangono proprietari. È un patto che si è rotto — prendiamo il codice della community, ma non condividiamo i risultati.']\n\nEsempi: HashiCorp, Redis, Elasticsearch — tutti hanno cambiato licenza verso modelli commerciali.",
+    notes: `*Tesi: L'open source è morto*
+
+[[Ste]]:
+[Dire qui: 'I grandi modelli sono stati addestrati su miliardi di righe di codice open source, ma i pesi e i profitti sono finiti in mano a poche big tech chiuse.']
+
+[[Daniel]]:
+- Il patto originale della community si è incrinato: si dona codice libero e si ricevono API a pagamento.
+- Cambio di licenze celebri: Redis, Elastic, HashiCorp... è l'inizio della fine dell'illusione?
+
+[[Entrambi]] - *Riflessione con la platea*:
+- Chi di voi continua a pubblicare open source? Come vi sentite sapendo che il vostro codice alimenta modelli commerciali?
+`,
     hints:
-      "Questa tocca la sensibilità ideologica di molti developer. Lasciate che esprimano la loro posizione prima di rispondere. Non è una gara da vincere.",
+      "Argomento identitario profondo per gli sviluppatori. Lasciate che la platea esprima la propria frustrazione o speranza.",
   },
   "colloquio-tecnico": {
     provocationId: "colloquio-tecnico",
     title: "Il colloquio tecnico sul codice non ha più senso",
-    notes:
-      "[Provocazione: 'Il colloquio tecnico sul codice non ha più senso']\n\n[Dire qui: 'Se in produzione il developer usa Copilot, ChatGPT e Stack Overflow, perché il colloquio vietato Google e con problemi di ordinamento di array?']\n\nIl punto: stiamo valutando competenze che non useremo mai nel lavoro reale.",
+    notes: `*Tesi: Il colloquio tecnico sul codice non ha più senso*
+
+[[Daniel]]:
+[Dire qui: 'In produzione usi Claude, Copilot, Google e Stack Overflow... e al colloquio ti chiedono di invertire un albero binario su una lavagna senza internet?!']
+
+[[Ste]]:
+- Valutiamo la memoria sintattica invece della capacità di giudizio critico, architettura e debug.
+- Il colloquio del futuro deve valutare come sai orchestrare strumenti AI, comprendere trade-off e comunicare requisiti.
+
+[[Entrambi]] - *Chiedere alla sala*:
+- Quanti hanno fatto colloqui assurdi scollegati dalla vita reale di tutti i giorni?
+`,
     hints:
-      "Aspettatevi sia chi è d'accordo (i candidati frustrati) sia chi è contrario (i selezionatori). Entrambe le prospettive sono valide — esploratele.",
+      "Tutti hanno storie horror sui colloqui tecnici: risate assicurate. Chiedete se qualcuno tra i manager in sala ha già aggiornato i test di selezione.",
   },
   "sviluppo-software-morto": {
     provocationId: "sviluppo-software-morto",
     title: "Il mondo dello sviluppo software è morto",
-    notes:
-      "[Provocazione: 'Il mondo dello sviluppo software è morto']\n\n[Dire qui: 'Non diciamo che i programmatori spariranno. Diciamo che il mestiere di 'scrivere codice' si trasformerà in qualcosa di molto diverso — più vicino all'architettura, al pensiero sistemico, al dominio di business.']\n\nIl developer del futuro parla con i clienti, non con il compilatore.",
+    notes: `*Tesi: Il mestiere tradizionale dello sviluppo software è morto*
+
+[[Ste]]:
+[Dire qui: 'La figura del 'code monkey' che traduce specifiche Jira in codice riga per riga è finita.']
+
+[[Daniel]]:
+- Non diciamo che non ci sarà lavoro: diciamo che non sarà più scrivere sintassi!
+- Diventiamo designer di sistemi, esperti di dominio, validatori e architetti.
+- Chi amava solo digitare codice si sentirà perso; chi ama risolvere problemi avrà superpoteri mai visti.
+
+[[Entrambi]]:
+- Non è una cattiva notizia: è l'evoluzione naturale del nostro ruolo!
+`,
     hints:
-      "Questa è la provocazione più esistenziale. Molti in sala potrebbero sentirsi minacciati. Usate empatia. Non è una cattiva notizia — è un invito ad evolvere.",
+      "Provocazione esistenziale: portate un messaggio positivo e costruttivo. Non è la fine del dev, è la sua trasformazione in architetto.",
   },
   "esperto-tecnologia": {
     provocationId: "esperto-tecnologia",
     title: "Non ha più senso diventare esperti in tecnologia",
-    notes:
-      "[Provocazione: 'Non ha più senso diventare esperti in una tecnologia specifica']\n\n[Dire qui: 'Quando l'AI può imparare qualsiasi sintassi in secondi, il vantaggio competitivo non è sapere React a memoria — è capire perché usare React invece di qualcos'altro.']\n\nLa competenza si sposta dal 'saper fare' al 'saper scegliere e orchestrare'.",
+    notes: `*Tesi: Non ha più senso diventare iper-esperti in un singolo framework o linguaggio*
+
+[[Daniel]]:
+[Dire qui: 'Valeva la pena passare 5 anni a imparare a memoria ogni singola eccezione di un framework che domani viene rimpiazzato?']
+
+[[Ste]]:
+- La sintassi si delega in un secondo; i fondamenti sistemici (concorrenza, reti, architetture, sicurezza) rimangono per sempre.
+- Il valore non è più la specializzazione verticale estrema su un tool effimero, ma l'adattabilità e la visione d'insieme.
+
+[[Entrambi]] - *Domanda*:
+- Chi sta studiando un framework nuovo proprio ora? Come cambiate il modo di imparare?
+`,
     hints:
-      "Distinguete tra expertise profondo (architettura, algoritmi, sicurezza) che rimane prezioso, e memorizzazione di API che invece diventa obsoleta. Questa distinzione calma i senior developer spaventati.",
+      "Rassicurate la sala: i fondamentali di computer science contano PIÙ di prima, ciò che scade velocemente sono le librerie di moda.",
   },
 };
 
 // Note per gli stati speciali del gioco
 export const GAME_STATE_NOTES: Record<string, SpeakerNote> = {
   IDLE: {
-    title: "Avvio Gioco",
-    notes:
-      "Il gioco è pronto per partire. Spiegate le regole al pubblico.\n\n[Dire qui: 'Stiamo per lanciare le provocazioni. Ogni provocazione è una tesi volutamente estrema. Avrete 30 secondi per decidere se siete d'accordo o no, poi ne discuteremo insieme.']\n\nAssicuratevi che tutti capiscano il meccanismo prima di iniziare.",
+    title: "Avvio Gioco Klippy Saw",
+    notes: `*Fase Schermata SAW (Inizio Gioco)*:
+
+[[Klippy]]:
+[Dire qui: 'Volete fare un gioco con me?']
+
+[[Entrambi]]:
+- Verificare che il pubblico sia pronto e carico!
+- [Dire qui: 'Ora estrarremo le provocazioni una per volta. Siete pronti a votare e a parlare?']
+- Premere il pulsante *'Inizia il gioco'* sullo stage oppure tasto *AVANTI* sul telecomando.
+`,
     hints:
-      "Se il pubblico sembra disorientato, fate un esempio con una provocazione neutra. Meglio perdere 30 secondi in più che partire con confusione.",
+      "Prima provocazione: il primo loop salta il timer di sfida ed entra direttamente nella card della provocazione.",
   },
   CHALLENGE: {
     title: "Sfida 30 secondi",
-    notes:
-      "Il timer da 30 secondi è in corso. Il pubblico sta decidendo la propria posizione sulla provocazione.\n\n[Silenzio — lasciate pensare. Non parlate durante il countdown.]\n\nOsservate la reazione del pubblico: i mormorii, le facce, i gesti. Saranno utili per moderare la discussione successiva.",
+    notes: `*Fase Countdown Sfida (30 secondi)*:
+
+[[Entrambi]]:
+- Timer di 30 secondi attivo a schermo!
+- [Dire qui: '30 secondi per votare: chi vuole affrontare questa provocazione? Accettiamo o scartiamo?']
+- Osservare il fermento in sala, ascoltare i mormorii e incitare il pubblico a prendere posizione.
+`,
     hints:
-      "Non interrompete il countdown. Se qualcuno fa una domanda, dite: 'Ne parliamo tra 30 secondi.' Il tempo di riflessione è parte del gioco.",
+      "Se il pubblico è convinto, cliccare 'Accetta Provocazione' (o premere tasto Avanti) per iniziare i 5 minuti di discussione.",
   },
   DISCUSSION: {
-    title: "Discussione",
-    notes:
-      "È il momento della discussione aperta sulla provocazione corrente.\n\n[Dire qui: 'Chi è d'accordo con questa provocazione? Chi è contrario? Perché?']\n\nIl vostro ruolo qui è moderare, non convincere. Portate voci diverse. Date spazio anche a chi non è d'accordo con voi.",
+    title: "Discussione in Corso (5 minuti)",
+    notes: `*Fase Discussione Aperta (Timer 5:00 minuti)*:
+
+[[Entrambi]]:
+- 5 minuti di dibattito serrato con la platea!
+- Moderare gli interventi senza monopolizzare la parola.
+- [Dire qui: 'Chi alza la mano per primo? Perché sei d'accordo o contrario?']
+- Usare il pulsante *Pausa/Riprendi* in caso di interventi lunghi o complessi.
+- Allo scadere o al termine dell'energia, cliccare *'Prossima provocazione'* per pescarne un'altra.
+`,
     hints:
-      "Se nessuno parla, fate una domanda diretta a qualcuno: 'Tu, in fondo — cosa ne pensi?' Rompete il ghiaccio con curiosità genuina, non con pressione.",
+      "Se il pubblico è timido all'inizio, fate una domanda diretta a una persona sorridente nelle prime file per rompere il ghiaccio.",
   },
 };

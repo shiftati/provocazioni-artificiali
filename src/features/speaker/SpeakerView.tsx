@@ -11,6 +11,7 @@ import {
   GAME_STATE_NOTES,
   type SpeakerNote,
 } from "./speakerNotes";
+import { renderFormattedSpeakerNotes } from "./speakerNotesFormatter";
 import styles from "./SpeakerView.module.scss";
 
 export const SpeakerView: FC = () => {
@@ -174,32 +175,16 @@ export const SpeakerView: FC = () => {
     }
   }
 
-  // Helper to format quote brackets [Dire qui: ...]
-  const renderFormattedNotes = (text: string) => {
-    // Split on brackets [ ... ]
-    const parts = text.split(/(\[[^\]]+\])/g);
-    return parts.map((part, i) => {
-      if (part.startsWith("[") && part.endsWith("]")) {
-        return (
-          <mark key={i} className={styles.speakerQuote}>
-            {part}
-          </mark>
-        );
-      }
-      return part;
-    });
-  };
-
   return (
-    <div className={styles.container} id="speaker-view-root">
+    <div id="speaker-view-root" className={styles.container}>
       <header className={styles.topBar}>
         <div className={styles.brandGroup}>
           <span className={styles.brandTitle}>
-            🎙️ Supporto Testuale
+            🎙️ Note Relatore
           </span>
-          <span className={styles.syncBadge} title="Sincronizzato in tempo reale con lo stage principale">
+          <span className={styles.syncBadge}>
             <span className={styles.syncDot} />
-            Live
+            Live Sync
           </span>
         </div>
 
@@ -207,7 +192,7 @@ export const SpeakerView: FC = () => {
           <button
             type="button"
             className={styles.toolButton}
-            onClick={() => handleFontSizeChange(-2)}
+            onClick={() => handleFontSizeChange(-1)}
             title="Riduci dimensione testo"
           >
             A-
@@ -215,7 +200,7 @@ export const SpeakerView: FC = () => {
           <button
             type="button"
             className={styles.toolButton}
-            onClick={() => handleFontSizeChange(2)}
+            onClick={() => handleFontSizeChange(1)}
             title="Aumenta dimensione testo"
           >
             A+
@@ -226,9 +211,9 @@ export const SpeakerView: FC = () => {
               type="button"
               className={styles.toolButton}
               onClick={togglePictureInPicture}
-              title="Attiva / disattiva Picture-in-Picture sempre in primo piano"
+              title="Attiva/Disattiva Picture-in-Picture"
             >
-              {pipActive ? "Finestra standard" : "Picture-in-Picture"}
+              {pipActive ? "Finestra Standard" : "Picture-in-Picture"}
             </button>
           )}
         </div>
@@ -236,9 +221,9 @@ export const SpeakerView: FC = () => {
 
       {!state ? (
         <div className={styles.emptyState}>
-          <div className={styles.emptyTitle}>In attesa della presentazione...</div>
+          <div className={styles.emptyTitle}>In attesa di connessione...</div>
           <p>
-            Apri la presentazione principale per sincronizzare automaticamente i testi e le note della slide corrente.
+            Apri o naviga la presentazione principale per sincronizzare automaticamente le note dello speaker.
           </p>
         </div>
       ) : (
@@ -260,7 +245,7 @@ export const SpeakerView: FC = () => {
               style={{ fontSize: `${fontSize}px` }}
             >
               {currentNote?.notes ? (
-                renderFormattedNotes(currentNote.notes)
+                renderFormattedSpeakerNotes(currentNote.notes)
               ) : (
                 <p style={{ color: "#8b949e", fontStyle: "italic" }}>
                   Nessuna nota specifica per questa slide. Presenta liberamente i contenuti a schermo.
@@ -272,7 +257,9 @@ export const SpeakerView: FC = () => {
           {currentNote?.hints && (
             <div className={styles.hintsCard}>
               <span className={styles.hintsLabel}>💡 Suggerimento & Regia</span>
-              <p className={styles.hintsBody}>{currentNote.hints}</p>
+              <div className={styles.hintsBody}>
+                {renderFormattedSpeakerNotes(currentNote.hints)}
+              </div>
             </div>
           )}
 
