@@ -10,8 +10,14 @@ import { PROVOCATION_MAP } from "../game/provocations.registry";
 import type { AppSessionState, GameState } from "../../types";
 
 export interface UseSpeakerWindowOptions {
+  onUiNext?: () => void;
+  onUiPrev?: () => void;
+  onKeyNext?: () => void;
+  onKeyPrev?: () => void;
   onNext?: () => void;
   onPrev?: () => void;
+  onSetMode?: (mode: "presentation" | "game") => void;
+  disableNavHandling?: boolean;
 }
 
 export function useSpeakerWindow(
@@ -59,9 +65,52 @@ export function useSpeakerWindow(
           payload,
         });
       } else if (msg.type === "NAV_NEXT") {
-        optionsRef.current?.onNext?.();
+        if (optionsRef.current?.disableNavHandling) return;
+        if (msg.source === "ui") {
+          if (optionsRef.current?.onUiNext) {
+            optionsRef.current.onUiNext();
+          } else if (optionsRef.current?.onNext) {
+            optionsRef.current.onNext();
+          }
+        } else {
+          if (optionsRef.current?.onKeyNext) {
+            optionsRef.current.onKeyNext();
+          } else {
+            window.dispatchEvent(
+              new KeyboardEvent("keydown", {
+                key: "ArrowRight",
+                code: "ArrowRight",
+                bubbles: true,
+                cancelable: true,
+              })
+            );
+          }
+        }
       } else if (msg.type === "NAV_PREV") {
-        optionsRef.current?.onPrev?.();
+        if (optionsRef.current?.disableNavHandling) return;
+        if (msg.source === "ui") {
+          if (optionsRef.current?.onUiPrev) {
+            optionsRef.current.onUiPrev();
+          } else if (optionsRef.current?.onPrev) {
+            optionsRef.current.onPrev();
+          }
+        } else {
+          if (optionsRef.current?.onKeyPrev) {
+            optionsRef.current.onKeyPrev();
+          } else {
+            window.dispatchEvent(
+              new KeyboardEvent("keydown", {
+                key: "ArrowLeft",
+                code: "ArrowLeft",
+                bubbles: true,
+                cancelable: true,
+              })
+            );
+          }
+        }
+      } else if (msg.type === "SET_MODE") {
+        if (optionsRef.current?.disableNavHandling) return;
+        optionsRef.current?.onSetMode?.(msg.mode);
       }
     },
     [getCurrentPayload]

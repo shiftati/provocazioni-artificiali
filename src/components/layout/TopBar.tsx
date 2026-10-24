@@ -145,8 +145,9 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
   };
 
   const { openSpeakerWindow, isWindowOpen } = useSpeakerWindow(session, game, {
-    onNext: handleHeaderNext,
-    onPrev: handleHeaderPrev,
+    onUiNext: handleHeaderNext,
+    onUiPrev: handleHeaderPrev,
+    onSetMode: handleModeChange,
   });
 
   return (

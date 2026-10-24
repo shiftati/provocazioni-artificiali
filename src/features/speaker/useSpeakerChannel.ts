@@ -16,6 +16,8 @@ export interface SpeakerMessagePayload {
   timestamp: number;
 }
 
+export type SpeakerNavSource = "keyboard" | "ui";
+
 export type SpeakerMessage =
   | {
       type: "STATE_UPDATE";
@@ -26,9 +28,15 @@ export type SpeakerMessage =
     }
   | {
       type: "NAV_NEXT";
+      source?: SpeakerNavSource;
     }
   | {
       type: "NAV_PREV";
+      source?: SpeakerNavSource;
+    }
+  | {
+      type: "SET_MODE";
+      mode: "presentation" | "game";
     }
   | {
       type: "TRANSCRIPTION_CHUNK";
