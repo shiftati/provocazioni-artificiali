@@ -31,11 +31,13 @@ import {
   MicOffIcon,
   VideoIcon,
   VideoOffIcon,
+  SpeakerNoteIcon,
 } from "../../components/icons";
 import {
   isFileSystemAccessSupported,
   promptVideoSaveFilePicker,
 } from "../../utils/videoRecording";
+import { useSpeakerWindow } from "../speaker/useSpeakerWindow";
 import { usePwaInstall } from "../../hooks/usePwaInstall";
 import { useOfflineCache } from "../../hooks/useOfflineCache";
 import styles from "./ConfigView.module.scss";
@@ -63,6 +65,11 @@ export const ConfigView: FC = () => {
     videoRecordedFileName,
   } = useAppState();
   const { requestFullscreen } = useFullscreen();
+  const { openSpeakerWindow, isWindowOpen: isSpeakerOpen } = useSpeakerWindow(
+    session,
+    game,
+    { disableNavHandling: true }
+  );
   const { isInstallable, isInstalled, installApp } = usePwaInstall();
   const {
     total: cacheTotal,
@@ -518,6 +525,15 @@ export const ConfigView: FC = () => {
             entra nella presentazione.
           </p>
           <div className={styles.headerLinks}>
+            <Button
+              variant={isSpeakerOpen ? "primary" : "secondary"}
+              size="md"
+              onClick={openSpeakerWindow}
+              leftIcon={<SpeakerNoteIcon size={18} />}
+              title="Apri finestra con le note e il testo pensato da dire, sincronizzata con slide e gioco"
+            >
+              {isSpeakerOpen ? "Note Speaker Aperte" : "Apri Supporto Testuale"}
+            </Button>
             <Button
               variant="secondary"
               size="md"
