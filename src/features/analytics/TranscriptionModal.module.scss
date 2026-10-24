@@ -1,0 +1,344 @@
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-height: 75vh;
+  overflow: hidden;
+}
+
+.headerInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.metaGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.metaBadge {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  padding: 3px 8px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  position: relative;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 14px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.95rem;
+  transition: border-color 0.15s ease;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-mint, #58a6ff);
+  }
+
+  &::placeholder {
+    color: var(--color-text-muted);
+  }
+}
+
+.clearSearchBtn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: var(--color-text);
+  }
+}
+
+.transcriptScrollArea {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 420px;
+  padding-right: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.chunkRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: background-color 0.12s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+  }
+}
+
+.chunkActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+}
+
+.timeButton {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  background-color: rgba(88, 166, 255, 0.15);
+  border: 1px solid rgba(88, 166, 255, 0.35);
+  border-radius: 4px;
+  color: var(--color-mint, #58a6ff);
+  cursor: pointer;
+  transition: all 0.12s ease;
+
+  &:hover {
+    background-color: rgba(88, 166, 255, 0.28);
+    border-color: rgba(88, 166, 255, 0.6);
+  }
+}
+
+.replayJumpButton {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: var(--color-mint, #58a6ff);
+    background-color: rgba(88, 166, 255, 0.15);
+  }
+}
+
+.chunkText {
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--color-text);
+  flex: 1;
+}
+
+.highlightMatch {
+  background-color: rgba(234, 179, 8, 0.35);
+  color: #fff;
+  padding: 1px 3px;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+.emptySearch {
+  text-align: center;
+  padding: var(--space-6) var(--space-4);
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.modalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.exportButtonsGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.copiedToast {
+  font-size: 0.82rem;
+  color: var(--color-mint, #3fb950);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Editing Mode Styles */
+.editModeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background-color: rgba(234, 179, 8, 0.12);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 0.88rem;
+}
+
+.editTabs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.editTabBtn {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.12s ease;
+
+  &:hover {
+    color: var(--color-text);
+    border-color: var(--color-mint, #58a6ff);
+  }
+
+  &.activeTab {
+    background-color: var(--color-mint, #58a6ff);
+    color: #fff;
+    border-color: var(--color-mint, #58a6ff);
+    font-weight: 600;
+  }
+}
+
+.chunkEditRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+
+  &:focus-within {
+    border-color: var(--color-mint, #58a6ff);
+  }
+}
+
+.chunkEditMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+  width: 90px;
+}
+
+.timestampInput {
+  width: 100%;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  padding: 4px 6px;
+  background-color: var(--color-decal-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text);
+  text-align: center;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-mint, #58a6ff);
+  }
+}
+
+.chunkTextarea {
+  flex: 1;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--color-text);
+  background-color: var(--color-decal-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  min-height: 52px;
+  resize: vertical;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-mint, #58a6ff);
+  }
+}
+
+.deleteChunkBtn {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.12s ease;
+
+  &:hover {
+    color: var(--color-danger, #ef4444);
+    background-color: rgba(239, 68, 68, 0.12);
+  }
+}
+
+.addChunkBtnRow {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-2) 0;
+}
+
+.fullTextarea {
+  width: 100%;
+  min-height: 360px;
+  padding: var(--space-3);
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  resize: vertical;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-mint, #58a6ff);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
