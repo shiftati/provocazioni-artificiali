@@ -2,7 +2,7 @@ export interface SpeakerNote {
   slideId?: string;
   provocationId?: string;
   title: string;
-  notes: string;
+  notes?: string;
   hints?: string;
 }
 

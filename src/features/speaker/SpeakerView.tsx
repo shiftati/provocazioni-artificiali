@@ -12,6 +12,12 @@ import {
   type SpeakerNote,
 } from "./speakerNotes";
 import { renderFormattedSpeakerNotes } from "./speakerNotesFormatter";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  SlidesIcon,
+  GameIcon,
+} from "../../components/icons";
 import styles from "./SpeakerView.module.scss";
 
 export const SpeakerView: FC = () => {
@@ -53,23 +59,27 @@ export const SpeakerView: FC = () => {
     });
   };
 
-  const handleNext = () => {
-    send({ type: "NAV_NEXT" });
+  const handleUiNext = () => {
+    send({ type: "NAV_NEXT", source: "ui" });
   };
 
-  const handlePrev = () => {
-    send({ type: "NAV_PREV" });
+  const handleUiPrev = () => {
+    send({ type: "NAV_PREV", source: "ui" });
   };
 
-  // Keyboard navigation from speaker window
+  const handleSetMode = (mode: "presentation" | "game") => {
+    send({ type: "SET_MODE", mode });
+  };
+
+  // Keyboard navigation from speaker window (emulates physical keyboard on main screen)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") {
         e.preventDefault();
-        send({ type: "NAV_NEXT" });
+        send({ type: "NAV_NEXT", source: "keyboard" });
       } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
         e.preventDefault();
-        send({ type: "NAV_PREV" });
+        send({ type: "NAV_PREV", source: "keyboard" });
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -262,28 +272,64 @@ export const SpeakerView: FC = () => {
               </div>
             </div>
           )}
-
-          <footer className={styles.footerControls}>
-            <button
-              type="button"
-              className={styles.navButton}
-              onClick={handlePrev}
-              title="Indietro (Freccia Sinistra / PageUp)"
-            >
-              ◀ Precedente
-            </button>
-
-            <button
-              type="button"
-              className={styles.navButton}
-              onClick={handleNext}
-              title="Avanti (Freccia Destra / Spazio / PageDown)"
-            >
-              Successiva ▶
-            </button>
-          </footer>
         </main>
       )}
+
+      <footer className={styles.bottomBar}>
+        <div className={styles.bottomBarInner}>
+          <button
+            type="button"
+            className={styles.bottomNavBtn}
+            onClick={handleUiPrev}
+            title="Slide precedente"
+            aria-label="Slide precedente"
+          >
+            <ArrowLeftIcon size={16} />
+          </button>
+
+          <div
+            className={styles.bottomModeGroup}
+            role="group"
+            aria-label="Modalità"
+          >
+            <button
+              type="button"
+              className={`${styles.bottomModeBtn} ${
+                state?.mode === "presentation" ? styles.bottomModeBtnActive : ""
+              }`}
+              onClick={() => handleSetMode("presentation")}
+              title="Passa a modalità Slide"
+              aria-label="Modalità Slide"
+            >
+              <SlidesIcon size={14} />
+              <span>Slide</span>
+            </button>
+
+            <button
+              type="button"
+              className={`${styles.bottomModeBtn} ${
+                state?.mode === "game" ? styles.bottomModeBtnActive : ""
+              }`}
+              onClick={() => handleSetMode("game")}
+              title="Passa a modalità Gioco"
+              aria-label="Modalità Gioco"
+            >
+              <GameIcon size={14} />
+              <span>Gioco</span>
+            </button>
+          </div>
+
+          <button
+            type="button"
+            className={styles.bottomNavBtn}
+            onClick={handleUiNext}
+            title="Slide successiva"
+            aria-label="Slide successiva"
+          >
+            <ArrowRightIcon size={16} />
+          </button>
+        </div>
+      </footer>
     </div>
   );
 };

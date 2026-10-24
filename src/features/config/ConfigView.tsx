@@ -65,7 +65,11 @@ export const ConfigView: FC = () => {
     videoRecordedFileName,
   } = useAppState();
   const { requestFullscreen } = useFullscreen();
-  const { openSpeakerWindow, isWindowOpen: isSpeakerOpen } = useSpeakerWindow(session, game);
+  const { openSpeakerWindow, isWindowOpen: isSpeakerOpen } = useSpeakerWindow(
+    session,
+    game,
+    { disableNavHandling: true }
+  );
   const { isInstallable, isInstalled, installApp } = usePwaInstall();
   const {
     total: cacheTotal,
