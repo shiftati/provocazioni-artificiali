@@ -54,6 +54,8 @@ export const ConfigView: FC = () => {
     setTheme,
     navOnSlide,
     setNavOnSlide,
+    showRecIndicator,
+    setShowRecIndicator,
     updateConfig,
     startTalk,
     endTalk,
@@ -65,6 +67,7 @@ export const ConfigView: FC = () => {
     isRecordingVideo,
     stopVideoRecording,
     videoRecordedFileName,
+    isTranscribing,
   } = useAppState();
   const { requestFullscreen } = useFullscreen();
   const { openSpeakerWindow, isWindowOpen: isSpeakerOpen } = useSpeakerWindow(
@@ -450,6 +453,7 @@ export const ConfigView: FC = () => {
       conclusionMinutes: Math.max(0, conclusionMinutes || 0),
       introEndSlide,
       navOnSlide,
+      showRecIndicator,
       audioRecordingEnabled,
       audioDeviceId,
       transcriptionEnabled,
@@ -502,6 +506,7 @@ export const ConfigView: FC = () => {
       conclusionMinutes: Math.max(0, conclusionMinutes || 0),
       introEndSlide,
       navOnSlide,
+      showRecIndicator,
       audioRecordingEnabled,
       audioDeviceId,
       transcriptionEnabled,
@@ -699,6 +704,95 @@ export const ConfigView: FC = () => {
               </div>
             </div>
 
+            {/* Monitor Registrazioni & Trascrizione */}
+            <div className={styles.recordingMonitorSection}>
+              <div className={styles.recordingMonitorHeader}>
+                <span>Stato Registrazioni & Trascrizione</span>
+                {(isRecordingAudio || isRecordingVideo || isTranscribing) && (
+                  <span className={styles.liveRecTag}>
+                    <span className={styles.recPulseDot} /> LIVE
+                  </span>
+                )}
+              </div>
+
+              <div className={styles.recordingMonitorGrid}>
+                {/* Audio */}
+                <div
+                  className={`${styles.recordingMonitorCard} ${
+                    isRecordingAudio ? styles.recordingMonitorCardActive : ""
+                  }`}
+                >
+                  <div className={styles.recordingMonitorTitle}>
+                    <MicIcon size={16} />
+                    <span>Audio Microfono</span>
+                  </div>
+                  <div className={styles.recordingMonitorStatus}>
+                    {isRecordingAudio ? (
+                      <span className={styles.badgeRecording}>
+                        <span className={styles.recDot} /> Registrazione in corso
+                      </span>
+                    ) : hasActiveSession ? (
+                      <span className={styles.badgeInactive}>Non in corso</span>
+                    ) : audioRecordingEnabled ? (
+                      <span className={styles.badgeReady}>Abilitata al via</span>
+                    ) : (
+                      <span className={styles.badgeDisabled}>Disabilitata</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Video */}
+                <div
+                  className={`${styles.recordingMonitorCard} ${
+                    isRecordingVideo ? styles.recordingMonitorCardActive : ""
+                  }`}
+                >
+                  <div className={styles.recordingMonitorTitle}>
+                    <VideoIcon size={16} />
+                    <span>Video Webcam</span>
+                  </div>
+                  <div className={styles.recordingMonitorStatus}>
+                    {isRecordingVideo ? (
+                      <span className={styles.badgeRecording}>
+                        <span className={styles.recDot} /> Registrazione su disco
+                      </span>
+                    ) : hasActiveSession ? (
+                      <span className={styles.badgeInactive}>Non in corso</span>
+                    ) : videoRecordingEnabled ? (
+                      <span className={styles.badgeReady}>Abilitata al via</span>
+                    ) : (
+                      <span className={styles.badgeDisabled}>Disabilitata</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Transcription */}
+                <div
+                  className={`${styles.recordingMonitorCard} ${
+                    isTranscribing ? styles.recordingMonitorCardTranscribing : ""
+                  }`}
+                >
+                  <div className={styles.recordingMonitorTitle}>
+                    <TranscriptIcon size={16} />
+                    <span>Trascrizione Live</span>
+                  </div>
+                  <div className={styles.recordingMonitorStatus}>
+                    {isTranscribing ? (
+                      <span className={styles.badgeTranscribing}>
+                        <span className={styles.transcribingDot} /> Trascrizione attiva
+                      </span>
+                    ) : hasActiveSession ? (
+                      <span className={styles.badgeInactive}>Non in corso</span>
+                    ) : transcriptionEnabled ? (
+                      <span className={styles.badgeReady}>Abilitata al via</span>
+                    ) : (
+                      <span className={styles.badgeDisabled}>Disabilitata</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className={styles.actionsRow}>
               {hasActiveSession && isRecordingAudio && (
                 <Button
@@ -708,7 +802,18 @@ export const ConfigView: FC = () => {
                   leftIcon={<MicOffIcon size={18} />}
                   title="Interrompi e salva subito la registrazione audio in corso"
                 >
-                  Ferma registrazione audio
+                  Ferma audio
+                </Button>
+              )}
+              {hasActiveSession && isRecordingVideo && (
+                <Button
+                  variant="danger"
+                  size="md"
+                  onClick={stopVideoRecording}
+                  leftIcon={<VideoOffIcon size={18} />}
+                  title="Interrompi e salva subito la registrazione video in corso"
+                >
+                  Ferma video
                 </Button>
               )}
               <Button
@@ -806,6 +911,27 @@ export const ConfigView: FC = () => {
                 {navOnSlide
                   ? "Frecce visibili sopra la slide: controlli grandi e facili da premere a schermo."
                   : "Frecce nell'intestazione: massimizza lo spazio della slide con controlli compatti in alto."}
+              </span>
+            </div>
+
+            {/* Rec indicator visibility selector */}
+            <div className={styles.themeSection}>
+              <label className={styles.themeLabel} id="rec-indicator-label">
+                Segnale di registrazione (REC) nella barra superiore
+              </label>
+              <SegmentedControl<"visible" | "hidden">
+                options={[
+                  { value: "visible", label: "🔴 Visibile" },
+                  { value: "hidden", label: "👁️‍🗨️ Nascosto" },
+                ]}
+                value={showRecIndicator ? "visible" : "hidden"}
+                onChange={(val) => setShowRecIndicator(val === "visible")}
+                ariaLabel="Visibilità del segnale di registrazione nella barra superiore"
+              />
+              <span className={styles.themeHint}>
+                {showRecIndicator
+                  ? "Il segnale 'REC' compare nella barra superiore se è attiva la registrazione audio o video."
+                  : "Il segnale 'REC' rimane nascosto nella barra superiore anche durante la registrazione."}
               </span>
             </div>
 

@@ -50,6 +50,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
     isRecordingVideo,
     stopVideoRecording,
     videoRecordedFileName,
+    showRecIndicator,
     theme,
     setTheme,
     replaySlideAnimation,
@@ -252,32 +253,32 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
       </div>
 
       <div className={styles.rightSection}>
-        {isRecordingAudio && (
+        {showRecIndicator && (isRecordingAudio || isRecordingVideo) && (
           <button
             type="button"
             className={styles.recordingBadge}
-            onClick={stopAudioRecording}
-            title="Registrazione audio microfono attiva. Fai clic per interrompere."
+            onClick={() => {
+              if (isRecordingAudio) stopAudioRecording();
+              if (isRecordingVideo) stopVideoRecording();
+            }}
+            title={
+              isRecordingAudio && isRecordingVideo
+                ? `Registrazione audio e video webcam attiva su disco (${videoRecordedFileName || "file video"}). Fai clic per interrompere.`
+                : isRecordingAudio
+                  ? "Registrazione audio microfono attiva. Fai clic per interrompere."
+                  : `Registrazione video webcam attiva su disco (${videoRecordedFileName || "file video"}). Fai clic per interrompere.`
+            }
             role="status"
-            aria-label="Registrazione audio in corso. Clicca per interrompere."
+            aria-label={
+              isRecordingAudio && isRecordingVideo
+                ? "Registrazione audio e video in corso. Clicca per interrompere."
+                : isRecordingAudio
+                  ? "Registrazione audio in corso. Clicca per interrompere."
+                  : "Registrazione video webcam in corso. Clicca per interrompere."
+            }
           >
             <span className={styles.recordingDot} />
-            <span className={styles.recordingText}>REC MIC</span>
-            <span className={styles.recordingStopHint}>✕</span>
-          </button>
-        )}
-
-        {isRecordingVideo && (
-          <button
-            type="button"
-            className={styles.recordingBadge}
-            onClick={stopVideoRecording}
-            title={`Registrazione video webcam attiva su disco (${videoRecordedFileName || "file video"}). Fai clic per interrompere.`}
-            role="status"
-            aria-label="Registrazione video webcam in corso. Clicca per interrompere."
-          >
-            <span className={styles.recordingDot} />
-            <span className={styles.recordingText}>REC CAM</span>
+            <span className={styles.recordingText}>REC</span>
             <span className={styles.recordingStopHint}>✕</span>
           </button>
         )}

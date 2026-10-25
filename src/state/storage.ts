@@ -15,6 +15,7 @@ const STORAGE_KEYS = {
   STATS: "codemotion-app:stats",
   HEADER_COLLAPSED: "codemotion-app:header-collapsed",
   NAV_ON_SLIDE: "codemotion-app:nav-on-slide",
+  SHOW_REC_INDICATOR: "codemotion-app:show-rec-indicator",
   SESSIONS: "codemotion-app:sessions-history",
   CURRENT_SESSION_ID: "codemotion-app:current-session-id",
 } as const;
@@ -29,6 +30,7 @@ export const DEFAULT_CONFIG: TalkConfig = {
   conclusionMinutes: 5,
   introEndSlide: 10,
   navOnSlide: false,
+  showRecIndicator: true,
   audioRecordingEnabled: false,
   audioDeviceId: "default",
   transcriptionEnabled: false,
@@ -106,6 +108,8 @@ export const appStorage = {
         typeof cfg.conclusionMinutes === "number" ? cfg.conclusionMinutes : 5,
       navOnSlide:
         typeof cfg.navOnSlide === "boolean" ? cfg.navOnSlide : true,
+      showRecIndicator:
+        typeof cfg.showRecIndicator === "boolean" ? cfg.showRecIndicator : true,
       audioRecordingEnabled:
         typeof cfg.audioRecordingEnabled === "boolean"
           ? cfg.audioRecordingEnabled
@@ -149,6 +153,19 @@ export const appStorage = {
     writeItem(STORAGE_KEYS.NAV_ON_SLIDE, navOnSlide);
     const cfg = this.getConfig();
     this.saveConfig({ ...cfg, navOnSlide });
+  },
+  getShowRecIndicator(): boolean {
+    const raw = readItem<boolean | null>(STORAGE_KEYS.SHOW_REC_INDICATOR, null);
+    if (raw !== null) {
+      return raw;
+    }
+    const cfg = this.getConfig();
+    return typeof cfg.showRecIndicator === "boolean" ? cfg.showRecIndicator : true;
+  },
+  saveShowRecIndicator(showRecIndicator: boolean): void {
+    writeItem(STORAGE_KEYS.SHOW_REC_INDICATOR, showRecIndicator);
+    const cfg = this.getConfig();
+    this.saveConfig({ ...cfg, showRecIndicator });
   },
   hasConfig(): boolean {
     const cfg = this.getConfig();
