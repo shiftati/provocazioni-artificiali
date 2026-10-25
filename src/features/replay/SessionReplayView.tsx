@@ -83,8 +83,14 @@ export const SessionReplayView: FC = () => {
   // Audio recording state
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioDuration, setAudioDuration] = useState<number | null>(null);
+  const [hasAudioRecorded, setHasAudioRecorded] = useState<boolean>(() => Boolean(session?.hasAudio));
+  const [isAudioActive, setIsAudioActive] = useState<boolean>(true);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const handleToggleAudio = useCallback(() => {
+    setIsAudioActive((prev) => !prev);
+  }, []);
 
   useEffect(() => {
     let isCurrent = true;
@@ -96,17 +102,20 @@ export const SessionReplayView: FC = () => {
         if (rec) {
           url = URL.createObjectURL(rec.blob);
           setAudioUrl(url);
+          setHasAudioRecorded(true);
           if (rec.durationSeconds) {
             setAudioDuration(rec.durationSeconds);
           }
         } else {
           setAudioUrl(null);
           setAudioDuration(null);
+          setHasAudioRecorded(false);
         }
       });
     } else {
       setAudioUrl(null);
       setAudioDuration(null);
+      setHasAudioRecorded(false);
     }
 
     return () => {
@@ -292,12 +301,12 @@ export const SessionReplayView: FC = () => {
     if (!audio) return;
     try {
       audio.playbackRate = Math.min(16, playbackSpeed);
-      // Mute audio at high speeds (>= 5x) to avoid screeching
-      audio.muted = isMuted || playbackSpeed >= 5;
+      // Mute audio if global mute is active, if audio track is deactivated, or at high speeds (>= 5x)
+      audio.muted = isMuted || !isAudioActive || playbackSpeed >= 5;
     } catch (e) {
       console.warn("Failed to set audio playback rate:", e);
     }
-  }, [playbackSpeed, isMuted]);
+  }, [playbackSpeed, isMuted, isAudioActive]);
 
   // Auto-hide controls when mouse is inactive
   useEffect(() => {
@@ -474,6 +483,9 @@ export const SessionReplayView: FC = () => {
       } else if (e.key === "m" || e.key === "M") {
         e.preventDefault();
         handleToggleMute();
+      } else if (e.key === "a" || e.key === "A") {
+        e.preventDefault();
+        handleToggleAudio();
       } else if (e.key === "v" || e.key === "V") {
         e.preventDefault();
         handleToggleVideo();
@@ -509,7 +521,16 @@ export const SessionReplayView: FC = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleTogglePlay, handleExit, handleToggleMute, handlePrevEvent, handleNextEvent, handleSeek]);
+  }, [
+    handleTogglePlay,
+    handleExit,
+    handleToggleMute,
+    handleToggleAudio,
+    handleToggleVideo,
+    handlePrevEvent,
+    handleNextEvent,
+    handleSeek,
+  ]);
 
   // Active provocation resolved with robust fallbacks
   const activeProvocation = useMemo(() => {
@@ -798,7 +819,9 @@ export const SessionReplayView: FC = () => {
         activeEvent={replayState.activeEvent}
         events={events}
         sessionStartTime={session.startedAt}
-        hasAudio={Boolean(audioUrl)}
+        hasAudio={hasAudioRecorded}
+        isAudioActive={isAudioActive}
+        onToggleAudio={handleToggleAudio}
         isMuted={isMuted}
         onToggleMute={handleToggleMute}
         hasVideo={hasVideo}

@@ -50,6 +50,7 @@ export interface AppStateContextValue {
   stats: AppStats;
   theme: AppTheme;
   navOnSlide: boolean;
+  showRecIndicator: boolean;
   globalRemainingSeconds: number;
   isGlobalExpired: boolean;
   stopCallsOverlayOpen: boolean;
@@ -61,6 +62,7 @@ export interface AppStateContextValue {
   videoRecordingError: string | null;
   videoRecordedFileName: string | null;
   stopVideoRecording: () => void;
+  isTranscribing: boolean;
   // Sessions & Analytics
   sessions: TalkSessionRecord[];
   currentSessionId: string | null;
@@ -68,6 +70,7 @@ export interface AppStateContextValue {
   updateConfig: (cfg: TalkConfig) => void;
   setTheme: (theme: AppTheme) => void;
   setNavOnSlide: (navOnSlide: boolean) => void;
+  setShowRecIndicator: (showRecIndicator: boolean) => void;
   startTalk: (
     configOverrides?: Partial<TalkConfig>,
     videoFileHandle?: FileSystemFileHandle | null
@@ -113,6 +116,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [isRecordingVideo, setIsRecordingVideo] = useState<boolean>(false);
   const [videoRecordingError, setVideoRecordingError] = useState<string | null>(null);
   const [videoRecordedFileName, setVideoRecordedFileName] = useState<string | null>(null);
+  const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioStreamRef = useRef<MediaStream | null>(null);
@@ -142,6 +146,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       if (!liveTranscriberRef.current) return;
       const transcriber = liveTranscriberRef.current;
       liveTranscriberRef.current = null;
+      setIsTranscribing(false);
       broadcastSpeaker({
         type: "TRANSCRIPTION_STATUS",
         payload: { status: "stopped" },
@@ -173,6 +178,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const stopAudioRecording = useCallback(() => {
     const targetSessionId = recordingSessionIdRef.current;
+    setIsTranscribing(false);
     finalizeTranscription(targetSessionId).catch((e) =>
       console.warn("Error finalizing transcription on stopAudioRecording:", e)
     );
@@ -187,6 +193,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
           audioStreamRef.current = null;
         }
         setIsRecordingAudio(false);
+        setIsTranscribing(false);
       }
     } else {
       if (audioStreamRef.current) {
@@ -194,6 +201,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         audioStreamRef.current = null;
       }
       setIsRecordingAudio(false);
+    setIsTranscribing(false);
     }
   }, [finalizeTranscription]);
 
@@ -256,6 +264,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [stats, setStatsState] = useState<AppStats>(() => appStorage.getStats());
   const [theme, setThemeState] = useState<AppTheme>(() => appStorage.getTheme());
   const [navOnSlide, setNavOnSlideState] = useState<boolean>(() => appStorage.getNavOnSlide());
+  const [showRecIndicator, setShowRecIndicatorState] = useState<boolean>(() => appStorage.getShowRecIndicator());
   const [stopCallsOverlayOpen, setStopCallsOverlayOpen] = useState<boolean>(false);
   const [slideAnimKey, setSlideAnimKey] = useState<number>(0);
   const [previousSlideIndex, setPreviousSlideIndex] = useState<number | null>(null);
@@ -645,6 +654,16 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     });
   }, []);
 
+  const setShowRecIndicator = useCallback((newShowRecIndicator: boolean) => {
+    setShowRecIndicatorState(newShowRecIndicator);
+    appStorage.saveShowRecIndicator(newShowRecIndicator);
+    setConfigState((prev) => {
+      const updated = { ...prev, showRecIndicator: newShowRecIndicator };
+      appStorage.saveConfig(updated);
+      return updated;
+    });
+  }, []);
+
   const updateConfig = useCallback((newConfig: TalkConfig) => {
     setConfigState(newConfig);
     if (newConfig.theme && newConfig.theme !== theme) {
@@ -653,6 +672,10 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     if (typeof newConfig.navOnSlide === "boolean" && newConfig.navOnSlide !== navOnSlide) {
       setNavOnSlideState(newConfig.navOnSlide);
       appStorage.saveNavOnSlide(newConfig.navOnSlide);
+    }
+    if (typeof newConfig.showRecIndicator === "boolean" && newConfig.showRecIndicator !== showRecIndicator) {
+      setShowRecIndicatorState(newConfig.showRecIndicator);
+      appStorage.saveShowRecIndicator(newConfig.showRecIndicator);
     }
     appStorage.saveConfig(newConfig);
 
@@ -926,6 +949,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
             });
             liveTranscriberRef.current = transcriber;
             transcriber.start();
+            setIsTranscribing(true);
             broadcastSpeaker({
               type: "TRANSCRIPTION_STATUS",
               payload: { status: "listening", language: lang },
@@ -997,6 +1021,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
             audioStreamRef.current = null;
           }
           setIsRecordingAudio(false);
+        setIsTranscribing(false);
           mediaRecorderRef.current = null;
           audioChunksRef.current = [];
           recordingSessionIdRef.current = null;
@@ -1007,6 +1032,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
           console.error("MediaRecorder error:", event);
           setAudioRecordingError("Errore durante la registrazione audio");
           setIsRecordingAudio(false);
+        setIsTranscribing(false);
         };
 
         recorder.start(1000);
@@ -1014,6 +1040,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         setAudioRecordingError(null);
       } else {
         setIsRecordingAudio(false);
+        setIsTranscribing(false);
       }
 
       // 2. Setup Video Recorder (started simultaneously)
@@ -1654,6 +1681,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       audioStreamRef.current = null;
     }
     setIsRecordingAudio(false);
+    setIsTranscribing(false);
 
     // Reset live state
     appStorage.clearAll();
@@ -1827,6 +1855,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         stats,
         theme,
         navOnSlide,
+        showRecIndicator,
         globalRemainingSeconds,
         isGlobalExpired,
         stopCallsOverlayOpen,
@@ -1838,12 +1867,14 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         videoRecordingError,
         videoRecordedFileName,
         stopVideoRecording,
+        isTranscribing,
         sessions,
         currentSessionId,
         activeSessionRecord,
         updateConfig,
         setTheme,
         setNavOnSlide,
+        setShowRecIndicator,
         startTalk,
         endTalk,
         setSlideIndex,

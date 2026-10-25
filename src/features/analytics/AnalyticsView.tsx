@@ -65,6 +65,9 @@ export const AnalyticsView: FC = () => {
     loadSampleSessions,
     session: liveSessionState,
     isSessionActive,
+    isRecordingAudio,
+    isRecordingVideo,
+    isTranscribing,
   } = useAppState();
 
   // Selected session ID to display in detail
@@ -424,14 +427,27 @@ export const AnalyticsView: FC = () => {
                 value={currentViewSession?.id ?? ""}
                 onChange={(e) => setSelectedSessionId(e.target.value)}
               >
-                {sessions.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.hasAudio ? "🎙️ " : ""}
-                    {s.hasTranscription ? "📝 " : ""}
-                    {s.name} ({formatDateTime(s.startedAt)})
-                    {s.id === currentSessionId ? " [IN CORSO]" : ""}
-                  </option>
-                ))}
+                {sessions.map((s) => {
+                  const hasAudio = Boolean(
+                    s.hasAudio || (s.id === currentSessionId && isRecordingAudio)
+                  );
+                  const hasVideo = Boolean(
+                    s.hasVideo || s.videoFileName || (s.id === currentSessionId && isRecordingVideo)
+                  );
+                  const hasTranscription = Boolean(
+                    s.hasTranscription || (s.id === currentSessionId && isTranscribing)
+                  );
+
+                  return (
+                    <option key={s.id} value={s.id}>
+                      {hasAudio ? "🎙️ " : ""}
+                      {hasVideo ? "📹 " : ""}
+                      {hasTranscription ? "📝 " : ""}
+                      {s.name} ({formatDateTime(s.startedAt)})
+                      {s.id === currentSessionId ? " [IN CORSO]" : ""}
+                    </option>
+                  );
+                })}
               </select>
 
               {currentViewSession && (

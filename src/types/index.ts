@@ -11,6 +11,7 @@ export interface TalkConfig {
   conclusionMinutes?: number; // minuti dedicati alla conclusione
   introEndSlide?: number;     // ultima slide dell'introduzione (1-based, default 11)
   navOnSlide?: boolean;       // true: sopra la slide (default); false: nell'intestazione
+  showRecIndicator?: boolean; // true: mostra indicatore "Rec" nella topbar (default true); false: nasconde
   audioRecordingEnabled?: boolean; // true: registra audio dal microfono durante il talk
   audioDeviceId?: string;     // id dispositivo microfono selezionato ('default' o deviceId specifico)
   transcriptionEnabled?: boolean; // true: trascrive l'audio in ingresso con Hugging Face Transformers.js

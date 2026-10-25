@@ -177,6 +177,159 @@
   gap: var(--space-1);
 }
 
+.recordingMonitorSection {
+  background-color: var(--color-decal-bg);
+  border: 2px solid #000000;
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.recordingMonitorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.liveRecTag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.recPulseDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #ef4444;
+  box-shadow: 0 0 6px #ef4444;
+  animation: pulseRecording 1.5s infinite ease-in-out;
+}
+
+.recordingMonitorGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.recordingMonitorCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  transition: all var(--duration-fast) var(--ease);
+
+  &.recordingMonitorCardActive {
+    border-color: rgba(239, 68, 68, 0.8);
+    background-color: rgba(239, 68, 68, 0.08);
+    box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.25);
+  }
+
+  &.recordingMonitorCardTranscribing {
+    border-color: rgba(0, 240, 181, 0.8);
+    background-color: rgba(0, 240, 181, 0.08);
+    box-shadow: inset 0 0 0 1px rgba(0, 240, 181, 0.25);
+  }
+}
+
+.recordingMonitorTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.recordingMonitorStatus {
+  display: flex;
+  align-items: center;
+  min-height: 22px;
+}
+
+.badgeRecording {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ef4444;
+  letter-spacing: 0.02em;
+}
+
+.badgeTranscribing {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-mint);
+  letter-spacing: 0.02em;
+}
+
+.badgeReady {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.badgeInactive {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.badgeDisabled {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  opacity: 0.55;
+}
+
+.recDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ef4444;
+  box-shadow: 0 0 6px #ef4444;
+  animation: pulseRecording 1.5s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+.transcribingDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-mint);
+  box-shadow: 0 0 6px var(--color-mint);
+  animation: pulseRecording 1.5s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
 /* Audio Recording & Microphone Section */
 .micSettingsWrapper {
   display: flex;

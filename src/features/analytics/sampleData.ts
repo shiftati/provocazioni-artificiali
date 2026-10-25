@@ -19,6 +19,10 @@ export function createSampleSessions(): TalkSessionRecord[] {
     plannedEndTimestamp: oneDayAgo + 45 * 60 * 1000,
     introEndSlide: 10,
     notes: "Ottimo feedback dalla platea. Dibattito vivace sui microservizi e su AI coding.",
+    hasAudio: true,
+    hasVideo: true,
+    videoFileName: "talk-video-codemotion.webm",
+    hasTranscription: true,
     slides: SLIDES.map((slide, idx) => {
       // Realistic slide durations in seconds
       const durations = [
