@@ -1,4 +1,4 @@
-# Shiftati di Testa al Codemotion Milano del 28-29 Ottobre 2026 (Presentazione e Gioco)
+# Shiftati di Testa al Codemotion Milano del 28-29 Ottobre 2026
 
 Il Talk dei Shiftati di Testa sul palco di Codemotion Milano 28-29 Ottobre 2026
 
@@ -6,7 +6,7 @@ Il Talk dei Shiftati di Testa sul palco di Codemotion Milano 28-29 Ottobre 2026
 > auto-scaling nativo (`1920×1080`), navigazione per telecomando da palco e tastiera, countdown globale,
 > modalità gioco Klippy Saw ("Voglio fare un gioco con te"), overlay automatico "Stop alle telefonate", tema dinamico
 > Dark/Light in stile Neo-Brutalist, suite completa di **Dashboard Analytics**, pacchetti di **Export/Import ZIP con
-audio** e motore di **Session Replay** con sincronizzazione audio per rivivere ogni secondo del talk.
+> audio** e motore di **Session Replay** con sincronizzazione audio per rivivere ogni secondo del talk.
 
 ---
 
@@ -36,11 +36,11 @@ audio** e motore di **Session Replay** con sincronizzazione audio per rivivere o
   `H` o `Escape` per un palco privo di distrazioni. Uno snello trigger discreto a comparsa permette di riaprirla in
   qualsiasi momento. Lo stato compresso/espanso è salvato in `localStorage`.
 - **Countdown globale bifase anti-drift**:
-    - *Fase 1 (Gioco)*: mostra i minuti rimanenti prima della conclusione del gioco
-      (`endTimestamp - conclusionMinutes`).
-    - *Fase 2 (Talk)*: dopo l'attivazione di "Stop alle telefonate", il countdown passa automaticamente al tempo residuo
-      per la fine assoluta del talk (proseguendo in negativo oltre lo zero finché il talk non viene concluso).
-    - Nessuna perdita di sincronizzazione al refresh del browser, al cambio di tab o alla sospensione del computer.
+  - _Fase 1 (Gioco)_: mostra i minuti rimanenti prima della conclusione del gioco
+    (`endTimestamp - conclusionMinutes`).
+  - _Fase 2 (Talk)_: dopo l'attivazione di "Stop alle telefonate", il countdown passa automaticamente al tempo residuo
+    per la fine assoluta del talk (proseguendo in negativo oltre lo zero finché il talk non viene concluso).
+  - Nessuna perdita di sincronizzazione al refresh del browser, al cambio di tab o alla sospensione del computer.
 - **Overlay a schermo intero "Stop alle telefonate"**: allo scadere della finestra di gioco, scatta un overlay a tutto
   schermo con grafica personalizzata. Confermando ("Prosegui" o tasti `Enter`/`Space`/`Freccia Destra`), l'app
   riposiziona la presentazione direttamente sulle slide della conclusione.
@@ -112,17 +112,17 @@ L'applicazione supporta il ciclo di vita completo del talk:
 - **Slide fine introduzione (`introEndSlide`, default 10)**: numero della slide che attiva il passaggio automatico alla
   modalità Gioco tramite telecomando o tastiera (default: slide 10 "Klippy matrix / Documentazione insensata").
 - **Posizione frecce di navigazione (`navOnSlide`)**:
-    - *Sopra la slide*: frecce grandi sui lati dello stage per un controllo visivo immediato a schermo.
-    - *Nell'intestazione*: frecce compatte nella TopBar per massimizzare la pulizia visiva delle slide.
+  - _Sopra la slide_: frecce grandi sui lati dello stage per un controllo visivo immediato a schermo.
+  - _Nell'intestazione_: frecce compatte nella TopBar per massimizzare la pulizia visiva delle slide.
 - **Registrazione Audio Talk**:
-    - Attiva/disattiva l'acquisizione del microfono per salvare la traccia vocale dell'intervento in locale
-      (`IndexedDB`).
-    - **Selezione Dispositivo Microfonico**: dropdown per scegliere una specifica sorgente microfonica tra quelle
-      collegate al computer.
-    - **Test Microfono & VU Meter**: pulsante "Testa Microfono" con barra dinamica del livello audio (0-100%) per
-      verificare gain e qualità del segnale prima dell'evento.
-    - **Indicatore Registrazione in Corso**: se il talk è attivo e l'audio è in acquisizione, mostra un banner con badge
-      dedicato e pulsante "Ferma Registrazione" per terminare e archiviare la traccia audio senza chiudere il talk.
+  - Attiva/disattiva l'acquisizione del microfono per salvare la traccia vocale dell'intervento in locale
+    (`IndexedDB`).
+  - **Selezione Dispositivo Microfonico**: dropdown per scegliere una specifica sorgente microfonica tra quelle
+    collegate al computer.
+  - **Test Microfono & VU Meter**: pulsante "Testa Microfono" con barra dinamica del livello audio (0-100%) per
+    verificare gain e qualità del segnale prima dell'evento.
+  - **Indicatore Registrazione in Corso**: se il talk è attivo e l'audio è in acquisizione, mostra un banner con badge
+    dedicato e pulsante "Ferma Registrazione" per terminare e archiviare la traccia audio senza chiudere il talk.
 - **Tema dell'app**: selezione istantanea tra modalità Scura (`dark`, default) e Chiara (`light`).
 - **Pulsante "Reset" Slide e Gioco**: apre un modale di sicurezza che imposta la slide corrente alla numero 1 (`Titolo`)
   e il gioco allo stato `IDLE` (`KlippySaw`), ideale per ripetere le prove senza azzerare l'orario impostato o eliminare
@@ -137,29 +137,29 @@ L'applicazione supporta il ciclo di vita completo del talk:
 La modalità gioco è governata da una State Machine pura a prova di freeze:
 
 1. **IDLE (Step 1 — Schermata Saw)**:
-    - Mostra Klippy Saw a tutto schermo con grafica neo-brutal e il pulsante **"Inizia il gioco"**.
-    - Può essere avviato sia cliccando sullo stage sia premendo il tasto "Avanti" (`ArrowRight`, `Space`, `PageDown`).
-    - Premendo il tasto "Indietro" (`ArrowLeft`, `PageUp`) si torna immediatamente alla presentazione slide.
+   - Mostra Klippy Saw a tutto schermo con grafica neo-brutal e il pulsante **"Inizia il gioco"**.
+   - Può essere avviato sia cliccando sullo stage sia premendo il tasto "Avanti" (`ArrowRight`, `Space`, `PageDown`).
+   - Premendo il tasto "Indietro" (`ArrowLeft`, `PageUp`) si torna immediatamente alla presentazione slide.
 2. **Eccezione 1° Loop**:
-    - Alla prima esecuzione del gioco, il timer di sfida viene saltato e si passa direttamente alla prima provocazione
-      (Step 2A).
+   - Alla prima esecuzione del gioco, il timer di sfida viene saltato e si passa direttamente alla prima provocazione
+     (Step 2A).
 3. **CHALLENGE (Step 2 — Sfida 30 secondi)**:
-    - Countdown di 30 secondi con visual warning a 20s e danger a 10s per stimolare la decisione del pubblico.
-    - Pulsanti con decal grafici e bordi ad alto contrasto: **"Accetta Provocazione"** (avvia la discussione) oppure **"
-      Salta"** (scarta e pesca la successiva).
+   - Countdown di 30 secondi con visual warning a 20s e danger a 10s per stimolare la decisione del pubblico.
+   - Pulsanti con decal grafici e bordi ad alto contrasto: **"Accetta Provocazione"** (avvia la discussione) oppure **"
+     Salta"** (scarta e pesca la successiva).
 4. **PROVOCATION (Step 2A — Scheda della provocazione)**:
-    - Renderizza la card della provocazione (`ProvocationCard`) con titolo tipografico evidenziato, sottotitolo e visual
-      dedicato da `public/images/provocations/`.
-    - **"Cambia provocazione"**: scarta la provocazione estratta e ne sorteggia una nuova dal pool rimasto.
-    - **"Accetta provocazione"**: conferma l'argomento e passa al timer di discussione.
+   - Renderizza la card della provocazione (`ProvocationCard`) con titolo tipografico evidenziato, sottotitolo e visual
+     dedicato da `public/images/provocations/`.
+   - **"Cambia provocazione"**: scarta la provocazione estratta e ne sorteggia una nuova dal pool rimasto.
+   - **"Accetta provocazione"**: conferma l'argomento e passa al timer di discussione.
 5. **DISCUSSION (Step 3 — Countdown 5 minuti)**:
-    - Timer prominente da 5:00 minuti con soglie visive di warning (3 min) e danger (1 min).
-    - Pulsante **"Pausa / Riprendi"**: congela il countdown in caso di interventi o domande articolate dal pubblico.
-    - Pulsante **"Prossima provocazione"**: archivia il tempo discusso e torna allo step di sfida successivo.
+   - Timer prominente da 5:00 minuti con soglie visive di warning (3 min) e danger (1 min).
+   - Pulsante **"Pausa / Riprendi"**: congela il countdown in caso di interventi o domande articolate dal pubblico.
+   - Pulsante **"Prossima provocazione"**: archivia il tempo discusso e torna allo step di sfida successivo.
 6. **Riciclo Automatico del Pool**:
-    - Tiene traccia delle provocazioni completate e di quelle scartate.
-    - Qualora tutte le provocazioni disponibili venissero esaurite, il pool viene resettato automaticamente consentendo
-      al talk di proseguire senza interruzioni.
+   - Tiene traccia delle provocazioni completate e di quelle scartate.
+   - Qualora tutte le provocazioni disponibili venissero esaurite, il pool viene resettato automaticamente consentendo
+     al talk di proseguire senza interruzioni.
 
 ---
 
@@ -171,52 +171,52 @@ secondo della sessione attiva e mantiene lo storico di tutti i talk precedenti i
 ### Metriche e Visualizzazioni
 
 - **KPI Stats Cards**:
-    - Durata totale effettiva del talk vs orario pianificato.
-    - Tempo complessivo trascorso sulle slide vs tempo trascorso nel gioco.
-    - Numero totale di provocazioni discusse, accettate e scartate.
-    - Tempo medio di permanenza per slide e tempo medio di discussione per provocazione.
+  - Durata totale effettiva del talk vs orario pianificato.
+  - Tempo complessivo trascorso sulle slide vs tempo trascorso nel gioco.
+  - Numero totale di provocazioni discusse, accettate e scartate.
+  - Tempo medio di permanenza per slide e tempo medio di discussione per provocazione.
 - **Slide Duration Chart**:
-    - Grafico a barre con la durata esatta trascorsa su ciascuna slide (dalla 1 alla 14).
-    - Linea di benchmark della durata media per slide.
-    - Contatore del numero di visite e passaggi a ritroso per singola slide.
+  - Grafico a barre con la durata esatta trascorsa su ciascuna slide (dalla 1 alla 14).
+  - Linea di benchmark della durata media per slide.
+  - Contatore del numero di visite e passaggi a ritroso per singola slide.
 - **Provocations Chart**:
-    - Tempo impiegato per decidere/accettare ciascuna provocazione vs durata effettiva della discussione.
+  - Tempo impiegato per decidere/accettare ciascuna provocazione vs durata effettiva della discussione.
 - **Session Duration & Timeline Chart**:
-    - Andamento cronologico cumulativo della sessione per verificare il ritmo espositivo rispetto alla scaletta.
+  - Andamento cronologico cumulativo della sessione per verificare il ritmo espositivo rispetto alla scaletta.
 - **Talk Distribution Chart**:
-    - Distribuzione percentuale del tempo tra le macro-aree: *Slide Introduzione*, *Gioco & Provocazioni*, *Slide
-      Conclusione*.
+  - Distribuzione percentuale del tempo tra le macro-aree: _Slide Introduzione_, _Gioco & Provocazioni_, _Slide
+    Conclusione_.
 - **Multi-Session Comparison Chart**:
-    - Confronto visivo multi-talk tra sessioni e prove differenti per analizzare l'evoluzione dei tempi e delle
-      provocazioni affrontate.
+  - Confronto visivo multi-talk tra sessioni e prove differenti per analizzare l'evoluzione dei tempi e delle
+    provocazioni affrontate.
 - **Session Timeline Interattiva**:
-    - Cronistoria dettagliata di ogni singolo evento (slide, step di animazione, cambi di stato gioco, pause, stop
-      telefonate).
-    - Pulsante dedicato **"Rivedi da qui"** per saltare istantaneamente al secondo esatto nel Session Replay.
+  - Cronistoria dettagliata di ogni singolo evento (slide, step di animazione, cambi di stato gioco, pause, stop
+    telefonate).
+  - Pulsante dedicato **"Rivedi da qui"** per saltare istantaneamente al secondo esatto nel Session Replay.
 - **Talk Audio Player (`TalkAudioPlayer`)**:
-    - Player audio avanzato per ascoltare la traccia vocale memorizzata in IndexedDB.
-    - Pulsante per lanciare il **Session Replay sincronizzato** direttamente dall'offset audio corrente.
-    - Pulsante **Scarica Audio**: scarica il file audio registrato in locale (`downloadAudioFile`).
-    - Pulsante **Elimina Audio**: rimuove la traccia da IndexedDB liberando memoria browser.
+  - Player audio avanzato per ascoltare la traccia vocale memorizzata in IndexedDB.
+  - Pulsante per lanciare il **Session Replay sincronizzato** direttamente dall'offset audio corrente.
+  - Pulsante **Scarica Audio**: scarica il file audio registrato in locale (`downloadAudioFile`).
+  - Pulsante **Elimina Audio**: rimuove la traccia da IndexedDB liberando memoria browser.
 
 ### Strumenti di Gestione Dati ed Esportazione
 
 - **Esportazione ZIP Completa (con traccia audio)**:
-    - Esportando una sessione che dispone di registrazione vocale, l'app genera automaticamente un pacchetto `.zip`
-      compresso contenente `session.json` e il file audio associato (`audio_<nome>.<ext>`).
-    - Se la sessione non ha audio, effettua il fallback pulito esportando direttamente il file `.json`.
-    - **Esporta Tutte (`Esporta tutte (N)`)**: genera un archivio ZIP globale con `sessions.json` e la sottocartella
-      `audio/` con tutte le tracce vocali memorizzate.
+  - Esportando una sessione che dispone di registrazione vocale, l'app genera automaticamente un pacchetto `.zip`
+    compresso contenente `session.json` e il file audio associato (`audio_<nome>.<ext>`).
+  - Se la sessione non ha audio, effettua il fallback pulito esportando direttamente il file `.json`.
+  - **Esporta Tutte (`Esporta tutte (N)`)**: genera un archivio ZIP globale con `sessions.json` e la sottocartella
+    `audio/` con tutte le tracce vocali memorizzate.
 - **Importazione Universale (`JsonImportModal`)**:
-    - Supporta sia file `.json` tradizionali sia archivi `.zip`.
-    - Estrae i record delle sessioni e salva automaticamente le tracce audio in `IndexedDB`, ripristinando integralmente
-      replay e player.
+  - Supporta sia file `.json` tradizionali sia archivi `.zip`.
+  - Estrae i record delle sessioni e salva automaticamente le tracce audio in `IndexedDB`, ripristinando integralmente
+    replay e player.
 - **Importazione ed Associazione Audio Dedicata (`AudioImportModal`)**:
-    - Accessibile tramite il pulsante **"Importa Audio"**.
-    - Permette di selezionare qualsiasi file audio esterno (formati: `.webm`, `.mp3`, `.wav`, `.m4a`, `.mp4`, `.ogg`,
-      `.aac`, o da file ZIP).
-    - Include un player di anteprima con **rilevamento automatico della durata audio** (`detectAudioDuration`).
-    - Consente di scegliere la sessione di destinazione a cui collegare l'audio, salvandolo in `IndexedDB`.
+  - Accessibile tramite il pulsante **"Importa Audio"**.
+  - Permette di selezionare qualsiasi file audio esterno (formati: `.webm`, `.mp3`, `.wav`, `.m4a`, `.mp4`, `.ogg`,
+    `.aac`, o da file ZIP).
+  - Include un player di anteprima con **rilevamento automatico della durata audio** (`detectAudioDuration`).
+  - Consente di scegliere la sessione di destinazione a cui collegare l'audio, salvandolo in `IndexedDB`.
 - **Modifica Sessione (`SessionEditorModal`)**: per aggiornare titolo del talk e annotazioni esplicative.
 - **Modifica Provocazione (`ProvocationEditorModal`)**: per correggere o perfezionare titoli e durate delle singole
   provocazioni registrate.
@@ -245,47 +245,47 @@ implementa un motore ad alta fedeltà che ricostruisce il talk esattamente come 
 ### Funzionalità Chiave del Replay
 
 1. **Riproduzione Fedele dello Stage 16:9**:
-    - Renderizza le slide con le stesse dimensioni e lo scaling del palco (`isReplay={true}`).
-    - Supporto nativo per le **animazioni interne a step** (`SLIDE_ANIMATION` con tracking di `slideStep`), permettendo
-      di rivedere le transizioni progressive su slide complesse:
-        - Slide 5 `Daniel e Ste`: comparsa graduale degli avatar e di Klippy.
-        - Slide 8 `Fight Club`: comparsa progressiva delle tre regole del talk (Regola 1, Regola 2, Regola 3).
-        - Slide 13 `Finale`: comparsa sequenziale del treno e del QR code finale.
-    - Ricostruisce tutti gli stati del gioco Klippy Saw (`IDLE`, `CHALLENGE`, `PROVOCATION`, `DISCUSSION` con pause e
-      riprese) e gli overlay di sistema ("Stop alle telefonate!").
-    - Interazione disattivata sullo stage (`pointerEvents: "none"`) per garantire la totale fedeltà ai dati registrati.
+   - Renderizza le slide con le stesse dimensioni e lo scaling del palco (`isReplay={true}`).
+   - Supporto nativo per le **animazioni interne a step** (`SLIDE_ANIMATION` con tracking di `slideStep`), permettendo
+     di rivedere le transizioni progressive su slide complesse:
+     - Slide 5 `Daniel e Ste`: comparsa graduale degli avatar e di Klippy.
+     - Slide 8 `Fight Club`: comparsa progressiva delle tre regole del talk (Regola 1, Regola 2, Regola 3).
+     - Slide 13 `Finale`: comparsa sequenziale del treno e del QR code finale.
+   - Ricostruisce tutti gli stati del gioco Klippy Saw (`IDLE`, `CHALLENGE`, `PROVOCATION`, `DISCUSSION` con pause e
+     riprese) e gli overlay di sistema ("Stop alle telefonate!").
+   - Interazione disattivata sullo stage (`pointerEvents: "none"`) per garantire la totale fedeltà ai dati registrati.
 
 2. **Sincronizzazione Hardware Audio (Audio Clock Sync)**:
-    - Se durante il talk è stata abilitata la registrazione vocale, la traccia audio viene caricata automaticamente da
-      IndexedDB (`getAudioRecording`).
-    - L'audio hardware clock (`audio.currentTime`) funge da **source of truth primaria** per la sincronizzazione: il
-      rendering visivo e i timer seguono al millisecondo la traccia vocale.
-    - In assenza di traccia audio, il motore passa in modo trasparente al clock delta basato su `requestAnimationFrame`.
-    - **Seek Bidirezionale**: spostando la timeline o saltando agli eventi, la traccia audio e lo stage visivo si
-      riposizionano istantaneamente all'unisono.
-    - **Auto-Mute di Protezione**: il sonoro viene disattivato automaticamente a velocità elevate ($\ge$ 5x) per
-      prevenire fastidiosi screeching audio, con possibilità di controllo manuale mute/unmute (`M`).
+   - Se durante il talk è stata abilitata la registrazione vocale, la traccia audio viene caricata automaticamente da
+     IndexedDB (`getAudioRecording`).
+   - L'audio hardware clock (`audio.currentTime`) funge da **source of truth primaria** per la sincronizzazione: il
+     rendering visivo e i timer seguono al millisecondo la traccia vocale.
+   - In assenza di traccia audio, il motore passa in modo trasparente al clock delta basato su `requestAnimationFrame`.
+   - **Seek Bidirezionale**: spostando la timeline o saltando agli eventi, la traccia audio e lo stage visivo si
+     riposizionano istantaneamente all'unisono.
+   - **Auto-Mute di Protezione**: il sonoro viene disattivato automaticamente a velocità elevate ($\ge$ 5x) per
+     prevenire fastidiosi screeching audio, con possibilità di controllo manuale mute/unmute (`M`).
 
 3. **Floating Dock di Controllo (`ReplayControlBar`)**:
-    - Dock inferiore fluttuante con scomparsa automatica per inattività del mouse (dopo 4 secondi).
-    - **Timeline Scrubber Continua**: barra di trascinamento temporale con percentuale di completamento e minutaggio
-      trascorso / totale formattato (`MM:SS`).
-    - **Marker Visivi degli Eventi**: indicatori colorati distribuiti lungo la timeline in base alla tipologia di evento
-      (slide, gioco, stop alle telefonate); cliccando su un marker si salta immediatamente all'evento.
-    - **Pill Informativa Dinamica**: mostra in tempo reale l'evento corrente con icona dedicata (🖼️ slide, ✨ animazione
-      interna, 💡 provocazione, ⏱️ sfida, 💬 discussione, 🔔 stop alle telefonate).
-    - **Selettore Velocità di Riproduzione**: pulsanti rapidi per riprodurre a `1x`, `2x`, `5x`, `10x` o `30x`.
-    - **Navigazione Rapida per Eventi**: pulsanti per saltare istantaneamente all'evento precedente o successivo.
+   - Dock inferiore fluttuante con scomparsa automatica per inattività del mouse (dopo 4 secondi).
+   - **Timeline Scrubber Continua**: barra di trascinamento temporale con percentuale di completamento e minutaggio
+     trascorso / totale formattato (`MM:SS`).
+   - **Marker Visivi degli Eventi**: indicatori colorati distribuiti lungo la timeline in base alla tipologia di evento
+     (slide, gioco, stop alle telefonate); cliccando su un marker si salta immediatamente all'evento.
+   - **Pill Informativa Dinamica**: mostra in tempo reale l'evento corrente con icona dedicata (🖼️ slide, ✨ animazione
+     interna, 💡 provocazione, ⏱️ sfida, 💬 discussione, 🔔 stop alle telefonate).
+   - **Selettore Velocità di Riproduzione**: pulsanti rapidi per riprodurre a `1x`, `2x`, `5x`, `10x` o `30x`.
+   - **Navigazione Rapida per Eventi**: pulsanti per saltare istantaneamente all'evento precedente o successivo.
 
 4. **Deep Linking & Avvio Mirato (`?startAt=epochMs`)**:
-    - Supporto al parametro URL `?startAt=` per aprire il replay ad un timestamp specifico.
-    - Integrato con i pulsanti "Rivedi da qui" della timeline in Analytics e con il player audio per passare con un
-      click dall'analisi dei grafici alla revisione visiva.
+   - Supporto al parametro URL `?startAt=` per aprire il replay ad un timestamp specifico.
+   - Integrato con i pulsanti "Rivedi da qui" della timeline in Analytics e con il player audio per passare con un
+     click dall'analisi dei grafici alla revisione visiva.
 
 5. **Retrocompatibilità e Arricchimento Sintetico degli Eventi**:
-    - Le utility `ensureSessionEvents` ed `enrichSlideAnimationEvents` arricchiscono automaticamente sessioni legacy o
-      prive di eventi di dettaglio, sintetizzando gli step di animazione e la sequenza delle slide per garantire una
-      riproduzione fluida anche su dati storici.
+   - Le utility `ensureSessionEvents` ed `enrichSlideAnimationEvents` arricchiscono automaticamente sessioni legacy o
+     prive di eventi di dettaglio, sintetizzando gli step di animazione e la sequenza delle slide per garantire una
+     riproduzione fluida anche su dati storici.
 
 ---
 
@@ -294,19 +294,19 @@ implementa un motore ad alta fedeltà che ricostruisce il talk esattamente come 
 Accessibile tramite l'icona del microfono/note relatore nella TopBar o direttamente all'URL `#/speaker`:
 
 - **Sincronizzazione Live Bidirezionale (`BroadcastChannel`)**:
-    - Si sincronizza istantaneamente con lo stage principale mostrando slide, provocazioni o stati di gioco in tempo reale.
-    - Premendo i pulsanti "Precedente" / "Successiva" o usando le frecce/spazio nella finestra speaker, lo stage principale avanza di pari passo.
-    - Supporto a cache locale per mostrare l'ultimo stato anche in caso di ricaricamento.
+  - Si sincronizza istantaneamente con lo stage principale mostrando slide, provocazioni o stati di gioco in tempo reale.
+  - Premendo i pulsanti "Precedente" / "Successiva" o usando le frecce/spazio nella finestra speaker, lo stage principale avanza di pari passo.
+  - Supporto a cache locale per mostrare l'ultimo stato anche in caso di ricaricamento.
 - **Finestra Popup & Document Picture-in-Picture**:
-    - Pulsante dedicato per aprire una comoda finestra secondaria ottimizzata per monitor laterali.
-    - Supporto nativo per la moderna API **Document Picture-in-Picture** (`documentPictureInPicture`), mantenendo il gobbo sempre in primo piano sopra ogni finestra durante la presentazione.
+  - Pulsante dedicato per aprire una comoda finestra secondaria ottimizzata per monitor laterali.
+  - Supporto nativo per la moderna API **Document Picture-in-Picture** (`documentPictureInPicture`), mantenendo il gobbo sempre in primo piano sopra ogni finestra durante la presentazione.
 - **Formattazione Ricca dei Contenuti**:
-    - **Speaker Badge personalizzati**: tag come `[[Daniel]]`, `[[Ste]]`, `[[Entrambi]]` e `[[Klippy]]` renderizzati con badge dedicati e icone per individuare a colpo d'occhio chi deve intervenire.
-    - **Stile WhatsApp**: sintassi intuitiva con `*grassetto*` e `_corsivo_`.
-    - **Note di Regia e Citazioni Evidenziate**: blocchi evidenziati per battute e pause `[Dire qui: '...']` e `[Pausa d'effetto]`.
-    - **Elenchi Puntati**: visualizzazione chiara dei punti chiave da toccare.
+  - **Speaker Badge personalizzati**: tag come `[[Daniel]]`, `[[Ste]]`, `[[Entrambi]]` e `[[Klippy]]` renderizzati con badge dedicati e icone per individuare a colpo d'occhio chi deve intervenire.
+  - **Stile WhatsApp**: sintassi intuitiva con `*grassetto*` e `_corsivo_`.
+  - **Note di Regia e Citazioni Evidenziate**: blocchi evidenziati per battute e pause `[Dire qui: '...']` e `[Pausa d'effetto]`.
+  - **Elenchi Puntati**: visualizzazione chiara dei punti chiave da toccare.
 - **Regolazione Dinamica della Tipografia**:
-    - Pulsanti rapidi `A-` e `A+` per scalare la dimensione dei caratteri (14px – 32px) con salvataggio automatico in `localStorage`.
+  - Pulsanti rapidi `A-` e `A+` per scalare la dimensione dei caratteri (14px – 32px) con salvataggio automatico in `localStorage`.
 
 ---
 
@@ -315,7 +315,7 @@ Accessibile tramite l'icona del microfono/note relatore nella TopBar o direttame
 ### Controlli Presentazione sul Palco (Telecomando & Tastiera)
 
 | Tasto                                | Contesto                               | Azione                                                                      |
-|:-------------------------------------|:---------------------------------------|:----------------------------------------------------------------------------|
+| :----------------------------------- | :------------------------------------- | :-------------------------------------------------------------------------- |
 | `ArrowRight` / `Space` / `PageDown`  | Slide con animazioni (Step in sospeso) | **Attiva lo step di animazione successivo** (es. regola Fight Club, avatar) |
 | `ArrowRight` / `Space` / `PageDown`  | Presentazione (Slide normali)          | Slide successiva                                                            |
 | `ArrowRight` / `Space` / `PageDown`  | Slide Fine Intro (default Slide 10)    | **Attiva la Modalità Gioco (Klippy Saw)**                                   |
@@ -332,7 +332,7 @@ Accessibile tramite l'icona del microfono/note relatore nella TopBar o direttame
 ### Scorciatoie da Tastiera del Session Replay (`/replay`)
 
 | Tasto                | Azione Replay                                          |
-|:---------------------|:-------------------------------------------------------|
+| :------------------- | :----------------------------------------------------- |
 | `Space`              | **Play / Pausa**                                       |
 | `Escape`             | **Esci dal Replay** e ritorna alla schermata Analytics |
 | `M`                  | **Attiva / Disattiva Audio** (Toggle Mute)             |
@@ -359,15 +359,15 @@ su proiettori di sala:
 - **Tipografia premium self-hosted**: `IBM Plex Sans` per il testo, `IBM Plex Mono` per codici e timer, `Roboto` per le
   intestazioni, `Alfa Slab One` per titoli d'impatto.
 - **Palette Colori Ufficiali**:
-    - Brand Orange: `#ff5500`
-    - Brand Navy: `#071526`
-    - Brand Mint: `#5ef2b8`
-    - Brand Blue: `#1e66fa`
+  - Brand Orange: `#ff5500`
+  - Brand Navy: `#071526`
+  - Brand Mint: `#5ef2b8`
+  - Brand Blue: `#1e66fa`
 - **Supporto Temi**:
-    - `dark` (default): ideale per schermi di sala e palchi con illuminazione soffusa.
-    - `light`: contrasto su base bianca con sfumature blu/arancione ad elevata brillantezza.
-    - I temi si applicano tramite `data-theme="dark"` / `data-theme="light"` e sincronizzano dinamicamente il tag
-      `<meta name="theme-color">`.
+  - `dark` (default): ideale per schermi di sala e palchi con illuminazione soffusa.
+  - `light`: contrasto su base bianca con sfumature blu/arancione ad elevata brillantezza.
+  - I temi si applicano tramite `data-theme="dark"` / `data-theme="light"` e sincronizzano dinamicamente il tag
+    `<meta name="theme-color">`.
 
 ---
 
@@ -435,24 +435,12 @@ I colori ufficiali del brand sono definiti in `src/styles/_tokens.scss` (Dark mo
 
 ```scss
 /* Brand ufficiale */
---color-brand-orange: #ff5500
-
-;
---color-brand-navy: #071526
-
-;
---color-brand-mint: #5ef2b8
-
-;
---color-brand-blue: #1e66fa
-
-;
---color-brand-white: #ffffff
-
-;
---color-brand-black: #000000
-
-;
+--color-brand-orange: #ff5500;
+--color-brand-navy: #071526;
+--color-brand-mint: #5ef2b8;
+--color-brand-blue: #1e66fa;
+--color-brand-white: #ffffff;
+--color-brand-black: #000000;
 ```
 
 Tutti i colori semantici (`--color-surface`, `--color-text-muted`, `--color-accent`, `--color-border`) sono derivati in
