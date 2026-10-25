@@ -19,10 +19,11 @@ export interface ReplayVideoOverlayProps {
   videoUrl: string | null;
   fileName?: string;
   currentTime: number;
-  isPlaying: boolean;
   playbackSpeed: number;
+  isPlaying: boolean;
   isMuted: boolean;
   hasAudioTrack?: boolean;
+  videoOffsetSeconds?: number;
   onClose: () => void;
   onLinkVideoFile?: () => void;
 }
@@ -35,6 +36,7 @@ export const ReplayVideoOverlay: FC<ReplayVideoOverlayProps> = ({
   playbackSpeed,
   isMuted,
   hasAudioTrack = false,
+  videoOffsetSeconds = 0,
   onClose,
   onLinkVideoFile,
 }) => {
@@ -47,6 +49,14 @@ export const ReplayVideoOverlay: FC<ReplayVideoOverlayProps> = ({
   const [videoAudioMuted, setVideoAudioMuted] = useState<boolean>(() => {
     // If separate high-quality audio track exists, mute video to prevent echo
     return hasAudioTrack;
+  });
+  const [manualOffset, setManualOffset] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem("rasbora_replay_video_manual_offset");
+      return saved ? parseFloat(saved) : 0;
+    } catch {
+      return 0;
+    }
   });
 
   const dragOffsetRef = useRef<{ offsetX: number; offsetY: number }>({
@@ -160,24 +170,47 @@ export const ReplayVideoOverlay: FC<ReplayVideoOverlayProps> = ({
     video.muted = isMuted || videoAudioMuted || playbackSpeed >= 5;
   }, [isMuted, videoAudioMuted, playbackSpeed]);
 
+  // Effective target video time accounting for recorded offset and manual fine-tuning
+  const effectiveTargetVideoTime = Math.max(
+    0,
+    currentTime - videoOffsetSeconds + manualOffset
+  );
+
   // Sync currentTime with tolerance threshold
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !videoUrl) return;
 
-    const diff = Math.abs(video.currentTime - currentTime);
+    const diff = Math.abs(video.currentTime - effectiveTargetVideoTime);
     if (diff > 0.35) {
       try {
-        video.currentTime = currentTime;
+        video.currentTime = effectiveTargetVideoTime;
       } catch (e) {
         console.warn("Error seeking video:", e);
       }
     }
-  }, [currentTime, videoUrl]);
+  }, [effectiveTargetVideoTime, videoUrl]);
 
   const toggleVideoAudio = useCallback(() => {
     setVideoAudioMuted((prev) => !prev);
   }, []);
+
+  const adjustManualOffset = (delta: number) => {
+    setManualOffset((prev) => {
+      const next = Math.round((prev + delta) * 10) / 10;
+      try {
+        localStorage.setItem("rasbora_replay_video_manual_offset", next.toString());
+      } catch {}
+      return next;
+    });
+  };
+
+  const resetManualOffset = () => {
+    setManualOffset(0);
+    try {
+      localStorage.setItem("rasbora_replay_video_manual_offset", "0");
+    } catch {}
+  };
 
   return (
     <div
@@ -252,6 +285,33 @@ export const ReplayVideoOverlay: FC<ReplayVideoOverlayProps> = ({
                   <VolumeHighIcon size={14} />
                 )}
               </button>
+
+              {/* Sync offset fine-tuning controls */}
+              <div className={styles.syncControlGroup}>
+                <button
+                  type="button"
+                  className={styles.syncBtn}
+                  onClick={() => adjustManualOffset(-0.2)}
+                  title="Anticipa video di 0.2s (-0.2s)"
+                >
+                  -
+                </button>
+                <span
+                  className={styles.syncLabel}
+                  onClick={resetManualOffset}
+                  title="Offset sincronizzazione video (clicca per reimpostare a 0s)"
+                >
+                  {manualOffset > 0 ? `+${manualOffset.toFixed(1)}s` : `${manualOffset.toFixed(1)}s`}
+                </span>
+                <button
+                  type="button"
+                  className={styles.syncBtn}
+                  onClick={() => adjustManualOffset(0.2)}
+                  title="Ritarda video di 0.2s (+0.2s)"
+                >
+                  +
+                </button>
+              </div>
             </div>
           </>
         ) : (

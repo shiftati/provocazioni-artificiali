@@ -8,6 +8,11 @@ import {
   detectAudioDuration,
   type StoredAudioRecording,
 } from "./audioStorage";
+import {
+  getTranscription,
+  saveTranscription,
+  type StoredTranscription,
+} from "./transcriptionStorage";
 
 const SUPPORTED_AUDIO_EXTENSIONS = [".webm", ".mp3", ".wav", ".m4a", ".mp4", ".ogg", ".aac"];
 
@@ -34,10 +39,11 @@ export function isZipFile(file: File): boolean {
 
 /**
  * Esporta un singolo talk.
- * Se è presente una registrazione audio in IndexedDB, genera un file .zip contenente:
- * - session.json (con metadati e riferimento audio)
- * - audio_<nome>.<ext> (il file audio effettivo)
- * Se non c'è audio, esporta direttamente il file .json.
+ * Se è presente una registrazione audio o una trascrizione in IndexedDB, genera un file .zip contenente:
+ * - session.json (con metadati e riferimenti)
+ * - audio_<nome>.<ext> (se presente)
+ * - transcription.json e transcription.txt (se presente)
+ * Se non c'è né audio né trascrizione, esporta direttamente il file .json.
  */
 export async function exportSingleSessionWithAudio(
   session: TalkSessionRecord
@@ -47,28 +53,61 @@ export async function exportSingleSessionWithAudio(
     .toISOString()
     .slice(0, 10);
 
-  // Verifica presenza traccia audio in IndexedDB
+  // Verifica presenza traccia audio e trascrizione in IndexedDB
   const recording = await getAudioRecording(session.id, session.totalDurationSeconds);
+  const transcription = await getTranscription(session.id);
 
-  if (recording && recording.blob && recording.blob.size > 0) {
+  if ((recording && recording.blob && recording.blob.size > 0) || transcription) {
     const zip = new JSZip();
-    const mime = recording.mimeType || recording.blob.type || "audio/webm";
-    const ext = getAudioFileExtension(mime);
-    const audioFilename = `audio_${cleanName}.${ext}`;
+    let audioFilename: string | undefined;
 
-    const sessionWithAudioRef: TalkSessionRecord = {
+    if (recording && recording.blob && recording.blob.size > 0) {
+      const mime = recording.mimeType || recording.blob.type || "audio/webm";
+      const ext = getAudioFileExtension(mime);
+      audioFilename = `audio_${cleanName}.${ext}`;
+      zip.file(audioFilename, recording.blob);
+    }
+
+    if (transcription) {
+      zip.file("transcription.json", JSON.stringify(transcription, null, 2));
+
+      const txtLines = [
+        `--- Trascrizione Talk: ${session.name} (${(transcription.language || "it").toUpperCase()}) ---`,
+        `Modello: ${transcription.model}`,
+        `Data: ${new Date(transcription.createdAt).toLocaleString()}`,
+        `-----------------------------------------------------\n`,
+      ];
+      if (transcription.chunks && transcription.chunks.length > 0) {
+        for (const chunk of transcription.chunks) {
+          const m = Math.floor(chunk.timestamp[0] / 60);
+          const s = Math.floor(chunk.timestamp[0] % 60);
+          const start = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+          txtLines.push(`[${start}] ${chunk.text.trim()}`);
+        }
+      } else {
+        txtLines.push(transcription.text);
+      }
+      zip.file("transcription.txt", txtLines.join("\n"));
+    }
+
+    const sessionExportRef: TalkSessionRecord = {
       ...session,
-      hasAudio: true,
-      audioMimeType: mime,
-      audioDurationSeconds:
-        recording.durationSeconds ||
-        session.audioDurationSeconds ||
-        session.totalDurationSeconds,
-      audioFile: audioFilename,
+      hasAudio: Boolean(recording && recording.blob && recording.blob.size > 0),
+      ...(audioFilename
+        ? {
+            audioMimeType: recording?.mimeType || recording?.blob.type || "audio/webm",
+            audioDurationSeconds:
+              recording?.durationSeconds ||
+              session.audioDurationSeconds ||
+              session.totalDurationSeconds,
+            audioFile: audioFilename,
+          }
+        : {}),
+      hasTranscription: Boolean(transcription),
+      transcriptionLanguage: transcription?.language || session.transcriptionLanguage,
     };
 
-    zip.file("session.json", JSON.stringify(sessionWithAudioRef, null, 2));
-    zip.file(audioFilename, recording.blob);
+    zip.file("session.json", JSON.stringify(sessionExportRef, null, 2));
 
     const zipBlob = await zip.generateAsync({
       type: "blob",
@@ -79,9 +118,9 @@ export async function exportSingleSessionWithAudio(
     const filename = `talk_session_${cleanName}_${dateStr}.zip`;
     triggerDownload(zipBlob, filename);
 
-    return { type: "zip", filename, hasAudio: true };
+    return { type: "zip", filename, hasAudio: Boolean(recording) };
   } else {
-    // Nessun audio associato: esporta come .json
+    // Nessun audio né trascrizione: esporta come .json
     const filename = `talk_session_${cleanName}_${dateStr}.json`;
     const jsonStr = JSON.stringify(session, null, 2);
     const blob = new Blob([jsonStr], { type: "application/json" });
@@ -93,31 +132,45 @@ export async function exportSingleSessionWithAudio(
 
 /**
  * Esporta tutte le sessioni.
- * Se almeno un talk ha una registrazione audio in IndexedDB, genera un archivio .zip contenente:
+ * Se almeno un talk ha una registrazione audio o trascrizione, genera un archivio .zip contenente:
  * - sessions.json
- * - cartella audio/ con i file audio di ciascun talk (nominati <sessionId>.<ext>)
- * Se nessun talk ha audio, esporta direttamente il file .json con l'array delle sessioni.
+ * - cartella audio/ con i file audio (nominati <sessionId>.<ext>)
+ * - cartella transcriptions/ con le trascrizioni JSON (nominate <sessionId>.json)
+ * Se nessun talk ha audio o trascrizioni, esporta direttamente il file .json.
  */
 export async function exportAllSessionsWithAudio(
   sessions: TalkSessionRecord[]
 ): Promise<{ type: "zip" | "json"; filename: string; audioCount: number }> {
   const dateStr = new Date().toISOString().slice(0, 10);
 
-  // Recupera audio per ciascuna sessione
+  // Recupera audio e trascrizioni per ciascuna sessione
   const recordingsMap = new Map<string, StoredAudioRecording>();
+  const transcriptionsMap = new Map<string, StoredTranscription>();
+
   for (const session of sessions) {
     const rec = await getAudioRecording(session.id, session.totalDurationSeconds);
     if (rec && rec.blob && rec.blob.size > 0) {
       recordingsMap.set(session.id, rec);
     }
+    const tx = await getTranscription(session.id);
+    if (tx) {
+      transcriptionsMap.set(session.id, tx);
+    }
   }
 
-  if (recordingsMap.size > 0) {
+  if (recordingsMap.size > 0 || transcriptionsMap.size > 0) {
     const zip = new JSZip();
-    const audioFolder = zip.folder("audio");
+    const audioFolder = recordingsMap.size > 0 ? zip.folder("audio") : null;
+    const txFolder = transcriptionsMap.size > 0 ? zip.folder("transcriptions") : null;
 
     const sessionsWithAudioRef = sessions.map((session) => {
       const rec = recordingsMap.get(session.id);
+      const tx = transcriptionsMap.get(session.id);
+
+      if (tx) {
+        txFolder?.file(`${session.id}.json`, JSON.stringify(tx, null, 2));
+      }
+
       if (rec) {
         const mime = rec.mimeType || rec.blob.type || "audio/webm";
         const ext = getAudioFileExtension(mime);
@@ -132,9 +185,16 @@ export async function exportAllSessionsWithAudio(
             session.audioDurationSeconds ||
             session.totalDurationSeconds,
           audioFile: audioRelPath,
+          hasTranscription: Boolean(tx),
+          transcriptionLanguage: tx?.language || session.transcriptionLanguage,
         };
       }
-      return session;
+
+      return {
+        ...session,
+        hasTranscription: Boolean(tx),
+        transcriptionLanguage: tx?.language || session.transcriptionLanguage,
+      };
     });
 
     zip.file("sessions.json", JSON.stringify(sessionsWithAudioRef, null, 2));
@@ -150,7 +210,7 @@ export async function exportAllSessionsWithAudio(
 
     return { type: "zip", filename, audioCount: recordingsMap.size };
   } else {
-    // Nessun talk ha audio: esporta .json
+    // Nessun talk ha audio né trascrizione: esporta .json
     const filename = `all_talk_sessions_${dateStr}.json`;
     const jsonStr = JSON.stringify(sessions, null, 2);
     const blob = new Blob([jsonStr], { type: "application/json" });
@@ -304,6 +364,31 @@ export async function importTalkZipFile(
         audioCount++;
       } catch (err) {
         console.warn(`Impossibile importare audio per sessione ${session.id}:`, err);
+      }
+    }
+
+    // Trascrizione audio associata
+    const matchedTxEntry: JSZip.JSZipObject | null =
+      zip.file(`transcriptions/${session.id}.json`) ||
+      zip.file(`transcription_${session.id}.json`) ||
+      zip.file(`${session.id}_transcription.json`) ||
+      (validSessions.length === 1 ? zip.file("transcription.json") : null);
+
+    if (matchedTxEntry) {
+      try {
+        const txText = await matchedTxEntry.async("text");
+        const parsedTx = JSON.parse(txText) as StoredTranscription;
+        if (parsedTx && typeof parsedTx === "object" && (parsedTx.text || parsedTx.chunks)) {
+          parsedTx.sessionId = session.id;
+          await saveTranscription(parsedTx);
+          updatedSession = {
+            ...updatedSession,
+            hasTranscription: true,
+            transcriptionLanguage: parsedTx.language || "it",
+          };
+        }
+      } catch (err) {
+        console.warn(`Impossibile importare trascrizione per ${session.id}:`, err);
       }
     }
 

@@ -16,6 +16,8 @@ import { PROVOCATIONS, PROVOCATION_MAP } from "../features/game/provocations.reg
 import { SLIDES } from "../features/presentation/slides.registry";
 import { createSampleSessions } from "../features/analytics/sampleData";
 import { saveAudioRecording, getSupportedAudioMimeType } from "../utils/audioStorage";
+import { LiveAudioStreamTranscriber } from "../services/transcriptionService";
+import type { SpeakerMessage } from "../features/speaker/useSpeakerChannel";
 import {
   getSupportedVideoMimeType,
   DiskChunkWriter,
@@ -117,12 +119,64 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingSessionIdRef = useRef<string | null>(null);
   const recordingStartTimeRef = useRef<number | null>(null);
+  const liveTranscriberRef = useRef<LiveAudioStreamTranscriber | null>(null);
 
   const videoRecorderRef = useRef<MediaRecorder | null>(null);
   const videoStreamRef = useRef<MediaStream | null>(null);
   const videoWriterRef = useRef<DiskChunkWriter | null>(null);
 
+  const broadcastSpeaker = useCallback((msg: SpeakerMessage) => {
+    if (typeof BroadcastChannel !== "undefined") {
+      try {
+        const bc = new BroadcastChannel("rasbora-speaker");
+        bc.postMessage(msg);
+        bc.close();
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
+
+  const finalizeTranscription = useCallback(
+    async (targetSessionId: string | null) => {
+      if (!liveTranscriberRef.current) return;
+      const transcriber = liveTranscriberRef.current;
+      liveTranscriberRef.current = null;
+      broadcastSpeaker({
+        type: "TRANSCRIPTION_STATUS",
+        payload: { status: "stopped" },
+      });
+
+      try {
+        const storedTx = await transcriber.stop();
+        if (targetSessionId) {
+          setSessionsState((prev) => {
+            const updated = prev.map((s) =>
+              s.id === targetSessionId
+                ? {
+                    ...s,
+                    hasTranscription: true,
+                    transcriptionLanguage: storedTx.language,
+                  }
+                : s
+            );
+            appStorage.saveSessions(updated);
+            return updated;
+          });
+        }
+      } catch (err) {
+        console.error("Failed to stop and finalize transcriber:", err);
+      }
+    },
+    [broadcastSpeaker]
+  );
+
   const stopAudioRecording = useCallback(() => {
+    const targetSessionId = recordingSessionIdRef.current;
+    finalizeTranscription(targetSessionId).catch((e) =>
+      console.warn("Error finalizing transcription on stopAudioRecording:", e)
+    );
+
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
       try {
         mediaRecorderRef.current.stop();
@@ -141,7 +195,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
       }
       setIsRecordingAudio(false);
     }
-  }, []);
+  }, [finalizeTranscription]);
 
   const stopVideoRecording = useCallback(() => {
     if (videoRecorderRef.current && videoRecorderRef.current.state !== "inactive") {
@@ -748,236 +802,304 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     currentDiscussionProvStatIdRef.current = null;
     gameStartTimeRef.current = null;
 
-    // Start audio recording if enabled in activeConfig
-    if (activeConfig.audioRecordingEnabled && typeof navigator !== "undefined" && navigator.mediaDevices) {
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
-        try {
-          mediaRecorderRef.current.stop();
-        } catch (e) {
-          console.error("Error stopping previous recorder:", e);
-        }
+    // Clean up any ongoing audio and video recorders before starting new recordings
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      try {
+        mediaRecorderRef.current.stop();
+      } catch (e) {
+        console.error("Error stopping previous audio recorder:", e);
       }
-      if (audioStreamRef.current) {
-        audioStreamRef.current.getTracks().forEach((t) => t.stop());
-        audioStreamRef.current = null;
+    }
+    if (audioStreamRef.current) {
+      audioStreamRef.current.getTracks().forEach((t) => t.stop());
+      audioStreamRef.current = null;
+    }
+    if (videoRecorderRef.current && videoRecorderRef.current.state !== "inactive") {
+      try {
+        videoRecorderRef.current.stop();
+      } catch (e) {
+        console.error("Error stopping previous video recorder:", e);
       }
-
-      const constraints: MediaStreamConstraints = {
-        audio:
-          activeConfig.audioDeviceId && activeConfig.audioDeviceId !== "default"
-            ? { deviceId: { exact: activeConfig.audioDeviceId } }
-            : true,
-      };
-
-      navigator.mediaDevices
-        .getUserMedia(constraints)
-        .then((stream) => {
-          audioStreamRef.current = stream;
-          const mimeType = getSupportedAudioMimeType();
-          const options: MediaRecorderOptions = mimeType ? { mimeType } : {};
-          const recorder = new MediaRecorder(stream, options);
-          mediaRecorderRef.current = recorder;
-          audioChunksRef.current = [];
-          recordingSessionIdRef.current = newSessionId;
-          recordingStartTimeRef.current = Date.now();
-
-          recorder.ondataavailable = (e) => {
-            if (e.data && e.data.size > 0) {
-              audioChunksRef.current.push(e.data);
-            }
-          };
-
-          recorder.onstop = async () => {
-            const targetSessionId = recordingSessionIdRef.current;
-            const recStart = recordingStartTimeRef.current;
-            const chunks = audioChunksRef.current;
-            const finalMime = recorder.mimeType || mimeType || "audio/webm";
-
-            if (targetSessionId && chunks.length > 0) {
-              const audioBlob = new Blob(chunks, { type: finalMime });
-              const durationSec = recStart
-                ? Math.max(1, Math.round((Date.now() - recStart) / 1000))
-                : undefined;
-
-              try {
-                await saveAudioRecording({
-                  sessionId: targetSessionId,
-                  blob: audioBlob,
-                  mimeType: finalMime,
-                  durationSeconds: durationSec,
-                  createdAt: Date.now(),
-                });
-                setSessionsState((prev) => {
-                  const updated = prev.map((s) =>
-                    s.id === targetSessionId
-                      ? {
-                          ...s,
-                          hasAudio: true,
-                          audioMimeType: finalMime,
-                          audioDurationSeconds: durationSec,
-                        }
-                      : s
-                  );
-                  appStorage.saveSessions(updated);
-                  return updated;
-                });
-              } catch (err) {
-                console.error("Failed to save audio recording to IndexedDB:", err);
-              }
-            }
-
-            if (audioStreamRef.current) {
-              audioStreamRef.current.getTracks().forEach((t) => t.stop());
-              audioStreamRef.current = null;
-            }
-            setIsRecordingAudio(false);
-            mediaRecorderRef.current = null;
-            audioChunksRef.current = [];
-            recordingSessionIdRef.current = null;
-            recordingStartTimeRef.current = null;
-          };
-
-          recorder.onerror = (event) => {
-            console.error("MediaRecorder error:", event);
-            setAudioRecordingError("Errore durante la registrazione audio");
-            setIsRecordingAudio(false);
-          };
-
-          recorder.start(1000);
-          setIsRecordingAudio(true);
-          setAudioRecordingError(null);
-        })
-        .catch((err) => {
-          console.error("getUserMedia error:", err);
-          setAudioRecordingError(
-            err.name === "NotAllowedError" || err.name === "PermissionDeniedError"
-              ? "Permesso microfono negato"
-              : "Impossibile accedere al microfono selezionato"
-          );
-          setIsRecordingAudio(false);
-        });
-    } else {
-      setIsRecordingAudio(false);
+    }
+    if (videoStreamRef.current) {
+      videoStreamRef.current.getTracks().forEach((t) => t.stop());
+      videoStreamRef.current = null;
+    }
+    if (videoWriterRef.current) {
+      videoWriterRef.current.close().catch(() => {});
+      videoWriterRef.current = null;
     }
 
-    // Start video recording if enabled in activeConfig and videoFileHandle provided
-    if (
-      activeConfig.videoRecordingEnabled &&
-      typeof navigator !== "undefined" &&
-      navigator.mediaDevices
-    ) {
-      if (videoRecorderRef.current && videoRecorderRef.current.state !== "inactive") {
-        try {
-          videoRecorderRef.current.stop();
-        } catch (e) {
-          console.error("Error stopping previous video recorder:", e);
-        }
-      }
-      if (videoStreamRef.current) {
-        videoStreamRef.current.getTracks().forEach((t) => t.stop());
-        videoStreamRef.current = null;
-      }
-      if (videoWriterRef.current) {
-        videoWriterRef.current.close().catch(() => {});
-        videoWriterRef.current = null;
-      }
+    // Synchronized Audio & Video Recording Initialization
+    const initSynchronizedRecordings = async () => {
+      const shouldRecordAudio = Boolean(
+        activeConfig.audioRecordingEnabled &&
+          typeof navigator !== "undefined" &&
+          navigator.mediaDevices
+      );
+      const shouldRecordVideo = Boolean(
+        activeConfig.videoRecordingEnabled &&
+          videoFileHandle &&
+          typeof navigator !== "undefined" &&
+          navigator.mediaDevices
+      );
 
-      if (videoFileHandle) {
-        const videoConstraints: MediaTrackConstraints | boolean =
-          activeConfig.videoDeviceId && activeConfig.videoDeviceId !== "default"
-            ? { deviceId: { exact: activeConfig.videoDeviceId } }
-            : true;
-
-        const audioConstraints: MediaTrackConstraints | boolean =
-          activeConfig.audioDeviceId && activeConfig.audioDeviceId !== "default"
-            ? { deviceId: { exact: activeConfig.audioDeviceId } }
-            : true;
-
-        const acquireStream = async () => {
+      // Acquire media streams in parallel BEFORE starting recorders to ensure zero drift
+      const [aStream, videoInitResult] = await Promise.all([
+        (async (): Promise<MediaStream | null> => {
+          if (!shouldRecordAudio) return null;
           try {
-            return await navigator.mediaDevices.getUserMedia({
-              video: videoConstraints,
-              audio: audioConstraints,
-            });
-          } catch {
-            return await navigator.mediaDevices.getUserMedia({
-              video: videoConstraints,
-            });
+            const constraints: MediaStreamConstraints = {
+              audio:
+                activeConfig.audioDeviceId && activeConfig.audioDeviceId !== "default"
+                  ? { deviceId: { exact: activeConfig.audioDeviceId } }
+                  : true,
+            };
+            return await navigator.mediaDevices.getUserMedia(constraints);
+          } catch (err: unknown) {
+            console.error("Audio getUserMedia error:", err);
+            setAudioRecordingError(
+              (err as Error)?.name === "NotAllowedError" ||
+                (err as Error)?.name === "PermissionDeniedError"
+                ? "Permesso microfono negato"
+                : "Impossibile accedere al microfono selezionato"
+            );
+            return null;
           }
-        };
+        })(),
+        (async (): Promise<{ stream: MediaStream; writer: DiskChunkWriter } | null> => {
+          if (!shouldRecordVideo || !videoFileHandle) return null;
+          try {
+            const videoConstraints: MediaTrackConstraints | boolean =
+              activeConfig.videoDeviceId && activeConfig.videoDeviceId !== "default"
+                ? { deviceId: { exact: activeConfig.videoDeviceId } }
+                : true;
 
-        acquireStream()
-          .then(async (vStream) => {
-            videoStreamRef.current = vStream;
-            const mimeType = getSupportedVideoMimeType();
-            const options: MediaRecorderOptions = mimeType ? { mimeType } : {};
-            const recorder = new MediaRecorder(vStream, options);
-            videoRecorderRef.current = recorder;
+            // Capture video track cleanly without requesting separate microphone (audio track is handled by audio recorder)
+            const stream = await navigator.mediaDevices.getUserMedia({
+              video: videoConstraints,
+            });
 
             const writable = await videoFileHandle.createWritable();
             const writer = new DiskChunkWriter(writable);
-            videoWriterRef.current = writer;
-
-            setVideoRecordedFileName(videoFileHandle.name);
-
-            saveVideoFileHandle(newSessionId, videoFileHandle).catch((err) => {
-              console.warn("Impossibile salvare il video handle in IndexedDB:", err);
-            });
-
-            updateActiveSession((curr) => ({
-              ...curr,
-              hasVideo: true,
-              videoFileName: videoFileHandle.name,
-            }));
-
-            recorder.ondataavailable = (e) => {
-              if (e.data && e.data.size > 0) {
-                writer.write(e.data);
-              }
-            };
-
-            recorder.onstop = async () => {
-              try {
-                if (videoWriterRef.current) {
-                  await videoWriterRef.current.close();
-                  videoWriterRef.current = null;
-                }
-              } catch (err) {
-                console.error("Errore chiusura stream video su disco:", err);
-              }
-              if (videoStreamRef.current) {
-                videoStreamRef.current.getTracks().forEach((t) => t.stop());
-                videoStreamRef.current = null;
-              }
-              setIsRecordingVideo(false);
-              videoRecorderRef.current = null;
-            };
-
-            recorder.onerror = (event) => {
-              console.error("Video MediaRecorder error:", event);
-              setVideoRecordingError("Errore durante la registrazione video");
-              setIsRecordingVideo(false);
-            };
-
-            recorder.start(1000);
-            setIsRecordingVideo(true);
-            setVideoRecordingError(null);
-          })
-          .catch((err) => {
-            console.error("getUserMedia video error:", err);
+            return { stream, writer };
+          } catch (err: unknown) {
+            console.error("Video getUserMedia / file access error:", err);
             setVideoRecordingError(
-              err.name === "NotAllowedError" || err.name === "PermissionDeniedError"
+              (err as Error)?.name === "NotAllowedError" ||
+                (err as Error)?.name === "PermissionDeniedError"
                 ? "Permesso videocamera negato"
-                : "Impossibile accedere alla videocamera selezionata"
+                : "Impossibile avviare registrazione video su disco"
             );
-            setIsRecordingVideo(false);
-          });
+            return null;
+          }
+        })(),
+      ]);
+
+      const vStream = videoInitResult?.stream ?? null;
+      const vWriter = videoInitResult?.writer ?? null;
+
+      const syncEpoch = Date.now();
+      let audioStartEpoch = syncEpoch;
+      let videoStartEpoch = syncEpoch;
+
+      // 1. Setup Audio Recorder
+      if (aStream) {
+        audioStreamRef.current = aStream;
+
+        if (activeConfig.transcriptionEnabled) {
+          try {
+            const lang = activeConfig.transcriptionLanguage || "it";
+            const transcriber = new LiveAudioStreamTranscriber(
+              aStream,
+              newSessionId,
+              lang
+            );
+            transcriber.addLiveListener((chunk) => {
+              broadcastSpeaker({
+                type: "TRANSCRIPTION_CHUNK",
+                payload: {
+                  text: chunk.text,
+                  timestamp: chunk.timestamp,
+                },
+              });
+            });
+            liveTranscriberRef.current = transcriber;
+            transcriber.start();
+            broadcastSpeaker({
+              type: "TRANSCRIPTION_STATUS",
+              payload: { status: "listening", language: lang },
+            });
+          } catch (err) {
+            console.error("Failed to start live stream transcriber:", err);
+          }
+        }
+
+        const mimeType = getSupportedAudioMimeType();
+        const options: MediaRecorderOptions = mimeType ? { mimeType } : {};
+        const recorder = new MediaRecorder(aStream, options);
+        mediaRecorderRef.current = recorder;
+        audioChunksRef.current = [];
+        recordingSessionIdRef.current = newSessionId;
+        audioStartEpoch = Date.now();
+        recordingStartTimeRef.current = audioStartEpoch;
+
+        recorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) {
+            audioChunksRef.current.push(e.data);
+          }
+        };
+
+        recorder.onstop = async () => {
+          const targetSessionId = recordingSessionIdRef.current;
+          const recStart = recordingStartTimeRef.current;
+          const chunks = audioChunksRef.current;
+          const finalMime = recorder.mimeType || mimeType || "audio/webm";
+
+          if (targetSessionId && chunks.length > 0) {
+            const audioBlob = new Blob(chunks, { type: finalMime });
+            const durationSec = recStart
+              ? Math.max(1, Math.round((Date.now() - recStart) / 1000))
+              : undefined;
+
+            try {
+              await saveAudioRecording({
+                sessionId: targetSessionId,
+                blob: audioBlob,
+                mimeType: finalMime,
+                durationSeconds: durationSec,
+                createdAt: Date.now(),
+              });
+              setSessionsState((prev) => {
+                const updated = prev.map((s) =>
+                  s.id === targetSessionId
+                    ? {
+                        ...s,
+                        hasAudio: true,
+                        audioMimeType: finalMime,
+                        audioDurationSeconds: durationSec,
+                      }
+                    : s
+                );
+                appStorage.saveSessions(updated);
+                return updated;
+              });
+            } catch (err) {
+              console.error("Failed to save audio recording to IndexedDB:", err);
+            }
+          }
+
+          // Finalize transcription if still running
+          await finalizeTranscription(targetSessionId);
+
+          if (audioStreamRef.current) {
+            audioStreamRef.current.getTracks().forEach((t) => t.stop());
+            audioStreamRef.current = null;
+          }
+          setIsRecordingAudio(false);
+          mediaRecorderRef.current = null;
+          audioChunksRef.current = [];
+          recordingSessionIdRef.current = null;
+          recordingStartTimeRef.current = null;
+        };
+
+        recorder.onerror = (event) => {
+          console.error("MediaRecorder error:", event);
+          setAudioRecordingError("Errore durante la registrazione audio");
+          setIsRecordingAudio(false);
+        };
+
+        recorder.start(1000);
+        setIsRecordingAudio(true);
+        setAudioRecordingError(null);
       } else {
-        console.warn("Registrazione video abilitata ma nessun file selezionato per lo streaming.");
+        setIsRecordingAudio(false);
       }
-    } else {
-      setIsRecordingVideo(false);
-    }
+
+      // 2. Setup Video Recorder (started simultaneously)
+      if (vStream && vWriter && videoFileHandle) {
+        const activeWriter = vWriter;
+        videoStreamRef.current = vStream;
+        const mimeType = getSupportedVideoMimeType();
+        const options: MediaRecorderOptions = mimeType ? { mimeType } : {};
+        const vRecorder = new MediaRecorder(vStream, options);
+        videoRecorderRef.current = vRecorder;
+        videoWriterRef.current = activeWriter;
+        videoStartEpoch = Date.now();
+
+        // Calculate offset in seconds between audio and video
+        const videoOffsetSec = aStream
+          ? Math.max(0, Math.round((videoStartEpoch - audioStartEpoch) / 10) / 100)
+          : 0;
+
+        setVideoRecordedFileName(videoFileHandle.name);
+
+        saveVideoFileHandle(newSessionId, videoFileHandle).catch((err) => {
+          console.warn("Impossibile salvare il video handle in IndexedDB:", err);
+        });
+
+        updateActiveSession((curr) => ({
+          ...curr,
+          hasVideo: true,
+          videoFileName: videoFileHandle.name,
+          videoOffsetSeconds: videoOffsetSec,
+        }));
+
+        setSessionsState((prev) => {
+          const updated = prev.map((s) =>
+            s.id === newSessionId
+              ? {
+                  ...s,
+                  hasVideo: true,
+                  videoFileName: videoFileHandle.name,
+                  videoOffsetSeconds: videoOffsetSec,
+                }
+              : s
+          );
+          appStorage.saveSessions(updated);
+          return updated;
+        });
+
+        vRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) {
+            activeWriter.write(e.data);
+          }
+        };
+
+        vRecorder.onstop = async () => {
+          try {
+            if (videoWriterRef.current) {
+              await videoWriterRef.current.close();
+              videoWriterRef.current = null;
+            }
+          } catch (err) {
+            console.error("Errore chiusura stream video su disco:", err);
+          }
+          if (videoStreamRef.current) {
+            videoStreamRef.current.getTracks().forEach((t) => t.stop());
+            videoStreamRef.current = null;
+          }
+          setIsRecordingVideo(false);
+          videoRecorderRef.current = null;
+        };
+
+        vRecorder.onerror = (event) => {
+          console.error("Video MediaRecorder error:", event);
+          setVideoRecordingError("Errore durante la registrazione video");
+          setIsRecordingVideo(false);
+        };
+
+        vRecorder.start(1000);
+        setIsRecordingVideo(true);
+        setVideoRecordingError(null);
+      } else {
+        setIsRecordingVideo(false);
+      }
+    };
+
+    initSynchronizedRecordings().catch((err) => {
+      console.error("Error in synchronized recordings init:", err);
+    });
   }, [config.endTime, config.endTimestamp, updateActiveSession]);
 
   const finalizeActiveDiscussion = useCallback(

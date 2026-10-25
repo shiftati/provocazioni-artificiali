@@ -37,6 +37,20 @@ export type SpeakerMessage =
   | {
       type: "SET_MODE";
       mode: "presentation" | "game";
+    }
+  | {
+      type: "TRANSCRIPTION_CHUNK";
+      payload: {
+        text: string;
+        timestamp: [number, number | null];
+      };
+    }
+  | {
+      type: "TRANSCRIPTION_STATUS";
+      payload: {
+        status: "idle" | "listening" | "stopped";
+        language?: "it" | "en";
+      };
     };
 
 export function getCachedSpeakerState(): SpeakerMessagePayload | null {

@@ -11,6 +11,7 @@ import {
   VideoIcon,
   VolumeHighIcon,
   VolumeMuteIcon,
+  TranscriptIcon,
 } from "../../components/icons";
 import styles from "./ReplayControlBar.module.scss";
 
@@ -28,6 +29,9 @@ export interface ReplayControlBarProps {
   hasVideo?: boolean;
   isVideoVisible?: boolean;
   onToggleVideo?: () => void;
+  hasTranscription?: boolean;
+  isCaptionsVisible?: boolean;
+  onToggleCaptions?: () => void;
   onTogglePlay: () => void;
   onSeek: (seconds: number) => void;
   onSetSpeed: (speed: number) => void;
@@ -53,6 +57,9 @@ export const ReplayControlBar: FC<ReplayControlBarProps> = ({
   hasVideo = false,
   isVideoVisible = true,
   onToggleVideo,
+  hasTranscription = false,
+  isCaptionsVisible = true,
+  onToggleCaptions,
   onTogglePlay,
   onSeek,
   onSetSpeed,
@@ -219,6 +226,27 @@ export const ReplayControlBar: FC<ReplayControlBarProps> = ({
             >
               <VideoIcon size={12} />
               <span>{isVideoVisible ? "VIDEO ON" : "VIDEO OFF"}</span>
+            </button>
+          )}
+
+          {hasTranscription && (
+            <button
+              type="button"
+              className={`${styles.videoBadge} ${!isCaptionsVisible ? styles.inactiveBadge : ""}`}
+              onClick={onToggleCaptions}
+              title={
+                isCaptionsVisible
+                  ? "Nascondi sottotitoli trascrizione (C)"
+                  : "Mostra sottotitoli trascrizione (C)"
+              }
+              aria-label={
+                isCaptionsVisible
+                  ? "Nascondi sottotitoli"
+                  : "Mostra sottotitoli"
+              }
+            >
+              <TranscriptIcon size={12} />
+              <span>{isCaptionsVisible ? "CC ON" : "CC OFF"}</span>
             </button>
           )}
         </div>

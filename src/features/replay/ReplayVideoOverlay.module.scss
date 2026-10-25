@@ -174,3 +174,41 @@
     opacity: 1;
   }
 }
+
+.syncControlGroup {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.68rem;
+  color: #fff;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  padding-left: 6px;
+  margin-left: 4px;
+}
+
+.syncBtn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 0.68rem;
+  padding: 1px 4px;
+  border-radius: 3px;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.syncLabel {
+  color: #58a6ff;
+  min-width: 42px;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+}

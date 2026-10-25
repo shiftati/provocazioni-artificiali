@@ -22,8 +22,12 @@ import {
   ArrowRightIcon,
   CloseIcon,
 } from "../../components/icons";
-import { formatDateTime } from "../../utils/time";
+import { formatDateTime, formatDurationSeconds } from "../../utils/time";
 import { getAudioRecording } from "../../utils/audioStorage";
+import {
+  getTranscription,
+  type StoredTranscription,
+} from "../../utils/transcriptionStorage";
 import {
   ensureSessionEvents,
   getReplayStateAt,
@@ -170,6 +174,30 @@ export const SessionReplayView: FC = () => {
     setIsVideoVisible((prev) => !prev);
   }, []);
 
+  // Transcription and subtitle captions state
+  const [transcription, setTranscription] = useState<StoredTranscription | null>(null);
+  const [isCaptionsVisible, setIsCaptionsVisible] = useState<boolean>(true);
+
+  useEffect(() => {
+    let isCurrent = true;
+    if (session?.id) {
+      getTranscription(session.id)
+        .then((tx) => {
+          if (isCurrent) {
+            setTranscription(tx);
+          }
+        })
+        .catch((err) => {
+          console.warn("Could not load transcription for session replay:", err);
+        });
+    } else {
+      setTranscription(null);
+    }
+    return () => {
+      isCurrent = false;
+    };
+  }, [session?.id]);
+
   const totalDurationSeconds = useMemo(() => {
     if (!session) return 60;
     const dur = getSessionTotalSeconds(session, events);
@@ -199,6 +227,21 @@ export const SessionReplayView: FC = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
   const [isIdle, setIsIdle] = useState<boolean>(false);
+
+  const activeCaptionChunk = useMemo(() => {
+    if (!transcription || !transcription.chunks || transcription.chunks.length === 0) {
+      return null;
+    }
+    const found = transcription.chunks.find((c) => {
+      const start = c.timestamp[0];
+      const end =
+        c.timestamp[1] !== null && c.timestamp[1] !== undefined
+          ? c.timestamp[1] + 0.8
+          : start + 6;
+      return currentTime >= start && currentTime <= end;
+    });
+    return found || null;
+  }, [transcription, currentTime]);
 
   const currentTimeRef = useRef(currentTime);
   currentTimeRef.current = currentTime;
@@ -434,6 +477,9 @@ export const SessionReplayView: FC = () => {
       } else if (e.key === "v" || e.key === "V") {
         e.preventDefault();
         handleToggleVideo();
+      } else if (e.key === "c" || e.key === "C") {
+        e.preventDefault();
+        setIsCaptionsVisible((prev) => !prev);
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
         if (e.shiftKey) {
@@ -710,6 +756,20 @@ export const SessionReplayView: FC = () => {
               </div>
             </div>
           )}
+
+          {/* Synchronized Captions / Subtitles Overlay */}
+          {isCaptionsVisible && activeCaptionChunk && (
+            <div className={styles.captionsContainer}>
+              <div className={styles.captionPill}>
+                <span className={styles.captionTime}>
+                  {formatDurationSeconds(activeCaptionChunk.timestamp[0])}
+                </span>
+                <span className={styles.captionText}>
+                  {activeCaptionChunk.text}
+                </span>
+              </div>
+            </div>
+          )}
         </Stage>
       </div>
 
@@ -723,6 +783,7 @@ export const SessionReplayView: FC = () => {
           playbackSpeed={playbackSpeed}
           isMuted={isMuted}
           hasAudioTrack={Boolean(audioUrl)}
+          videoOffsetSeconds={session.videoOffsetSeconds}
           onClose={handleToggleVideo}
           onLinkVideoFile={handleLinkVideoFile}
         />
@@ -743,6 +804,9 @@ export const SessionReplayView: FC = () => {
         hasVideo={hasVideo}
         isVideoVisible={isVideoVisible}
         onToggleVideo={handleToggleVideo}
+        hasTranscription={Boolean(transcription)}
+        isCaptionsVisible={isCaptionsVisible}
+        onToggleCaptions={() => setIsCaptionsVisible((prev) => !prev)}
         onTogglePlay={handleTogglePlay}
         onSeek={handleSeek}
         onSetSpeed={setPlaybackSpeed}

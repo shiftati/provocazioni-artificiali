@@ -38,3 +38,4 @@ export * from "./VideoOffIcon";
 export * from "./VolumeHighIcon";
 export * from "./VolumeMuteIcon";
 export * from "./SpeakerNoteIcon";
+export * from "./TranscriptIcon";
