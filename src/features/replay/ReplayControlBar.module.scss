@@ -218,12 +218,25 @@
   border: 1px solid rgba(94, 242, 184, 0.35);
   color: #5ef2b8;
   border-radius: 999px;
-  padding: 2px 7px;
+  padding: 2px 8px;
   font-family: var(--font-mono, monospace);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(94, 242, 184, 0.25);
+    border-color: rgba(94, 242, 184, 0.7);
+  }
+
+  &.inactiveBadge {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.45);
+  }
 }
 
 .videoBadge {

@@ -24,6 +24,8 @@ export interface ReplayControlBarProps {
   events: SessionEvent[];
   sessionStartTime: number;
   hasAudio?: boolean;
+  isAudioActive?: boolean;
+  onToggleAudio?: () => void;
   isMuted?: boolean;
   onToggleMute?: () => void;
   hasVideo?: boolean;
@@ -52,6 +54,8 @@ export const ReplayControlBar: FC<ReplayControlBarProps> = ({
   events,
   sessionStartTime,
   hasAudio = false,
+  isAudioActive = true,
+  onToggleAudio,
   isMuted = false,
   onToggleMute,
   hasVideo = false,
@@ -188,24 +192,37 @@ export const ReplayControlBar: FC<ReplayControlBarProps> = ({
             </span>
           </div>
 
+          {(hasAudio || hasVideo) && onToggleMute && (
+            <button
+              type="button"
+              className={styles.iconBtn}
+              onClick={onToggleMute}
+              title={isMuted ? "Riattiva audio talk (M)" : "Silenzia audio talk (M)"}
+              aria-label={isMuted ? "Riattiva audio talk" : "Silenzia audio talk"}
+            >
+              {isMuted ? <VolumeMuteIcon size={16} /> : <VolumeHighIcon size={16} />}
+            </button>
+          )}
+
           {hasAudio && (
-            <div className={styles.audioControlsGroup}>
-              {onToggleMute && (
-                <button
-                  type="button"
-                  className={styles.iconBtn}
-                  onClick={onToggleMute}
-                  title={isMuted ? "Attiva audio talk (M)" : "Silenzia audio talk (M)"}
-                  aria-label={isMuted ? "Attiva audio talk" : "Silenzia audio talk"}
-                >
-                  {isMuted ? <VolumeMuteIcon size={16} /> : <VolumeHighIcon size={16} />}
-                </button>
-              )}
-              <span className={styles.audioBadge} title="Traccia audio registrata sincronizzata al replay">
-                <MicIcon size={12} />
-                <span>AUDIO SYNC</span>
-              </span>
-            </div>
+            <button
+              type="button"
+              className={`${styles.audioBadge} ${!isAudioActive ? styles.inactiveBadge : ""}`}
+              onClick={onToggleAudio}
+              title={
+                isAudioActive
+                  ? "Disattiva audio registrato (A)"
+                  : "Attiva audio registrato (A)"
+              }
+              aria-label={
+                isAudioActive
+                  ? "Disattiva audio registrato"
+                  : "Attiva audio registrato"
+              }
+            >
+              <MicIcon size={12} />
+              <span>{isAudioActive ? "AUDIO ON" : "AUDIO OFF"}</span>
+            </button>
           )}
 
           {hasVideo && (
