@@ -1,4 +1,5 @@
 import { useState, useEffect, type FC } from "react";
+import { useNavigate } from "react-router-dom";
 import { SLIDES } from "../presentation/slides.registry";
 import { SLIDE_NOTES, type SpeakerNote } from "./speakerNotes";
 import { renderFormattedSpeakerNotes } from "./speakerNotesFormatter";
@@ -6,15 +7,19 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   SlidesIcon,
+  CopyIcon,
+  CheckIcon,
 } from "../../components/icons";
 import styles from "./SpeakerView.module.scss";
 
 export const ScriptView: FC = () => {
+  const navigate = useNavigate();
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0);
   const [fontSize, setFontSize] = useState<number>(() => {
     const saved = localStorage.getItem("rasbora_speaker_font_size");
     return saved ? parseInt(saved, 10) : 18;
   });
+  const [copied, setCopied] = useState<boolean>(false);
 
   const totalSlides = SLIDES.length;
   const currentSlide = SLIDES[currentSlideIndex];
@@ -25,7 +30,9 @@ export const ScriptView: FC = () => {
 
   const activeBadge = `Slide ${currentSlideIndex + 1} di ${totalSlides}`;
   const activeTitle =
-    currentNote?.title || currentSlide?.title || `Slide ${currentSlideIndex + 1}`;
+    currentNote?.title ||
+    currentSlide?.title ||
+    `Slide ${currentSlideIndex + 1}`;
 
   useEffect(() => {
     document.title = `Script - Slide ${currentSlideIndex + 1}/${totalSlides} · ${activeTitle}`;
@@ -49,6 +56,30 @@ export const ScriptView: FC = () => {
 
   const handleNext = () => {
     setCurrentSlideIndex((prev) => Math.min(totalSlides - 1, prev + 1));
+  };
+
+  const handleCopyNotes = async () => {
+    const textToCopy = currentNote?.notes?.trim();
+    if (!textToCopy) return;
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(textToCopy);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = textToCopy;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Errore durante la copia del testo negli appunti:", err);
+    }
   };
 
   // Standalone keyboard navigation (left / right arrow, page up / page down, space)
@@ -117,9 +148,29 @@ export const ScriptView: FC = () => {
         </div>
 
         <div className={styles.notesCard}>
-          <span className={styles.sectionLabel}>
-            🗣️ Cosa dire / Punti da esporre
-          </span>
+          <div className={styles.notesCardHeader}>
+            <button
+              type="button"
+              className={styles.copyButton}
+              onClick={handleCopyNotes}
+              disabled={!currentNote?.notes}
+              title={copied ? "Copiato negli appunti!" : "Copia testo note"}
+              aria-label="Copia testo note"
+            >
+              {copied ? (
+                <>
+                  <CheckIcon size={14} />
+                  <span>Copiato!</span>
+                </>
+              ) : (
+                <>
+                  <CopyIcon size={14} />
+                  <span>Copia testo</span>
+                </>
+              )}
+            </button>
+          </div>
+
           <div
             className={styles.notesBody}
             style={{ fontSize: `${fontSize}px` }}
@@ -128,8 +179,8 @@ export const ScriptView: FC = () => {
               renderFormattedSpeakerNotes(currentNote.notes)
             ) : (
               <p style={{ color: "#8b949e", fontStyle: "italic" }}>
-                Nessuna nota specifica per questa slide. Presenta liberamente
-                i contenuti a schermo.
+                Nessuna nota specifica per questa slide. Presenta liberamente i
+                contenuti a schermo.
               </p>
             )}
           </div>
@@ -166,8 +217,9 @@ export const ScriptView: FC = () => {
             <button
               type="button"
               className={`${styles.bottomModeBtn} ${styles.bottomModeBtnActive}`}
-              title="Modalità Slide"
-              aria-label="Modalità Slide"
+              onClick={() => navigate("/slide")}
+              title="Vai alla presentazione slide (/slide)"
+              aria-label="Vai alla presentazione slide (/slide)"
             >
               <SlidesIcon size={14} />
               <span>Slide</span>

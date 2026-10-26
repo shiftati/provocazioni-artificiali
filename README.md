@@ -17,21 +17,23 @@ Il Talk dei Shiftati di Testa sul palco di Codemotion Milano 28-29 Ottobre 2026
 3. [Modalità Gioco: "Voglio fare un gioco con te" (Klippy Saw)](#3-modalità-gioco-voglio-fare-un-gioco-con-te-klippy-saw)
 4. [Dashboard Analytics & Monitoraggio Sessioni](#4-dashboard-analytics--monitoraggio-sessioni)
 5. [Session Replay & Sincronizzazione Audio (`/replay`)](#5-session-replay--sincronizzazione-audio-replay)
-6. [Note Relatore & Gobbo Elettronico (`/speaker`)](#6-note-relatore--gobbo-elettronico-speaker)
-7. [Controlli da Tastiera e Telecomando](#7-controlli-da-tastiera-e-telecomando)
-8. [Design System: Neo-Brutalism & Temi (Dark & Light)](#8-design-system-neo-brutalism--temi-dark--light)
-9. [Stack Tecnologico](#9-stack-tecnologico)
-10. [Comandi Disponibili](#10-comandi-disponibili)
-11. [Base Path e Dominio Personalizzato (`codemotion.shiftati.it`)](#11-base-path-e-dominio-personalizzato-codemotionshiftatiit)
-12. [Come Personalizzare Token di Brand e Logo](#12-come-personalizzare-token-di-brand-e-logo)
-13. [Offline, PWA & Gestione Cache](#13-offline-pwa--gestione-cache)
+6. [Note Relatore & Gobbo Elettronico Sincronizzato (`/speaker`)](#6-note-relatore--gobbo-elettronico-sincronizzato-speaker)
+7. [Script Standalone & Copione Mobile-First (`/script`)](#7-script-standalone--copione-mobile-first-script)
+8. [Trascrizione Vocale AI (Whisper) & Registrazione Multimediale](#8-trascrizione-vocale-ai-whisper--registrazione-multimediale)
+9. [Controlli da Tastiera e Telecomando](#9-controlli-da-tastiera-e-telecomando)
+10. [Design System: Neo-Brutalism & Ottimizzazione Mobile](#10-design-system-neo-brutalism--ottimizzazione-mobile)
+11. [Stack Tecnologico](#11-stack-tecnologico)
+12. [Comandi Disponibili](#12-comandi-disponibili)
+13. [Base Path e Dominio Personalizzato (`codemotion.shiftati.it`)](#13-base-path-e-dominio-personalizzato-codemotionshiftatiit)
+14. [Come Personalizzare Token di Brand e Logo](#14-come-personalizzare-token-di-brand-e-logo)
+15. [Offline, PWA & Gestione Cache](#15-offline-pwa--gestione-cache)
 
 ---
 
 ## 1. Caratteristiche Principali
 
 - **Stage 16:9 nativo con auto-scaling (`1920×1080`)**: il contenuto delle slide e del gioco viene renderizzato a
-  dimensione fissa e scalato proporzionalmente con letterboxing su qualsiasi proiettore o monitor.
+  dimensione fissa e scalato proporzionalmente con letterboxing su qualsiasi proiettore o monitor (percorsi `/slide` o `/presentation`).
 - **TopBar collassabile con scorciatoia (`H`) e persistenza**: la barra superiore può essere nascosta premendo il tasto
   `H` o `Escape` per un palco privo di distrazioni. Uno snello trigger discreto a comparsa permette di riaprirla in
   qualsiasi momento. Lo stato compresso/espanso è salvato in `localStorage`.
@@ -54,6 +56,8 @@ Il Talk dei Shiftati di Testa sul palco di Codemotion Milano 28-29 Ottobre 2026
 - **Reset Rapido di Slide e Gioco**: comando dedicato nel pannello di configurazione con modale di conferma per azzerare
   lo stato corrente del talk (riportando la slide al Titolo #1 e il gioco allo stato IDLE) senza intaccare i dati del
   countdown né lo storico delle sessioni.
+- **Trascrizione Vocale AI in tempo reale (Whisper ONNX in WebAssembly)**: modello Whisper pre-caricabile ed eseguibile al 100% offline direttamente nel browser per trascrivere il parlato sul palco senza inviare dati all'esterno.
+- **Registrazione Video Webcam su Disco**: registrazione video in background con streaming continuo su file locale `.webm` tramite File System Access API senza saturare la memoria RAM.
 - **Test Microfono dal Vivo & VU Meter**: strumento interattivo in tempo reale con indicatore di livello audio
   percentuale per collaudare il microfono di sala prima di avviare il talk.
 - **Posizione Frecce di Navigazione Configurabile**: possibilità di scegliere tra frecce grandi sovrapposte allo stage (
@@ -71,6 +75,8 @@ Il Talk dei Shiftati di Testa sul palco di Codemotion Milano 28-29 Ottobre 2026
   rivedere l'intero talk (slide, animazioni interne a step, fasi del gioco e overlay) sincronizzato all'audio vocale
   registrato tramite microfono.
 - **Note Relatore & Gobbo Elettronico Sincronizzato (`/speaker`)**: finestra dedicata per i relatori (apribile da TopBar, in popup o Document Picture-in-Picture) sincronizzata in tempo reale via `BroadcastChannel`. Include note contestuali per slide e provocazioni, formattazione con badge speaker (`[[Daniel]]`, `[[Ste]]`, `[[Klippy]]`, `[[Entrambi]]`), stile WhatsApp (`*grassetto*`, `_corsivo_`), citazioni di regia `[Dire qui: ...]`, controllo dimensione font e navigazione sincronizzata verso lo stage.
+- **Script Standalone & Copione Indipendente (`/script`)**: pagina di consultazione autonoma e slegata da ogni sincronizzazione, per leggere le note di ciascuna slide con frecce avanti/indietro, tastiera, pulsante di copia rapida del testo negli appunti, pulsante di salto rapido a `/slide` e layout ottimizzato per smartphone e tablet.
+- **Pannello Configurazione & Script Ottimizzati per Mobile**: layout completamente responsive per smartphone e tablet, ideale per configurare il talk o leggere le note direttamente dal telefono o tablet sul leggio.
 - **Doppio Tema Dark / Light**: interfaccia con estetica Neo-Brutalist (bordi marcati, ombre nette sfalsate, alto
   contrasto visivo), commutabile dal pannello di configurazione.
 - **PWA Offline-First & Screen Wake Lock**: precache completo di tutte le immagini e asset con indicatore visivo di
@@ -310,7 +316,47 @@ Accessibile tramite l'icona del microfono/note relatore nella TopBar o direttame
 
 ---
 
-## 7. Controlli da Tastiera e Telecomando
+## 7. Script Standalone & Copione Mobile-First (`/script`)
+
+Accessibile direttamente all'URL `#/script` o tramite il pulsante **"Script"** nel pannello di configurazione:
+
+- **Modalità Standalone non sincronizzata**:
+  - Pensato per essere consultato liberamente senza influenzare la presentazione sullo schermo e senza essere forzato al cambio slide.
+  - Nessuna connessione `BroadcastChannel`: il relatore può scorrere avanti o indietro liberamente prima o durante il talk.
+- **Navigazione Semplificata delle Slide**:
+  - Frecce di navigazione a sinistra e destra nella barra inferiore con indicatore di slide (es. _Slide 1 di 14_).
+  - Navigazione rapida anche da tastiera (`Freccia Destra`, `Page Down`, `Space` per avanzare; `Freccia Sinistra`, `Page Up` per retrocedere).
+  - Al centro della barra inferiore è presente **esclusivamente il pulsante Slide**: cliccandolo si viene reindirizzati direttamente alla presentazione slide (`/slide`).
+- **Pulsante Copia Rapida Testo**:
+  - Nella card delle note è presente il pulsante **"Copia testo"** (con icona dedicata e feedback "Copiato!") per copiare istantaneamente negli appunti il testo integrale delle note dello speaker per la slide corrente.
+- **Design Ottimizzato per Dispositivi Mobile**:
+  - Layout responsive testato e perfezionato per smartphone e tablet.
+  - Spaziature comode, bottoni touch-friendly con tap targets generosi, supporto per `env(safe-area-inset-bottom)` e scrolling automatico in cima al cambio di slide.
+  - Ideale per essere aperto sullo smartphone del relatore o su un tablet posizionato sul leggio del palco.
+
+---
+
+## 8. Trascrizione Vocale AI (Whisper) & Registrazione Multimediale
+
+Il talk include una suite multimediale integrata per documentare e trascrivere l'intervento:
+
+1. **Trascrizione Vocale AI in tempo reale (Whisper)**:
+   - Funziona **100% offline** nel browser tramite ONNX Runtime e WebAssembly (Transformers.js con modello `whisper-base`).
+   - I file del modello (~150MB) vengono salvati nella Cache Storage locale del browser e possono essere pre-caricati con un clic dal pannello di configurazione.
+   - Mostra la trascrizione dal vivo sia nella finestra note speaker sia nel monitor del pannello di configurazione.
+   - Selezione della lingua del parlato (`Italiano` o `Inglese`).
+2. **Registrazione Video Webcam su Disco**:
+   - Streaming diretto continuo su file locale `.webm` tramite la File System Access API (`showSaveFilePicker`).
+   - Non trattiene i frame in memoria RAM: il flusso video viene scritto incrementalmente su disco in tempo reale, consentendo registrazioni di lunghissima durata in alta qualità.
+   - Anteprima videocamera in tempo reale nel pannello di configurazione con specchiatura orizzontale.
+3. **Registrazione Audio Vocale & VU Meter**:
+   - Cattura audio dal microfono di sala, salvando la traccia in `IndexedDB`.
+   - Test microfono dal vivo con indicatore VU meter di livello (0-100%).
+   - Possibilità di interrompere la registrazione senza fermare il talk.
+
+---
+
+## 9. Controlli da Tastiera e Telecomando
 
 ### Controlli Presentazione sul Palco (Telecomando & Tastiera)
 
@@ -348,7 +394,13 @@ Accessibile tramite l'icona del microfono/note relatore nella TopBar o direttame
 
 ---
 
-## 8. Design System: Neo-Brutalism & Temi (Dark & Light)
+## 10. Design System: Neo-Brutalism & Ottimizzazione Mobile
+
+- **Stile Neo-Brutalist**: bordi decisi in nero solido (`border: 2px/3px/4px solid #000`), ombre nette sfalsate senza sfocatura (`box-shadow: 4px 4px 0 #000`), colori saturi ad alto contrasto.
+- **Ottimizzazione Mobile First**:
+  - **Pannello di Configurazione (`/`)**: card e bottoni flessibili, campi di input full-width su smartphone, font clamping adattivo (`clamp(1.2rem, 6vw, 1.6rem)`), padding e margini riproporzionati per non causare overflow orizzontale su schermi fino a 320px di larghezza.
+  - **Script Relatore (`/script`)**: ottimizzato per la lettura da cellulare o tablet in verticale/orizzontale, con pulsanti di navigazione grandi per il tocco delle dita e controllo immediato del font size.
+  - **Doppio Tema Dark / Light**: commutabile con persistenza in `localStorage`.
 
 L'applicazione adotta un design system **Neo-Brutalist** progettato per garantire massima leggibilità da grande distanza
 su proiettori di sala:
@@ -371,7 +423,7 @@ su proiettori di sala:
 
 ---
 
-## 9. Stack Tecnologico
+## 11. Stack Tecnologico
 
 - **React 19** + **TypeScript** (`strict: true`, zero `any`).
 - **Vite 6** con `@vitejs/plugin-react` e `vite-plugin-pwa`.
@@ -388,7 +440,7 @@ su proiettori di sala:
 
 ---
 
-## 10. Comandi Disponibili
+## 12. Comandi Disponibili
 
 ```bash
 # Installa le dipendenze
@@ -406,7 +458,7 @@ pnpm run preview # oppure npm run preview
 
 ---
 
-## 11. Base Path e Dominio Personalizzato (`codemotion.shiftati.it`)
+## 13. Base Path e Dominio Personalizzato (`codemotion.shiftati.it`)
 
 Nel file `vite.config.ts`, la costante `REPO_BASE` definisce il base path dell'applicazione:
 
@@ -426,7 +478,7 @@ export const REPO_BASE = "/";
 
 ---
 
-## 12. Come Personalizzare Token di Brand e Logo
+## 14. Come Personalizzare Token di Brand e Logo
 
 ### Palette Colori
 
@@ -454,7 +506,7 @@ Puoi sostituire i vettori SVG con nuove icone o file immagine preservando l'alli
 
 ---
 
-## 13. Offline, PWA & Gestione Cache
+## 15. Offline, PWA & Gestione Cache
 
 - **Font WOFF2 locali**: tutti i font (IBM Plex Sans, IBM Plex Mono, Roboto, Alfa Slab One) sono archiviati localmente
   in `public/fonts/`.

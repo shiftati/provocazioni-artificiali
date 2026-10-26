@@ -1,4 +1,11 @@
-import { useState, useMemo, useEffect, useRef, useCallback, type FC } from "react";
+import {
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  useCallback,
+  type FC,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppState } from "../../state/AppStateContext";
 import { useFullscreen } from "../../hooks/useFullscreen";
@@ -74,7 +81,7 @@ export const ConfigView: FC = () => {
   const { openSpeakerWindow, isWindowOpen: isSpeakerOpen } = useSpeakerWindow(
     session,
     game,
-    { disableNavHandling: true, isSessionActive }
+    { disableNavHandling: true, isSessionActive },
   );
   const { isInstallable, isInstalled, installApp } = usePwaInstall();
   const {
@@ -114,10 +121,10 @@ export const ConfigView: FC = () => {
 
   // Audio Recording configuration state
   const [audioRecordingEnabled, setAudioRecordingEnabled] = useState<boolean>(
-    () => config.audioRecordingEnabled ?? false
+    () => config.audioRecordingEnabled ?? false,
   );
   const [audioDeviceId, setAudioDeviceId] = useState<string>(
-    () => config.audioDeviceId ?? "default"
+    () => config.audioDeviceId ?? "default",
   );
   const [availableMics, setAvailableMics] = useState<
     Array<{ deviceId: string; label: string }>
@@ -129,14 +136,14 @@ export const ConfigView: FC = () => {
 
   // Audio Transcription state
   const [transcriptionEnabled, setTranscriptionEnabled] = useState<boolean>(
-    () => config.transcriptionEnabled ?? false
+    () => config.transcriptionEnabled ?? false,
   );
-  const [transcriptionLanguage, setTranscriptionLanguage] = useState<"it" | "en">(
-    () => config.transcriptionLanguage ?? "it"
-  );
-  const [modelState, setModelState] = useState<"idle" | "loading" | "ready" | "error">(
-    () => (transcriptionManager.isModelReady() ? "ready" : "idle")
-  );
+  const [transcriptionLanguage, setTranscriptionLanguage] = useState<
+    "it" | "en"
+  >(() => config.transcriptionLanguage ?? "it");
+  const [modelState, setModelState] = useState<
+    "idle" | "loading" | "ready" | "error"
+  >(() => (transcriptionManager.isModelReady() ? "ready" : "idle"));
   const [modelProgress, setModelProgress] = useState<number>(0);
   const [modelStatusText, setModelStatusText] = useState<string>("");
   const [isModelCached, setIsModelCached] = useState<boolean | null>(null);
@@ -157,7 +164,7 @@ export const ConfigView: FC = () => {
         setIsModelCached(cached);
         if (cached && !transcriptionManager.isModelReady()) {
           setModelStatusText(
-            "Modello presente nella cache locale del dispositivo (non caricato in memoria RAM)."
+            "Modello presente nella cache locale del dispositivo (non caricato in memoria RAM).",
           );
         }
       }
@@ -173,7 +180,7 @@ export const ConfigView: FC = () => {
     setModelStatusText(
       wasCached
         ? "Caricamento modello dalla cache locale in WebAssembly..."
-        : "Download modello Whisper ONNX e memorizzazione in cache..."
+        : "Download modello Whisper ONNX e memorizzazione in cache...",
     );
     setModelProgress(5);
     try {
@@ -186,11 +193,15 @@ export const ConfigView: FC = () => {
         } else if (info.status) {
           if (wasCached) {
             setModelStatusText(
-              info.file ? `Caricamento file dalla cache: ${info.file}` : "Caricamento dalla cache locale in corso..."
+              info.file
+                ? `Caricamento file dalla cache: ${info.file}`
+                : "Caricamento dalla cache locale in corso...",
             );
           } else {
             setModelStatusText(
-              info.file ? `Download file: ${info.file}` : "Download file modello..."
+              info.file
+                ? `Download file: ${info.file}`
+                : "Download file modello...",
             );
           }
         }
@@ -201,11 +212,14 @@ export const ConfigView: FC = () => {
       });
       setModelState("ready");
       setIsModelCached(true);
-      setModelStatusText("Modello Whisper Base caricato in memoria RAM e pronto all'uso locale");
+      setModelStatusText(
+        "Modello Whisper Base caricato in memoria RAM e pronto all'uso locale",
+      );
     } catch (err: unknown) {
       setModelState("error");
       setModelStatusText(
-        (err as Error)?.message || "Errore durante l'inizializzazione del modello Whisper"
+        (err as Error)?.message ||
+          "Errore durante l'inizializzazione del modello Whisper",
       );
     }
   }, [isModelCached]);
@@ -213,7 +227,7 @@ export const ConfigView: FC = () => {
   const handleClearModelCache = useCallback(async () => {
     if (
       !window.confirm(
-        "Vuoi davvero eliminare i file del modello Whisper dalla cache locale del browser (~150MB)?"
+        "Vuoi davvero eliminare i file del modello Whisper dalla cache locale del browser (~150MB)?",
       )
     ) {
       return;
@@ -227,10 +241,10 @@ export const ConfigView: FC = () => {
 
   // Video Recording configuration state
   const [videoRecordingEnabled, setVideoRecordingEnabled] = useState<boolean>(
-    () => config.videoRecordingEnabled ?? false
+    () => config.videoRecordingEnabled ?? false,
   );
   const [videoDeviceId, setVideoDeviceId] = useState<string>(
-    () => config.videoDeviceId ?? "default"
+    () => config.videoDeviceId ?? "default",
   );
   const [availableCameras, setAvailableCameras] = useState<
     Array<{ deviceId: string; label: string }>
@@ -249,7 +263,11 @@ export const ConfigView: FC = () => {
   const animFrameRef = useRef<number | null>(null);
 
   const refreshMicrophones = useCallback(async () => {
-    if (typeof navigator === "undefined" || !navigator.mediaDevices?.enumerateDevices) return;
+    if (
+      typeof navigator === "undefined" ||
+      !navigator.mediaDevices?.enumerateDevices
+    )
+      return;
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
       const audioInputs = devices
@@ -269,7 +287,11 @@ export const ConfigView: FC = () => {
   }, []);
 
   const requestMicPermission = async () => {
-    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) return;
+    if (
+      typeof navigator === "undefined" ||
+      !navigator.mediaDevices?.getUserMedia
+    )
+      return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       setMicPermissionState("granted");
@@ -284,9 +306,15 @@ export const ConfigView: FC = () => {
   useEffect(() => {
     if (typeof navigator !== "undefined" && navigator.mediaDevices) {
       refreshMicrophones();
-      navigator.mediaDevices.addEventListener?.("devicechange", refreshMicrophones);
+      navigator.mediaDevices.addEventListener?.(
+        "devicechange",
+        refreshMicrophones,
+      );
       return () => {
-        navigator.mediaDevices.removeEventListener?.("devicechange", refreshMicrophones);
+        navigator.mediaDevices.removeEventListener?.(
+          "devicechange",
+          refreshMicrophones,
+        );
       };
     }
   }, [refreshMicrophones]);
@@ -327,7 +355,10 @@ export const ConfigView: FC = () => {
       setMicPermissionState("granted");
       refreshMicrophones();
 
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext })
+          .webkitAudioContext;
       const audioCtx = new AudioCtx();
       audioCtxRef.current = audioCtx;
       const analyser = audioCtx.createAnalyser();
@@ -367,7 +398,11 @@ export const ConfigView: FC = () => {
   }, [stopMicTest]);
 
   const refreshCameras = useCallback(async () => {
-    if (typeof navigator === "undefined" || !navigator.mediaDevices?.enumerateDevices) return;
+    if (
+      typeof navigator === "undefined" ||
+      !navigator.mediaDevices?.enumerateDevices
+    )
+      return;
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
       const videoInputs = devices
@@ -387,7 +422,11 @@ export const ConfigView: FC = () => {
   }, []);
 
   const requestCameraPermission = async () => {
-    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) return;
+    if (
+      typeof navigator === "undefined" ||
+      !navigator.mediaDevices?.getUserMedia
+    )
+      return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       setCameraPermissionState("granted");
@@ -399,20 +438,23 @@ export const ConfigView: FC = () => {
     }
   };
 
-  const attachVideoStream = useCallback((videoEl: HTMLVideoElement | null, stream: MediaStream | null) => {
-    if (!videoEl) return;
-    if (stream) {
-      if (videoEl.srcObject !== stream) {
-        videoEl.srcObject = stream;
+  const attachVideoStream = useCallback(
+    (videoEl: HTMLVideoElement | null, stream: MediaStream | null) => {
+      if (!videoEl) return;
+      if (stream) {
+        if (videoEl.srcObject !== stream) {
+          videoEl.srcObject = stream;
+        }
+        videoEl.muted = true;
+        videoEl.play().catch((err) => {
+          console.warn("Video preview play error:", err);
+        });
+      } else {
+        videoEl.srcObject = null;
       }
-      videoEl.muted = true;
-      videoEl.play().catch((err) => {
-        console.warn("Video preview play error:", err);
-      });
-    } else {
-      videoEl.srcObject = null;
-    }
-  }, []);
+    },
+    [],
+  );
 
   const handleVideoRef = useCallback(
     (node: HTMLVideoElement | null) => {
@@ -421,7 +463,7 @@ export const ConfigView: FC = () => {
         attachVideoStream(node, testVideoStreamRef.current);
       }
     },
-    [attachVideoStream]
+    [attachVideoStream],
   );
 
   const stopCameraTest = useCallback(() => {
@@ -456,7 +498,7 @@ export const ConfigView: FC = () => {
         if (videoDeviceId && videoDeviceId !== "default") {
           console.warn(
             "Camera test with selected device failed, retrying with default video constraints:",
-            deviceErr
+            deviceErr,
           );
           stream = await navigator.mediaDevices.getUserMedia({ video: true });
         } else {
@@ -480,18 +522,24 @@ export const ConfigView: FC = () => {
   };
 
   useEffect(() => {
-    if (isTestingCamera && videoPreviewRef.current && testVideoStreamRef.current) {
+    if (
+      isTestingCamera &&
+      videoPreviewRef.current &&
+      testVideoStreamRef.current
+    ) {
       attachVideoStream(videoPreviewRef.current, testVideoStreamRef.current);
     }
   }, [isTestingCamera, attachVideoStream]);
-
 
   useEffect(() => {
     if (typeof navigator !== "undefined" && navigator.mediaDevices) {
       refreshCameras();
       navigator.mediaDevices.addEventListener?.("devicechange", refreshCameras);
       return () => {
-        navigator.mediaDevices.removeEventListener?.("devicechange", refreshCameras);
+        navigator.mediaDevices.removeEventListener?.(
+          "devicechange",
+          refreshCameras,
+        );
       };
     }
   }, [refreshCameras]);
@@ -579,7 +627,7 @@ export const ConfigView: FC = () => {
     if (videoRecordingEnabled) {
       if (!isFileSystemAccessSupported()) {
         alert(
-          "La registrazione video su disco richiede un browser con supporto File System Access API (es. Chrome, Edge su desktop)."
+          "La registrazione video su disco richiede un browser con supporto File System Access API (es. Chrome, Edge su desktop).",
         );
         return;
       }
@@ -589,7 +637,7 @@ export const ConfigView: FC = () => {
           .replace(/[:.]/g, "-")
           .slice(0, 19);
         videoFileHandle = await promptVideoSaveFilePicker(
-          `talk-video-${formattedDate}.webm`
+          `talk-video-${formattedDate}.webm`,
         );
       } catch (err: unknown) {
         if ((err as Error)?.name === "AbortError") {
@@ -632,7 +680,7 @@ export const ConfigView: FC = () => {
       setAutoLoadStatusText(
         isModelCached
           ? "Caricamento modello dalla cache locale in WebAssembly..."
-          : "Download modello Whisper ONNX e memorizzazione in cache..."
+          : "Download modello Whisper ONNX e memorizzazione in cache...",
       );
 
       try {
@@ -645,8 +693,12 @@ export const ConfigView: FC = () => {
           } else if (info.status) {
             setAutoLoadStatusText(
               isModelCached
-                ? (info.file ? `Caricamento da cache: ${info.file}` : "Caricamento dalla cache locale in corso...")
-                : (info.file ? `Download file: ${info.file}` : "Download in corso...")
+                ? info.file
+                  ? `Caricamento da cache: ${info.file}`
+                  : "Caricamento dalla cache locale in corso..."
+                : info.file
+                  ? `Download file: ${info.file}`
+                  : "Download in corso...",
             );
           }
         });
@@ -656,7 +708,7 @@ export const ConfigView: FC = () => {
         console.error("Errore caricamento automatico modello Whisper:", err);
         if (!bypassAutoLoadRef.current) {
           const proceedWithout = window.confirm(
-            `Impossibile caricare il modello Whisper: ${(err as Error)?.message || "Errore sconosciuto"}.\n\nVuoi avviare comunque il talk senza trascrizione vocale?`
+            `Impossibile caricare il modello Whisper: ${(err as Error)?.message || "Errore sconosciuto"}.\n\nVuoi avviare comunque il talk senza trascrizione vocale?`,
           );
           if (!proceedWithout) {
             setIsAutoLoadingModel(false);
@@ -739,16 +791,16 @@ export const ConfigView: FC = () => {
               leftIcon={<SpeakerNoteIcon size={18} />}
               title="Apri finestra con le note e il testo pensato da dire, sincronizzata con slide e gioco"
             >
-              {isSpeakerOpen ? "Note Speaker Aperte" : "Apri Supporto Testuale"}
+              {isSpeakerOpen ? "Note Speaker Aperte" : "Apri Note Speaker"}
             </Button>
             <Button
               variant="secondary"
               size="md"
-              onClick={() => window.open("#/script", "_blank")}
+              onClick={() => navigate("/script")}
               leftIcon={<SpeakerNoteIcon size={18} />}
               title="Apri il copione / note delle slide in modalità standalone (non sincronizzata con la presentazione)"
             >
-              Script Standalone
+              Script
             </Button>
             <Button
               variant="secondary"
@@ -810,7 +862,9 @@ export const ConfigView: FC = () => {
           >
             <div className={styles.cardHeading}>
               <span>
-                {hasActiveSession ? "Sessione in corso" : "Stato Talk & Presentazione"}
+                {hasActiveSession
+                  ? "Sessione in corso"
+                  : "Stato Talk & Presentazione"}
               </span>
               <div
                 style={{
@@ -848,9 +902,7 @@ export const ConfigView: FC = () => {
                 <span className={styles.statLabel}>Slide attuale</span>
               </div>
               <div className={styles.statItem}>
-                <span className={styles.statValue}>
-                  {game.discussedCount}
-                </span>
+                <span className={styles.statValue}>{game.discussedCount}</span>
                 <span className={styles.statLabel}>Provocazioni</span>
               </div>
               <div className={styles.statItem}>
@@ -893,12 +945,15 @@ export const ConfigView: FC = () => {
                   <div className={styles.recordingMonitorStatus}>
                     {isRecordingAudio ? (
                       <span className={styles.badgeRecording}>
-                        <span className={styles.recDot} /> Registrazione in corso
+                        <span className={styles.recDot} /> Registrazione in
+                        corso
                       </span>
                     ) : hasActiveSession ? (
                       <span className={styles.badgeInactive}>Non in corso</span>
                     ) : audioRecordingEnabled ? (
-                      <span className={styles.badgeReady}>Abilitata al via</span>
+                      <span className={styles.badgeReady}>
+                        Abilitata al via
+                      </span>
                     ) : (
                       <span className={styles.badgeDisabled}>Disabilitata</span>
                     )}
@@ -918,12 +973,15 @@ export const ConfigView: FC = () => {
                   <div className={styles.recordingMonitorStatus}>
                     {isRecordingVideo ? (
                       <span className={styles.badgeRecording}>
-                        <span className={styles.recDot} /> Registrazione su disco
+                        <span className={styles.recDot} /> Registrazione su
+                        disco
                       </span>
                     ) : hasActiveSession ? (
                       <span className={styles.badgeInactive}>Non in corso</span>
                     ) : videoRecordingEnabled ? (
-                      <span className={styles.badgeReady}>Abilitata al via</span>
+                      <span className={styles.badgeReady}>
+                        Abilitata al via
+                      </span>
                     ) : (
                       <span className={styles.badgeDisabled}>Disabilitata</span>
                     )}
@@ -933,7 +991,9 @@ export const ConfigView: FC = () => {
                 {/* Transcription */}
                 <div
                   className={`${styles.recordingMonitorCard} ${
-                    isTranscribing ? styles.recordingMonitorCardTranscribing : ""
+                    isTranscribing
+                      ? styles.recordingMonitorCardTranscribing
+                      : ""
                   }`}
                 >
                   <div className={styles.recordingMonitorTitle}>
@@ -943,12 +1003,15 @@ export const ConfigView: FC = () => {
                   <div className={styles.recordingMonitorStatus}>
                     {isTranscribing ? (
                       <span className={styles.badgeTranscribing}>
-                        <span className={styles.transcribingDot} /> Trascrizione attiva
+                        <span className={styles.transcribingDot} /> Trascrizione
+                        attiva
                       </span>
                     ) : hasActiveSession ? (
                       <span className={styles.badgeInactive}>Non in corso</span>
                     ) : transcriptionEnabled ? (
-                      <span className={styles.badgeReady}>Abilitata al via</span>
+                      <span className={styles.badgeReady}>
+                        Abilitata al via
+                      </span>
                     ) : (
                       <span className={styles.badgeDisabled}>Disabilitata</span>
                     )}
@@ -1146,9 +1209,7 @@ export const ConfigView: FC = () => {
                   Registrazione audio
                 </label>
                 {isRecordingAudio ? (
-                  <Badge variant="danger">
-                    ● Registrazione in corso
-                  </Badge>
+                  <Badge variant="danger">● Registrazione in corso</Badge>
                 ) : audioRecordingEnabled ? (
                   <Badge variant="accent">
                     {isTestingMic ? "Test in corso" : "Attiva al via"}
@@ -1190,7 +1251,10 @@ export const ConfigView: FC = () => {
                     <span className={styles.recordingActiveDot} />
                     <div className={styles.recordingActiveText}>
                       <strong>Registrazione audio attualmente in corso</strong>
-                      <span>Il microfono sta catturando l'audio del talk in tempo reale.</span>
+                      <span>
+                        Il microfono sta catturando l'audio del talk in tempo
+                        reale.
+                      </span>
                     </div>
                   </div>
                   <Button
@@ -1210,8 +1274,8 @@ export const ConfigView: FC = () => {
                     <div className={styles.permissionErrorBanner} role="alert">
                       <MicOffIcon size={18} />
                       <span>
-                        Accesso al microfono negato nel browser.
-                        Abilita il permesso per registrare l'audio.
+                        Accesso al microfono negato nel browser. Abilita il
+                        permesso per registrare l'audio.
                       </span>
                     </div>
                   )}
@@ -1226,19 +1290,21 @@ export const ConfigView: FC = () => {
                           micPermissionState === "granted"
                             ? "accent"
                             : micPermissionState === "denied"
-                            ? "danger"
-                            : "default"
+                              ? "danger"
+                              : "default"
                         }
                       >
                         {micPermissionState === "granted"
                           ? "✓ Concesso"
                           : micPermissionState === "denied"
-                          ? "✗ Negato"
-                          : "Da autorizzare"}
+                            ? "✗ Negato"
+                            : "Da autorizzare"}
                       </Badge>
                     </div>
                     <Button
-                      variant={micPermissionState === "granted" ? "ghost" : "secondary"}
+                      variant={
+                        micPermissionState === "granted" ? "ghost" : "secondary"
+                      }
                       size="md"
                       onClick={requestMicPermission}
                       leftIcon={<MicIcon size={16} />}
@@ -1261,7 +1327,10 @@ export const ConfigView: FC = () => {
                       }
                     }}
                     options={[
-                      { value: "default", label: "Microfono predefinito di sistema" },
+                      {
+                        value: "default",
+                        label: "Microfono predefinito di sistema",
+                      },
                       ...availableMics
                         .filter((m) => m.deviceId !== "default")
                         .map((m) => ({
@@ -1277,7 +1346,13 @@ export const ConfigView: FC = () => {
                       variant={isTestingMic ? "primary" : "secondary"}
                       size="md"
                       onClick={startMicTest}
-                      leftIcon={isTestingMic ? <MicOffIcon size={16} /> : <MicIcon size={16} />}
+                      leftIcon={
+                        isTestingMic ? (
+                          <MicOffIcon size={16} />
+                        ) : (
+                          <MicIcon size={16} />
+                        )
+                      }
                     >
                       {isTestingMic ? "Ferma Test" : "Testa Microfono"}
                     </Button>
@@ -1297,13 +1372,22 @@ export const ConfigView: FC = () => {
                   {/* Automatic Speech Transcription (Whisper AI) */}
                   <div className={styles.transcriptionBox}>
                     <div className={styles.transcriptionHeader}>
-                      <label className={styles.transcriptionTitle} id="transcription-label">
+                      <label
+                        className={styles.transcriptionTitle}
+                        id="transcription-label"
+                      >
                         <TranscriptIcon size={18} />
                         Trascrizione vocale AI in tempo reale (Whisper)
                       </label>
                       {transcriptionEnabled ? (
-                        <Badge variant={modelState === "ready" ? "accent" : "default"}>
-                          {modelState === "ready" ? "AI Pronta offline" : "Attiva al via"}
+                        <Badge
+                          variant={
+                            modelState === "ready" ? "accent" : "default"
+                          }
+                        >
+                          {modelState === "ready"
+                            ? "AI Pronta offline"
+                            : "Attiva al via"}
                         </Badge>
                       ) : null}
                     </div>
@@ -1334,7 +1418,9 @@ export const ConfigView: FC = () => {
                           label="Lingua del parlato per Whisper"
                           value={transcriptionLanguage}
                           onChange={(e) =>
-                            setTranscriptionLanguage(e.target.value as "it" | "en")
+                            setTranscriptionLanguage(
+                              e.target.value as "it" | "en",
+                            )
                           }
                           options={[
                             { value: "it", label: "Italiano (it)" },
@@ -1365,15 +1451,17 @@ export const ConfigView: FC = () => {
                             {modelState === "ready"
                               ? "Il modello Whisper è istanziato nella memoria WebAssembly e pronto per la trascrizione vocale in tempo reale (funziona al 100% offline)."
                               : isModelCached
-                              ? "I file del modello (~150MB) sono già memorizzati nella cache locale del dispositivo. Puoi caricarli in memoria RAM per la trascrizione immediata, oppure verranno caricati automaticamente all'inizio della sessione."
-                              : "Per consentire il funzionamento offline (es. sul palco o senza Wi-Fi), puoi scaricare e salvare nella cache locale del browser il modello Whisper prima del talk."}
+                                ? "I file del modello (~150MB) sono già memorizzati nella cache locale del dispositivo. Puoi caricarli in memoria RAM per la trascrizione immediata, oppure verranno caricati automaticamente all'inizio della sessione."
+                                : "Per consentire il funzionamento offline (es. sul palco o senza Wi-Fi), puoi scaricare e salvare nella cache locale del browser il modello Whisper prima del talk."}
                           </p>
 
                           {modelState === "loading" && (
                             <div className={styles.modelProgressTrack}>
                               <div
                                 className={styles.modelProgressFill}
-                                style={{ width: `${Math.max(5, modelProgress)}%` }}
+                                style={{
+                                  width: `${Math.max(5, modelProgress)}%`,
+                                }}
                               />
                             </div>
                           )}
@@ -1386,7 +1474,9 @@ export const ConfigView: FC = () => {
 
                           <div className={styles.modelActions}>
                             <Button
-                              variant={modelState === "ready" ? "ghost" : "secondary"}
+                              variant={
+                                modelState === "ready" ? "ghost" : "secondary"
+                              }
                               size="md"
                               disabled={modelState === "loading"}
                               onClick={handlePreloadModel}
@@ -1401,12 +1491,12 @@ export const ConfigView: FC = () => {
                               {modelState === "ready"
                                 ? "Ricarica / Verifica Modello"
                                 : modelState === "loading"
-                                ? isModelCached
-                                  ? `Caricamento RAM (${modelProgress}%)...`
-                                  : `Download in corso (${modelProgress}%)...`
-                                : isModelCached
-                                ? "Carica Modello in Memoria (RAM)"
-                                : "Scarica e Salva Modello in Cache (~150MB)"}
+                                  ? isModelCached
+                                    ? `Caricamento RAM (${modelProgress}%)...`
+                                    : `Download in corso (${modelProgress}%)...`
+                                  : isModelCached
+                                    ? "Carica Modello in Memoria (RAM)"
+                                    : "Scarica e Salva Modello in Cache (~150MB)"}
                             </Button>
 
                             {isModelCached && modelState !== "loading" && (
@@ -1436,12 +1526,12 @@ export const ConfigView: FC = () => {
                   Registrazione video webcam
                 </label>
                 {isRecordingVideo ? (
-                  <Badge variant="danger">
-                    ● Registrazione in corso
-                  </Badge>
+                  <Badge variant="danger">● Registrazione in corso</Badge>
                 ) : videoRecordingEnabled ? (
                   <Badge variant="accent">
-                    {isTestingCamera ? "Anteprima in corso" : "Attiva su disco al via"}
+                    {isTestingCamera
+                      ? "Anteprima in corso"
+                      : "Attiva su disco al via"}
                   </Badge>
                 ) : null}
               </div>
@@ -1481,9 +1571,12 @@ export const ConfigView: FC = () => {
                   <div className={styles.recordingActiveInfo}>
                     <span className={styles.recordingActiveDot} />
                     <div className={styles.recordingActiveText}>
-                      <strong>Registrazione video webcam attiva su disco</strong>
+                      <strong>
+                        Registrazione video webcam attiva su disco
+                      </strong>
                       <span>
-                        File in scrittura: {videoRecordedFileName || "video.webm"}
+                        File in scrittura:{" "}
+                        {videoRecordedFileName || "video.webm"}
                       </span>
                     </div>
                   </div>
@@ -1505,7 +1598,8 @@ export const ConfigView: FC = () => {
                       <VideoOffIcon size={18} />
                       <span>
                         File System Access API non supportata su questo browser.
-                        Usa Google Chrome o Microsoft Edge su desktop per lo streaming del video su disco.
+                        Usa Google Chrome o Microsoft Edge su desktop per lo
+                        streaming del video su disco.
                       </span>
                     </div>
                   )}
@@ -1514,8 +1608,8 @@ export const ConfigView: FC = () => {
                     <div className={styles.permissionErrorBanner} role="alert">
                       <VideoOffIcon size={18} />
                       <span>
-                        Accesso alla videocamera negato nel browser.
-                        Abilita il permesso per selezionare e registrare la webcam.
+                        Accesso alla videocamera negato nel browser. Abilita il
+                        permesso per selezionare e registrare la webcam.
                       </span>
                     </div>
                   )}
@@ -1530,19 +1624,23 @@ export const ConfigView: FC = () => {
                           cameraPermissionState === "granted"
                             ? "accent"
                             : cameraPermissionState === "denied"
-                            ? "danger"
-                            : "default"
+                              ? "danger"
+                              : "default"
                         }
                       >
                         {cameraPermissionState === "granted"
                           ? "✓ Concesso"
                           : cameraPermissionState === "denied"
-                          ? "✗ Negato"
-                          : "Da autorizzare"}
+                            ? "✗ Negato"
+                            : "Da autorizzare"}
                       </Badge>
                     </div>
                     <Button
-                      variant={cameraPermissionState === "granted" ? "ghost" : "secondary"}
+                      variant={
+                        cameraPermissionState === "granted"
+                          ? "ghost"
+                          : "secondary"
+                      }
                       size="md"
                       onClick={requestCameraPermission}
                       leftIcon={<VideoIcon size={16} />}
@@ -1565,7 +1663,10 @@ export const ConfigView: FC = () => {
                       }
                     }}
                     options={[
-                      { value: "default", label: "Videocamera predefinita di sistema" },
+                      {
+                        value: "default",
+                        label: "Videocamera predefinita di sistema",
+                      },
                       ...availableCameras
                         .filter((c) => c.deviceId !== "default")
                         .map((c) => ({
@@ -1581,9 +1682,17 @@ export const ConfigView: FC = () => {
                       variant={isTestingCamera ? "primary" : "secondary"}
                       size="md"
                       onClick={startCameraTest}
-                      leftIcon={isTestingCamera ? <VideoOffIcon size={16} /> : <VideoIcon size={16} />}
+                      leftIcon={
+                        isTestingCamera ? (
+                          <VideoOffIcon size={16} />
+                        ) : (
+                          <VideoIcon size={16} />
+                        )
+                      }
                     >
-                      {isTestingCamera ? "Chiudi Anteprima" : "Testa Videocamera"}
+                      {isTestingCamera
+                        ? "Chiudi Anteprima"
+                        : "Testa Videocamera"}
                     </Button>
 
                     {isTestingCamera && (
@@ -1655,9 +1764,9 @@ export const ConfigView: FC = () => {
             fontSize: "1.1rem",
           }}
         >
-          Questa operazione imposterà la slide alla numero 1 (Titolo) e il
-          gioco allo stato IDLE (KlippySaw). La configurazione dell'orario del
-          talk rimarrà invariata.
+          Questa operazione imposterà la slide alla numero 1 (Titolo) e il gioco
+          allo stato IDLE (KlippySaw). La configurazione dell'orario del talk
+          rimarrà invariata.
         </p>
         <div
           style={{

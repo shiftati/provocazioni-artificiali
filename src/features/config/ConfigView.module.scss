@@ -596,3 +596,135 @@
   flex-wrap: wrap;
 }
 
+/* Mobile Responsiveness for Config Panel */
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .brandHeader {
+    margin-bottom: var(--space-4);
+  }
+
+  .title {
+    font-size: clamp(1.4rem, 6.5vw, 2.2rem);
+    padding: var(--space-2) var(--space-4);
+    box-shadow: 4px 4px 0 #000000;
+    border-width: 3px;
+    max-width: 100%;
+    box-sizing: border-box;
+    word-break: break-word;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    margin-top: var(--space-2);
+  }
+
+  .headerLinks {
+    gap: var(--space-2);
+    width: 100%;
+  }
+
+  .cardGrid {
+    max-width: 100%;
+    gap: var(--space-4);
+  }
+
+  .sessionStats {
+    flex-wrap: wrap;
+    padding: var(--space-3);
+    gap: var(--space-3);
+
+    .statItem {
+      flex: 1 1 calc(50% - var(--space-3));
+    }
+
+    .statValue {
+      font-size: 1.3rem;
+    }
+  }
+
+  .micSettingsWrapper {
+    padding: var(--space-3);
+  }
+
+  .transcriptionBox {
+    padding: var(--space-3);
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: var(--space-3) var(--space-2);
+  }
+
+  .title {
+    font-size: clamp(1.2rem, 6vw, 1.6rem);
+    padding: var(--space-2) var(--space-3);
+    border-width: 2.5px;
+    box-shadow: 3px 3px 0 #000000;
+  }
+
+  .headerLinks {
+    flex-direction: column;
+    align-items: stretch;
+
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .actionsRow {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .micTestRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .permissionBanner,
+  .permissionActionRow,
+  .recordingActiveNotice {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .modelActions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .videoPreview {
+    max-width: 100%;
+  }
+}
+
+

@@ -194,6 +194,44 @@
   gap: 1rem;
 }
 
+.notesCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.copyButton {
+  background: #16202e;
+  color: #c9d1d9;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: #1f2c3d;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.96);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
 .sectionLabel {
   font-size: 0.8rem;
   font-weight: 700;
@@ -555,3 +593,74 @@ mark, .speakerQuote {
   font-weight: 600;
   color: #c9d1d9;
 }
+
+/* Mobile Responsiveness for Script & Speaker Views */
+@media (max-width: 640px) {
+  .container {
+    padding: 0.85rem 0.85rem calc(4.75rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .topBar {
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .brandTitle {
+    font-size: 1rem;
+  }
+
+  .syncBadge,
+  .sessionBadgeActive,
+  .sessionBadgeInactive {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+  }
+
+  .headerCard {
+    padding: 0.85rem 1rem;
+    gap: 0.35rem;
+  }
+
+  .slideHeading {
+    font-size: 1.3rem;
+  }
+
+  .subtitleText {
+    font-size: 0.95rem;
+  }
+
+  .notesCard,
+  .hintsCard {
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  .notesBody {
+    line-height: 1.6;
+  }
+
+  .speakerTag {
+    font-size: 0.75rem;
+    padding: 0.15rem 0.45rem;
+  }
+
+  .bottomBar {
+    padding-bottom: max(0.4rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .bottomBarInner {
+    padding: 0.45rem 0.75rem;
+  }
+
+  .bottomNavBtn {
+    width: 44px;
+    height: 38px;
+  }
+
+  .bottomModeBtn {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.85rem;
+  }
+}
+

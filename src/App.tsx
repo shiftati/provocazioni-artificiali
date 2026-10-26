@@ -26,6 +26,7 @@ export const App: FC = () => {
                 <AppShell>
                   <Routes>
                     <Route path="/" element={<ConfigView />} />
+                    <Route path="/slide" element={<PresentationView />} />
                     <Route path="/presentation" element={<PresentationView />} />
                     <Route path="/game" element={<GameView />} />
                     <Route path="/analytics" element={<AnalyticsView />} />

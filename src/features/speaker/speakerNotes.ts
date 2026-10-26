@@ -69,7 +69,7 @@ Per ricreare questo ambiente, iniziamo con un piccolo passo: *conosciamoci megli
   
 - [[Ste]] Ah giusto lui è [[Klippy]] e tutti e tre insieme siamo *Shiftati di Testa*, abbiamo un nostro podcast e una pagina Instagram dove parliamo di quello di cui abbiamo voglia di parlare.
 
-- [[Daniel]] E non so se ve ne siete accorti, ma Klippy è presente in ogni nsotra slide: è la nostra mascotte dolce e teneramente stupida.
+- [[Daniel]] E non so se ve ne siete accorti, ma Klippy è presente in ogni nostra slide: è la nostra mascotte dolce e teneramente stupida.
 `,
   },
   "ritorno-al-futuro": {
@@ -188,8 +188,7 @@ Cioè, *l'ECCELLENZA per noi è unire più competenze*. Non è solo l'idea di pr
     slideId: "selfie",
     title: "Selfie",
     notes: `[[DANIEL]]
-    
-    _*...e cosa c'è di più UMANO di quello che abbiamo fatto oggi?*_
+_*...e cosa c'è di più UMANO di quello che abbiamo fatto oggi?*_
 
 - Prima di tutto ci tengo a *RINGRAZIARE* di cuore chi ha partecipato (ci vuole coraggio nel mettersi in gioco!)... Il bello è che questo talk è irripetibile, perché ognuno di noi è UNICO con una propria PERSONALE esperienza, costruita giorno per giorno in 5, 10, 20 anni... la conoscenza dell'AI è solo una "media" di tutte le nostre esperienze (e neanche tutte perché si basa sul codice che ha "studiato") ma non su quello che ognuno di noi ha vissuto realmente.
 
