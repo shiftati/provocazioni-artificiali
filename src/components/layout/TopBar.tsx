@@ -222,19 +222,21 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
             )}
           </div>
         )}
-        <IconButton
-          aria-label="Riesegui animazione slide"
-          onClick={replaySlideAnimation}
-          disabled={!isPresentation}
-          title={
-            isPresentation
-              ? "Riesegui animazione slide"
-              : "Disponibile solo in modalità slide"
-          }
-          className={styles.topBarBtn}
-        >
-          <RefreshIcon size={20} />
-        </IconButton>
+        {!isSessionActive && (
+          <IconButton
+            aria-label="Riesegui animazione slide"
+            onClick={replaySlideAnimation}
+            disabled={!isPresentation}
+            title={
+              isPresentation
+                ? "Riesegui animazione slide"
+                : "Disponibile solo in modalità slide"
+            }
+            className={styles.topBarBtn}
+          >
+            <RefreshIcon size={20} />
+          </IconButton>
+        )}
         <IconButton
           aria-label="Modalità Slide"
           isActive={isPresentation}
@@ -386,15 +388,17 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
           <SpeakerNoteIcon size={20} />
         </IconButton>
 
-        <IconButton
-          aria-label="Statistiche e Analytics talk"
-          isActive={isAnalytics}
-          onClick={() => navigate("/analytics")}
-          title="Statistiche & Analytics (A)"
-          className={styles.topBarBtn}
-        >
-          <AnalyticsIcon size={20} />
-        </IconButton>
+        {!isSessionActive && (
+          <IconButton
+            aria-label="Statistiche e Analytics talk"
+            isActive={isAnalytics}
+            onClick={() => navigate("/analytics")}
+            title="Statistiche & Analytics (A)"
+            className={styles.topBarBtn}
+          >
+            <AnalyticsIcon size={20} />
+          </IconButton>
+        )}
 
         <IconButton
           aria-label="Impostazioni talk"
