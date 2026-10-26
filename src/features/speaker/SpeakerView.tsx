@@ -28,15 +28,10 @@ export const SpeakerView: FC = () => {
     const saved = localStorage.getItem("rasbora_speaker_font_size");
     return saved ? parseInt(saved, 10) : 18;
   });
-  const [pipActive, setPipActive] = useState<boolean>(false);
   const [liveChunks, setLiveChunks] = useState<
     Array<{ id: string; time: string; text: string }>
   >([]);
   const [isTranscribing, setIsTranscribing] = useState(false);
-
-  // Check if browser supports modern Document Picture-in-Picture
-  const isDocumentPipSupported =
-    typeof window !== "undefined" && "documentPictureInPicture" in window;
 
   const handleMessage = useCallback((msg: SpeakerMessage) => {
     if (msg.type === "STATE_UPDATE") {
@@ -101,68 +96,7 @@ export const SpeakerView: FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [send]);
 
-  // Document Picture-in-Picture integration
-  const togglePictureInPicture = async () => {
-    if (!isDocumentPipSupported) return;
 
-    try {
-      const pip = (window as unknown as {
-        documentPictureInPicture: {
-          requestWindow: (options: { width: number; height: number }) => Promise<Window>;
-          window?: Window | null;
-        };
-      }).documentPictureInPicture;
-
-      if (pip.window) {
-        pip.window.close();
-        setPipActive(false);
-        return;
-      }
-
-      const pipWin = await pip.requestWindow({
-        width: 550,
-        height: 450,
-      });
-
-      // Copy stylesheets to the PiP window so styling looks identical
-      [...document.styleSheets].forEach((styleSheet) => {
-        try {
-          const cssRules = [...styleSheet.cssRules]
-            .map((rule) => rule.cssText)
-            .join("");
-          const style = pipWin.document.createElement("style");
-          style.textContent = cssRules;
-          pipWin.document.head.appendChild(style);
-        } catch {
-          if (styleSheet.href) {
-            const link = pipWin.document.createElement("link");
-            link.rel = "stylesheet";
-            link.type = styleSheet.type;
-            link.media = styleSheet.media.toString();
-            link.href = styleSheet.href;
-            pipWin.document.head.appendChild(link);
-          }
-        }
-      });
-
-      // Clone container to PiP
-      const container = document.getElementById("speaker-view-root");
-      if (container) {
-        pipWin.document.body.appendChild(container);
-      }
-
-      setPipActive(true);
-
-      pipWin.addEventListener("pagehide", () => {
-        setPipActive(false);
-        if (container) {
-          document.body.appendChild(container);
-        }
-      });
-    } catch (err) {
-      console.warn("Document Picture-in-Picture error:", err);
-    }
-  };
 
   // Determine active note based on current mode & state
   let currentNote: SpeakerNote | null | undefined = null;
@@ -201,7 +135,7 @@ export const SpeakerView: FC = () => {
   }
 
   return (
-    <div id="speaker-view-root" className={styles.container}>
+    <div className={styles.container}>
       <header className={styles.topBar}>
         <div className={styles.brandGroup}>
           <span className={styles.brandTitle}>
@@ -230,17 +164,6 @@ export const SpeakerView: FC = () => {
           >
             A+
           </button>
-
-          {isDocumentPipSupported && (
-            <button
-              type="button"
-              className={styles.toolButton}
-              onClick={togglePictureInPicture}
-              title="Attiva/Disattiva Picture-in-Picture"
-            >
-              {pipActive ? "Finestra Standard" : "Picture-in-Picture"}
-            </button>
-          )}
         </div>
       </header>
 

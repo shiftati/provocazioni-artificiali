@@ -564,9 +564,6 @@ export const ConfigView: FC = () => {
     // Save configuration
     updateConfig(newConfigData);
 
-    // Request fullscreen on stage canvas/viewport
-    await requestFullscreen();
-
     // Start presentation session (resets previous talk session, cards and progress like "Ricomincia da capo")
     startTalk(newConfigData, videoFileHandle);
     navigate("/presentation");
