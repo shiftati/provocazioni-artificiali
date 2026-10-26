@@ -22,7 +22,7 @@ import {
   ArrowRightIcon,
   CloseIcon,
 } from "../../components/icons";
-import { formatDateTime, formatDurationSeconds } from "../../utils/time";
+import { formatDateTime } from "../../utils/time";
 import { getAudioRecording } from "../../utils/audioStorage";
 import {
   getTranscription,
@@ -36,6 +36,7 @@ import {
 } from "./replayUtils";
 import { ReplayControlBar } from "./ReplayControlBar";
 import { ReplayVideoOverlay } from "./ReplayVideoOverlay";
+import { ReplaySubtitlesOverlay } from "./ReplaySubtitlesOverlay";
 import {
   getVideoFileHandle,
   resolveVideoFile,
@@ -778,21 +779,16 @@ export const SessionReplayView: FC = () => {
             </div>
           )}
 
-          {/* Synchronized Captions / Subtitles Overlay */}
-          {isCaptionsVisible && activeCaptionChunk && (
-            <div className={styles.captionsContainer}>
-              <div className={styles.captionPill}>
-                <span className={styles.captionTime}>
-                  {formatDurationSeconds(activeCaptionChunk.timestamp[0])}
-                </span>
-                <span className={styles.captionText}>
-                  {activeCaptionChunk.text}
-                </span>
-              </div>
-            </div>
-          )}
         </Stage>
       </div>
+
+      {/* Draggable Replay Subtitles Overlay */}
+      {isCaptionsVisible && (
+        <ReplaySubtitlesOverlay
+          chunk={activeCaptionChunk}
+          onClose={() => setIsCaptionsVisible(false)}
+        />
+      )}
 
       {/* Draggable Replay Webcam Video Overlay */}
       {hasVideo && isVideoVisible && (
