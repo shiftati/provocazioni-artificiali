@@ -19,7 +19,8 @@ export const ScriptView: FC = () => {
     const saved = localStorage.getItem("rasbora_speaker_font_size");
     return saved ? parseInt(saved, 10) : 18;
   });
-  const [copied, setCopied] = useState<boolean>(false);
+  const [copiedFormatted, setCopiedFormatted] = useState<boolean>(false);
+  const [copiedPlain, setCopiedPlain] = useState<boolean>(false);
 
   const totalSlides = SLIDES.length;
   const currentSlide = SLIDES[currentSlideIndex];
@@ -58,9 +59,14 @@ export const ScriptView: FC = () => {
     setCurrentSlideIndex((prev) => Math.min(totalSlides - 1, prev + 1));
   };
 
-  const handleCopyNotes = async () => {
-    const textToCopy = currentNote?.notes?.trim();
+  const handleCopyNotes = async (stripFormatting: boolean = false) => {
+    let textToCopy = currentNote?.notes?.trim();
     if (!textToCopy) return;
+
+    if (stripFormatting) {
+      // Rimuove i caratteri usati per bold (*) e italic (_)
+      textToCopy = textToCopy.replace(/[*_]/g, "");
+    }
 
     try {
       if (navigator.clipboard?.writeText) {
@@ -75,8 +81,13 @@ export const ScriptView: FC = () => {
         document.execCommand("copy");
         document.body.removeChild(textarea);
       }
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (stripFormatting) {
+        setCopiedPlain(true);
+        setTimeout(() => setCopiedPlain(false), 2000);
+      } else {
+        setCopiedFormatted(true);
+        setTimeout(() => setCopiedFormatted(false), 2000);
+      }
     } catch (err) {
       console.error("Errore durante la copia del testo negli appunti:", err);
     }
@@ -152,12 +163,16 @@ export const ScriptView: FC = () => {
             <button
               type="button"
               className={styles.copyButton}
-              onClick={handleCopyNotes}
+              onClick={() => handleCopyNotes(false)}
               disabled={!currentNote?.notes}
-              title={copied ? "Copiato negli appunti!" : "Copia testo note"}
+              title={
+                copiedFormatted
+                  ? "Copiato negli appunti!"
+                  : "Copia testo note originale"
+              }
               aria-label="Copia testo note"
             >
-              {copied ? (
+              {copiedFormatted ? (
                 <>
                   <CheckIcon size={14} />
                   <span>Copiato!</span>
@@ -165,7 +180,32 @@ export const ScriptView: FC = () => {
               ) : (
                 <>
                   <CopyIcon size={14} />
-                  <span>Copia testo</span>
+                  <span>Copia</span>
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              className={styles.copyButton}
+              onClick={() => handleCopyNotes(true)}
+              disabled={!currentNote?.notes}
+              title={
+                copiedPlain
+                  ? "Copiato senza formattazione!"
+                  : "Copia testo note senza formattazione (rimuove * e _)"
+              }
+              aria-label="Copia testo senza formattazione"
+            >
+              {copiedPlain ? (
+                <>
+                  <CheckIcon size={14} />
+                  <span>Copiato senza formattazione!</span>
+                </>
+              ) : (
+                <>
+                  <CopyIcon size={14} />
+                  <span>Copia senza formattazione</span>
                 </>
               )}
             </button>

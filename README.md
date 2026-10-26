@@ -327,8 +327,9 @@ Accessibile direttamente all'URL `#/script` o tramite il pulsante **"Script"** n
   - Frecce di navigazione a sinistra e destra nella barra inferiore con indicatore di slide (es. _Slide 1 di 14_).
   - Navigazione rapida anche da tastiera (`Freccia Destra`, `Page Down`, `Space` per avanzare; `Freccia Sinistra`, `Page Up` per retrocedere).
   - Al centro della barra inferiore è presente **esclusivamente il pulsante Slide**: cliccandolo si viene reindirizzati direttamente alla presentazione slide (`/slide`).
-- **Pulsante Copia Rapida Testo**:
-  - Nella card delle note è presente il pulsante **"Copia testo"** (con icona dedicata e feedback "Copiato!") per copiare istantaneamente negli appunti il testo integrale delle note dello speaker per la slide corrente.
+- **Pulsanti Copia Rapida Testo**:
+  - **"Copia testo"**: copia negli appunti il testo integrale delle note dello speaker (incluso il markup originale).
+  - **"Copia testo senza formattazione"**: copia il testo rimuovendo automaticamente i caratteri di formattazione markdown per grassetto (`*`) e corsivo (`_`), ideale per esportazioni o letture pulite. Entrambi i pulsanti forniscono un feedback visivo istantaneo con icona di spunta.
 - **Design Ottimizzato per Dispositivi Mobile**:
   - Layout responsive testato e perfezionato per smartphone e tablet.
   - Spaziature comode, bottoni touch-friendly con tap targets generosi, supporto per `env(safe-area-inset-bottom)` e scrolling automatico in cima al cambio di slide.
