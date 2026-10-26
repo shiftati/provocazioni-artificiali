@@ -341,6 +341,31 @@ export const ConfigView: FC = () => {
     }
   };
 
+  const attachVideoStream = useCallback((videoEl: HTMLVideoElement | null, stream: MediaStream | null) => {
+    if (!videoEl) return;
+    if (stream) {
+      if (videoEl.srcObject !== stream) {
+        videoEl.srcObject = stream;
+      }
+      videoEl.muted = true;
+      videoEl.play().catch((err) => {
+        console.warn("Video preview play error:", err);
+      });
+    } else {
+      videoEl.srcObject = null;
+    }
+  }, []);
+
+  const handleVideoRef = useCallback(
+    (node: HTMLVideoElement | null) => {
+      videoPreviewRef.current = node;
+      if (node && testVideoStreamRef.current) {
+        attachVideoStream(node, testVideoStreamRef.current);
+      }
+    },
+    [attachVideoStream]
+  );
+
   const stopCameraTest = useCallback(() => {
     if (testVideoStreamRef.current) {
       testVideoStreamRef.current.getTracks().forEach((t) => t.stop());
@@ -366,14 +391,28 @@ export const ConfigView: FC = () => {
             : true,
       };
 
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      let stream: MediaStream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+      } catch (deviceErr) {
+        if (videoDeviceId && videoDeviceId !== "default") {
+          console.warn(
+            "Camera test with selected device failed, retrying with default video constraints:",
+            deviceErr
+          );
+          stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        } else {
+          throw deviceErr;
+        }
+      }
+
       testVideoStreamRef.current = stream;
       setCameraPermissionState("granted");
       refreshCameras();
       setIsTestingCamera(true);
 
       if (videoPreviewRef.current) {
-        videoPreviewRef.current.srcObject = stream;
+        attachVideoStream(videoPreviewRef.current, stream);
       }
     } catch (err) {
       console.warn("Camera test error:", err);
@@ -381,6 +420,13 @@ export const ConfigView: FC = () => {
       stopCameraTest();
     }
   };
+
+  useEffect(() => {
+    if (isTestingCamera && videoPreviewRef.current && testVideoStreamRef.current) {
+      attachVideoStream(videoPreviewRef.current, testVideoStreamRef.current);
+    }
+  }, [isTestingCamera, attachVideoStream]);
+
 
   useEffect(() => {
     if (typeof navigator !== "undefined" && navigator.mediaDevices) {
@@ -1396,12 +1442,16 @@ export const ConfigView: FC = () => {
 
                     {isTestingCamera && (
                       <video
-                        ref={videoPreviewRef}
+                        ref={handleVideoRef}
                         autoPlay
                         playsInline
                         muted
                         className={styles.videoPreview}
                         aria-label="Anteprima videocamera in tempo reale"
+                        onLoadedMetadata={(e) => {
+                          const el = e.currentTarget;
+                          el.play().catch(() => {});
+                        }}
                       />
                     )}
                   </div>
