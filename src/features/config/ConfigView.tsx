@@ -744,6 +744,15 @@ export const ConfigView: FC = () => {
             <Button
               variant="secondary"
               size="md"
+              onClick={() => window.open("#/script", "_blank")}
+              leftIcon={<SpeakerNoteIcon size={18} />}
+              title="Apri il copione / note delle slide in modalità standalone (non sincronizzata con la presentazione)"
+            >
+              Script Standalone
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
               onClick={() => navigate("/analytics")}
               leftIcon={<AnalyticsIcon size={18} />}
             >
