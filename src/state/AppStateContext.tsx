@@ -1903,6 +1903,21 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     currentSessionId !== null
   );
 
+  // Prevent accidental page reload or tab closure during an active session or recording
+  useEffect(() => {
+    if (!isSessionActive && !isRecordingAudio && !isRecordingVideo) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isSessionActive, isRecordingAudio, isRecordingVideo]);
+
   const isGlobalExpired = config.endTimestamp > 0 && Date.now() >= config.endTimestamp;
 
   return (
