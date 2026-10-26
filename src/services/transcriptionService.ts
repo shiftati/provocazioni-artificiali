@@ -190,6 +190,56 @@ class TranscriptionWorkerManager {
     return this.isInitializing;
   }
 
+  /**
+   * Checks whether the Whisper model files are already persisted in the browser's CacheStorage.
+   */
+  public async isModelCached(modelId = "Xenova/whisper-base"): Promise<boolean> {
+    if (typeof caches === "undefined") {
+      return false;
+    }
+    try {
+      const hasCache = await caches.has("transformers-cache");
+      if (!hasCache) {
+        return false;
+      }
+      const cache = await caches.open("transformers-cache");
+      const requests = await cache.keys();
+      const hasConfig = requests.some(
+        (req) => req.url.includes(modelId) && req.url.includes("config.json")
+      );
+      const hasWeights = requests.some(
+        (req) =>
+          req.url.includes(modelId) &&
+          (req.url.endsWith(".onnx") || req.url.endsWith(".onnx_data"))
+      );
+      return hasConfig && hasWeights;
+    } catch (e) {
+      console.warn("Impossibile verificare lo stato della cache di Whisper:", e);
+      return false;
+    }
+  }
+
+  /**
+   * Deletes all cached files for the model from CacheStorage.
+   */
+  public async clearModelCache(modelId = "Xenova/whisper-base"): Promise<void> {
+    if (typeof caches === "undefined") return;
+    try {
+      const hasCache = await caches.has("transformers-cache");
+      if (!hasCache) return;
+      const cache = await caches.open("transformers-cache");
+      const requests = await cache.keys();
+      for (const req of requests) {
+        if (req.url.includes(modelId)) {
+          await cache.delete(req);
+        }
+      }
+      this.destroy();
+    } catch (e) {
+      console.warn("Errore durante l'eliminazione della cache di Whisper:", e);
+    }
+  }
+
   public async transcribe(
     audio: Float32Array,
     language: "it" | "en" = "it",

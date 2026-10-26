@@ -17,7 +17,7 @@ import { SegmentedControl } from "../../components/ui/SegmentedControl";
 import { Modal } from "../../components/ui/Modal";
 import { Badge } from "../../components/ui/Badge";
 import { SLIDES } from "../presentation/slides.registry";
-import type { AppTheme } from "../../types";
+import type { AppTheme, TalkConfig } from "../../types";
 import {
   PlayIcon,
   CheckIcon,
@@ -26,6 +26,7 @@ import {
   CloseIcon,
   AnalyticsIcon,
   DownloadIcon,
+  TrashIcon,
   FinishIcon,
   MicIcon,
   MicOffIcon,
@@ -138,10 +139,42 @@ export const ConfigView: FC = () => {
   );
   const [modelProgress, setModelProgress] = useState<number>(0);
   const [modelStatusText, setModelStatusText] = useState<string>("");
+  const [isModelCached, setIsModelCached] = useState<boolean | null>(null);
+  const [isAutoLoadingModel, setIsAutoLoadingModel] = useState<boolean>(false);
+  const [autoLoadProgress, setAutoLoadProgress] = useState<number>(0);
+  const [autoLoadStatusText, setAutoLoadStatusText] = useState<string>("");
+  const pendingStartArgsRef = useRef<{
+    config: TalkConfig;
+    videoFileHandle: FileSystemFileHandle | null;
+  } | null>(null);
+  const bypassAutoLoadRef = useRef<boolean>(false);
+
+  // Check cache status on mount
+  useEffect(() => {
+    let isMounted = true;
+    transcriptionManager.isModelCached().then((cached) => {
+      if (isMounted) {
+        setIsModelCached(cached);
+        if (cached && !transcriptionManager.isModelReady()) {
+          setModelStatusText(
+            "Modello presente nella cache locale del dispositivo (non caricato in memoria RAM)."
+          );
+        }
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handlePreloadModel = useCallback(async () => {
     setModelState("loading");
-    setModelStatusText("Inizializzazione worker e download file Whisper ONNX...");
+    const wasCached = isModelCached ?? false;
+    setModelStatusText(
+      wasCached
+        ? "Caricamento modello dalla cache locale in WebAssembly..."
+        : "Download modello Whisper ONNX e memorizzazione in cache..."
+    );
     setModelProgress(5);
     try {
       await transcriptionManager.preloadModel((info) => {
@@ -151,20 +184,45 @@ export const ConfigView: FC = () => {
         if (info.message) {
           setModelStatusText(info.message);
         } else if (info.status) {
-          setModelStatusText(info.status);
+          if (wasCached) {
+            setModelStatusText(
+              info.file ? `Caricamento file dalla cache: ${info.file}` : "Caricamento dalla cache locale in corso..."
+            );
+          } else {
+            setModelStatusText(
+              info.file ? `Download file: ${info.file}` : "Download file modello..."
+            );
+          }
         }
         if (info.status === "ready") {
           setModelState("ready");
+          setIsModelCached(true);
         }
       });
       setModelState("ready");
-      setModelStatusText("Modello Whisper Base memorizzato e pronto all'uso locale");
+      setIsModelCached(true);
+      setModelStatusText("Modello Whisper Base caricato in memoria RAM e pronto all'uso locale");
     } catch (err: unknown) {
       setModelState("error");
       setModelStatusText(
-        (err as Error)?.message || "Errore durante il download del modello Whisper"
+        (err as Error)?.message || "Errore durante l'inizializzazione del modello Whisper"
       );
     }
+  }, [isModelCached]);
+
+  const handleClearModelCache = useCallback(async () => {
+    if (
+      !window.confirm(
+        "Vuoi davvero eliminare i file del modello Whisper dalla cache locale del browser (~150MB)?"
+      )
+    ) {
+      return;
+    }
+    await transcriptionManager.clearModelCache();
+    setIsModelCached(false);
+    setModelState("idle");
+    setModelProgress(0);
+    setModelStatusText("Cache del modello Whisper rimossa.");
   }, []);
 
   // Video Recording configuration state
@@ -560,6 +618,60 @@ export const ConfigView: FC = () => {
       videoRecordingEnabled,
       videoDeviceId,
     };
+
+    pendingStartArgsRef.current = {
+      config: newConfigData,
+      videoFileHandle,
+    };
+
+    // If transcription is enabled and the Whisper model is not yet loaded in RAM, load it automatically
+    if (transcriptionEnabled && !transcriptionManager.isModelReady()) {
+      bypassAutoLoadRef.current = false;
+      setIsAutoLoadingModel(true);
+      setAutoLoadProgress(5);
+      setAutoLoadStatusText(
+        isModelCached
+          ? "Caricamento modello dalla cache locale in WebAssembly..."
+          : "Download modello Whisper ONNX e memorizzazione in cache..."
+      );
+
+      try {
+        await transcriptionManager.preloadModel((info) => {
+          if (typeof info.progress === "number") {
+            setAutoLoadProgress(info.progress);
+          }
+          if (info.message) {
+            setAutoLoadStatusText(info.message);
+          } else if (info.status) {
+            setAutoLoadStatusText(
+              isModelCached
+                ? (info.file ? `Caricamento da cache: ${info.file}` : "Caricamento dalla cache locale in corso...")
+                : (info.file ? `Download file: ${info.file}` : "Download in corso...")
+            );
+          }
+        });
+        setModelState("ready");
+        setIsModelCached(true);
+      } catch (err) {
+        console.error("Errore caricamento automatico modello Whisper:", err);
+        if (!bypassAutoLoadRef.current) {
+          const proceedWithout = window.confirm(
+            `Impossibile caricare il modello Whisper: ${(err as Error)?.message || "Errore sconosciuto"}.\n\nVuoi avviare comunque il talk senza trascrizione vocale?`
+          );
+          if (!proceedWithout) {
+            setIsAutoLoadingModel(false);
+            return;
+          }
+          newConfigData.transcriptionEnabled = false;
+        }
+      } finally {
+        setIsAutoLoadingModel(false);
+      }
+
+      if (bypassAutoLoadRef.current) {
+        return;
+      }
+    }
 
     // Save configuration
     updateConfig(newConfigData);
@@ -1228,18 +1340,24 @@ export const ConfigView: FC = () => {
                               Modello: Xenova/whisper-base (ONNX locale)
                             </div>
                             {modelState === "ready" ? (
-                              <Badge variant="accent">✓ Pronto in Cache</Badge>
+                              <Badge variant="accent">✓ Pronto in RAM</Badge>
                             ) : modelState === "loading" ? (
                               <Badge variant="accent">
-                                Download in corso {modelProgress > 0 ? `${modelProgress}%` : ""}
+                                {isModelCached ? "Caricamento RAM" : "Download"}{" "}
+                                {modelProgress > 0 ? `${modelProgress}%` : ""}
                               </Badge>
+                            ) : isModelCached ? (
+                              <Badge variant="accent">✓ In Cache Locale</Badge>
                             ) : (
-                              <Badge variant="default">Non in memoria</Badge>
+                              <Badge variant="default">Non in cache</Badge>
                             )}
                           </div>
                           <p className={styles.modelDesc}>
-                            Per consentire il funzionamento anche offline (es. sul palco o senza Wi-Fi),
-                            puoi scaricare e memorizzare in cache il modello Whisper prima del talk.
+                            {modelState === "ready"
+                              ? "Il modello Whisper è istanziato nella memoria WebAssembly e pronto per la trascrizione vocale in tempo reale (funziona al 100% offline)."
+                              : isModelCached
+                              ? "I file del modello (~150MB) sono già memorizzati nella cache locale del dispositivo. Puoi caricarli in memoria RAM per la trascrizione immediata, oppure verranno caricati automaticamente all'inizio della sessione."
+                              : "Per consentire il funzionamento offline (es. sul palco o senza Wi-Fi), puoi scaricare e salvare nella cache locale del browser il modello Whisper prima del talk."}
                           </p>
 
                           {modelState === "loading" && (
@@ -1257,20 +1375,42 @@ export const ConfigView: FC = () => {
                             </span>
                           )}
 
-                          <div>
+                          <div className={styles.modelActions}>
                             <Button
                               variant={modelState === "ready" ? "ghost" : "secondary"}
                               size="md"
                               disabled={modelState === "loading"}
                               onClick={handlePreloadModel}
-                              leftIcon={<DownloadIcon size={14} />}
+                              leftIcon={
+                                isModelCached ? (
+                                  <RefreshIcon size={14} />
+                                ) : (
+                                  <DownloadIcon size={14} />
+                                )
+                              }
                             >
                               {modelState === "ready"
-                                ? "Verifica / Ricarica Modello Whisper"
+                                ? "Ricarica / Verifica Modello"
                                 : modelState === "loading"
-                                ? `Scaricamento (${modelProgress}%)...`
-                                : "Pre-scarica Modello per Offline"}
+                                ? isModelCached
+                                  ? `Caricamento RAM (${modelProgress}%)...`
+                                  : `Download in corso (${modelProgress}%)...`
+                                : isModelCached
+                                ? "Carica Modello in Memoria (RAM)"
+                                : "Scarica e Salva Modello in Cache (~150MB)"}
                             </Button>
+
+                            {isModelCached && modelState !== "loading" && (
+                              <Button
+                                variant="ghost"
+                                size="md"
+                                onClick={handleClearModelCache}
+                                leftIcon={<TrashIcon size={14} />}
+                                title="Elimina i file del modello Whisper dalla cache locale del browser"
+                              >
+                                Svuota Cache
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </>
@@ -1588,6 +1728,79 @@ export const ConfigView: FC = () => {
             }}
           >
             Conferma comunque
+          </Button>
+        </div>
+      </Modal>
+
+      {/* Modal: Automatic Model Preload before Talk */}
+      <Modal
+        isOpen={isAutoLoadingModel}
+        onClose={() => {}}
+        ariaLabel="Caricamento Modello Whisper"
+      >
+        <h2
+          style={{
+            fontSize: "1.6rem",
+            marginBottom: "var(--space-3)",
+            color: "var(--color-text)",
+          }}
+        >
+          Preparazione Trascrizione Vocale (Whisper)
+        </h2>
+        <p
+          style={{
+            color: "var(--color-text-muted)",
+            marginBottom: "var(--space-4)",
+            fontSize: "0.95rem",
+            lineHeight: 1.4,
+          }}
+        >
+          {isModelCached
+            ? "I file del modello sono presenti nella cache locale. Caricamento in corso nella memoria RAM WebAssembly prima dell'inizio del talk..."
+            : "Download del modello Whisper ONNX (~150MB) e memorizzazione in cache locale per consentire la trascrizione..."}
+        </p>
+
+        <div
+          className={styles.modelProgressTrack}
+          style={{ marginBottom: "var(--space-3)" }}
+        >
+          <div
+            className={styles.modelProgressFill}
+            style={{ width: `${Math.max(5, autoLoadProgress)}%` }}
+          />
+        </div>
+
+        {autoLoadStatusText && (
+          <p
+            className={styles.modelStatusMessage}
+            style={{ marginBottom: "var(--space-6)" }}
+          >
+            {autoLoadStatusText}
+          </p>
+        )}
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: "var(--space-3)",
+          }}
+        >
+          <Button
+            variant="ghost"
+            size="md"
+            onClick={() => {
+              bypassAutoLoadRef.current = true;
+              setIsAutoLoadingModel(false);
+              const args = pendingStartArgsRef.current;
+              if (args) {
+                updateConfig(args.config);
+                startTalk(args.config, args.videoFileHandle);
+                navigate("/presentation");
+              }
+            }}
+          >
+            Inizia comunque senza attendere
           </Button>
         </div>
       </Modal>

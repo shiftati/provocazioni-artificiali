@@ -16,7 +16,7 @@ import { PROVOCATIONS, PROVOCATION_MAP } from "../features/game/provocations.reg
 import { SLIDES } from "../features/presentation/slides.registry";
 import { createSampleSessions } from "../features/analytics/sampleData";
 import { saveAudioRecording, getSupportedAudioMimeType } from "../utils/audioStorage";
-import { LiveAudioStreamTranscriber } from "../services/transcriptionService";
+import { LiveAudioStreamTranscriber, transcriptionManager } from "../services/transcriptionService";
 import type { SpeakerMessage } from "../features/speaker/useSpeakerChannel";
 import {
   getSupportedVideoMimeType,
@@ -955,6 +955,13 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
               type: "TRANSCRIPTION_STATUS",
               payload: { status: "listening", language: lang },
             });
+
+            // Ensure Whisper model is preloaded in Web Worker memory immediately
+            if (!transcriptionManager.isModelReady()) {
+              transcriptionManager.preloadModel().catch((err) => {
+                console.warn("Background preload of Whisper model failed:", err);
+              });
+            }
           } catch (err) {
             console.error("Failed to start live stream transcriber:", err);
           }
