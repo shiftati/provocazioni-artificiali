@@ -18,6 +18,7 @@ export interface UseSpeakerWindowOptions {
   onPrev?: () => void;
   onSetMode?: (mode: "presentation" | "game") => void;
   disableNavHandling?: boolean;
+  isSessionActive?: boolean;
 }
 
 export function useSpeakerWindow(
@@ -41,6 +42,10 @@ export function useSpeakerWindow(
       ? PROVOCATION_MAP.get(game.currentProvocationId) ?? null
       : null;
 
+    const isSessionActive =
+      optionsRef.current?.isSessionActive ??
+      Boolean(session.startedAt !== null && !session.endedAt);
+
     return {
       mode: session.mode,
       slideIndex: currentIdx,
@@ -51,9 +56,10 @@ export function useSpeakerWindow(
       provocationId: game.currentProvocationId,
       provocationTitle: provocation?.title ?? null,
       provocationSubtitle: provocation?.subtitle ?? null,
+      isSessionActive,
       timestamp: Date.now(),
     };
-  }, [session.currentSlideIndex, session.mode, game.step, game.currentProvocationId]);
+  }, [session.currentSlideIndex, session.mode, session.startedAt, session.endedAt, game.step, game.currentProvocationId]);
 
   // Handle messages received from the speaker window
   const handleMessage = useCallback(
@@ -139,8 +145,11 @@ export function useSpeakerWindow(
   }, [
     session.currentSlideIndex,
     session.mode,
+    session.startedAt,
+    session.endedAt,
     game.step,
     game.currentProvocationId,
+    options?.isSessionActive,
     getCurrentPayload,
     send,
   ]);

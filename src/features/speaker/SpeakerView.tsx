@@ -22,7 +22,7 @@ import styles from "./SpeakerView.module.scss";
 
 export const SpeakerView: FC = () => {
   const [state, setState] = useState<SpeakerMessagePayload | null>(() =>
-    getCachedSpeakerState()
+    getCachedSpeakerState(),
   );
   const [fontSize, setFontSize] = useState<number>(() => {
     const saved = localStorage.getItem("rasbora_speaker_font_size");
@@ -43,7 +43,11 @@ export const SpeakerView: FC = () => {
       const timeStr = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
       setLiveChunks((prev) => [
         ...prev.slice(-7),
-        { id: `${Date.now()}_${Math.random()}`, time: timeStr, text: msg.payload.text },
+        {
+          id: `${Date.now()}_${Math.random()}`,
+          time: timeStr,
+          text: msg.payload.text,
+        },
       ]);
     } else if (msg.type === "TRANSCRIPTION_STATUS") {
       setIsTranscribing(msg.payload.status === "listening");
@@ -96,8 +100,6 @@ export const SpeakerView: FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [send]);
 
-
-
   // Determine active note based on current mode & state
   let currentNote: SpeakerNote | null | undefined = null;
   let activeTitle = "";
@@ -114,15 +116,13 @@ export const SpeakerView: FC = () => {
         activeSubtitle = state.provocationSubtitle || "";
       } else if (state.gameStep === "DISCUSSION" && state.provocationId) {
         currentNote =
-          PROVOCATION_NOTES[state.provocationId] ||
-          GAME_STATE_NOTES.DISCUSSION;
+          PROVOCATION_NOTES[state.provocationId] || GAME_STATE_NOTES.DISCUSSION;
         activeBadge = "Discussione in Corso (5 min)";
         activeTitle =
           currentNote?.title || state.provocationTitle || "Discussione";
         activeSubtitle = state.provocationSubtitle || "";
       } else {
-        currentNote =
-          GAME_STATE_NOTES[state.gameStep] || GAME_STATE_NOTES.IDLE;
+        currentNote = GAME_STATE_NOTES[state.gameStep] || GAME_STATE_NOTES.IDLE;
         activeBadge = `Gioco · ${state.gameStep}`;
         activeTitle = currentNote?.title || "Fase di Gioco";
       }
@@ -130,7 +130,10 @@ export const SpeakerView: FC = () => {
       // Presentation slide
       currentNote = SLIDE_NOTES[state.slideId] || null;
       activeBadge = `Slide ${state.slideIndex + 1} di ${state.totalSlides || 14}`;
-      activeTitle = currentNote?.title || state.slideTitle || `Slide ${state.slideIndex + 1}`;
+      activeTitle =
+        currentNote?.title ||
+        state.slideTitle ||
+        `Slide ${state.slideIndex + 1}`;
     }
   }
 
@@ -138,13 +141,29 @@ export const SpeakerView: FC = () => {
     <div className={styles.container}>
       <header className={styles.topBar}>
         <div className={styles.brandGroup}>
-          <span className={styles.brandTitle}>
-            🎙️ Note Relatore
-          </span>
+          <span className={styles.brandTitle}>🎙️ Note Relatore</span>
           <span className={styles.syncBadge}>
             <span className={styles.syncDot} />
             Live Sync
           </span>
+          {state &&
+            (state.isSessionActive ? (
+              <span
+                className={styles.sessionBadgeActive}
+                title="Sessione talk attiva: gli eventi e la durata vengono registrati"
+              >
+                <span className={styles.sessionDotActive} />
+                Talk
+              </span>
+            ) : (
+              <span
+                className={styles.sessionBadgeInactive}
+                title="Nessuna sessione attiva: stai guardando le slide in anteprima"
+              >
+                <span className={styles.sessionDotInactive} />
+                Anteprima
+              </span>
+            ))}
         </div>
 
         <div className={styles.controlsGroup}>
@@ -171,7 +190,8 @@ export const SpeakerView: FC = () => {
         <div className={styles.emptyState}>
           <div className={styles.emptyTitle}>In attesa di connessione...</div>
           <p>
-            Apri o naviga la presentazione principale per sincronizzare automaticamente le note dello speaker.
+            Apri o naviga la presentazione principale per sincronizzare
+            automaticamente le note dello speaker.
           </p>
         </div>
       ) : (
@@ -196,7 +216,8 @@ export const SpeakerView: FC = () => {
                 renderFormattedSpeakerNotes(currentNote.notes)
               ) : (
                 <p style={{ color: "#8b949e", fontStyle: "italic" }}>
-                  Nessuna nota specifica per questa slide. Presenta liberamente i contenuti a schermo.
+                  Nessuna nota specifica per questa slide. Presenta liberamente
+                  i contenuti a schermo.
                 </p>
               )}
             </div>
@@ -237,7 +258,9 @@ export const SpeakerView: FC = () => {
                 ) : (
                   liveChunks.map((chunk) => (
                     <div key={chunk.id} className={styles.liveTranscriptItem}>
-                      <span className={styles.liveTranscriptTime}>[{chunk.time}]</span>
+                      <span className={styles.liveTranscriptTime}>
+                        [{chunk.time}]
+                      </span>
                       <span>{chunk.text}</span>
                     </div>
                   ))

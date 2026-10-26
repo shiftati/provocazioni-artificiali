@@ -14,6 +14,7 @@ import {
   CheckIcon,
   ShuffleIcon,
   ArrowRightIcon,
+  FinishIcon,
 } from "../../components/icons";
 import { KlippySaw } from "../presentation/slides/KlippySaw";
 import { SlideTransition } from "../presentation/components/SlideTransition";
@@ -30,6 +31,7 @@ export const GameView: FC = () => {
     game,
     dispatchGame,
     setMode,
+    endGame,
     session,
     isSessionActive,
     stopCallsOverlayOpen,
@@ -94,6 +96,22 @@ export const GameView: FC = () => {
     setNavigationDirection("forward");
     dispatchGame({ type: "NEXT_PROVOCATION" });
   }, [dispatchGame]);
+
+  // Fine gioco: solo su click esplicito col mouse/touch (evita trigger da tastiera)
+  const handleEndGame = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (e.detail === 0) {
+        // Click sintetico originato da tastiera (es. Invio / Spazio): ignora per sicurezza
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      e.currentTarget.blur();
+      endGame();
+      navigate("/presentation");
+    },
+    [endGame, navigate]
+  );
 
   // Keyboard navigation:
   // - onNext:
@@ -201,6 +219,30 @@ export const GameView: FC = () => {
           {/* STEP 1: IDLE */}
           {game.step === "IDLE" && (
             <KlippySaw key="game-idle">
+              {/* Tasto Fine gioco: sul lato opposto (sinistra) a Inizia il gioco */}
+              <div className={styles.idleLeftControls}>
+                <Button
+                  variant="secondary"
+                  size="xl"
+                  onClick={handleEndGame}
+                  tabIndex={-1}
+                  onKeyDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onKeyUp={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onFocus={(e) => e.currentTarget.blur()}
+                  leftIcon={<FinishIcon size={28} />}
+                  className={styles.endGameButton}
+                  title="Concludi il gioco e passa alla slide successiva a quella di fine intro"
+                >
+                  Fine gioco
+                </Button>
+              </div>
+
               <div className={styles.idleControls}>
                 <Button
                   variant="primary"

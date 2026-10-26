@@ -104,7 +104,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
   const totalSlides = SLIDES.length;
   const currentIndex = Math.min(
     Math.max(0, session.currentSlideIndex),
-    totalSlides - 1
+    totalSlides - 1,
   );
   const isLastSlide = currentIndex === totalSlides - 1;
   const showFinishButton = isLastSlide && !hasPendingSlideAnimations;
@@ -149,6 +149,7 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
     onUiNext: handleHeaderNext,
     onUiPrev: handleHeaderPrev,
     onSetMode: handleModeChange,
+    isSessionActive,
   });
 
   return (
@@ -206,7 +207,9 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
                 aria-label="Slide successiva"
                 size="sm"
                 onClick={handleHeaderNext}
-                disabled={!isPresentation || (isLastSlide && !hasPendingSlideAnimations)}
+                disabled={
+                  !isPresentation || (isLastSlide && !hasPendingSlideAnimations)
+                }
                 title={
                   !isPresentation
                     ? "Disponibile solo in modalità slide"
@@ -281,6 +284,31 @@ export const TopBar: FC<TopBarProps> = ({ onCollapse }) => {
             <span className={styles.recordingText}>REC</span>
             <span className={styles.recordingStopHint}>✕</span>
           </button>
+        )}
+
+        {isSessionActive ? (
+          <div
+            className={styles.sessionBadgeActive}
+            title="Sessione talk attiva: gli eventi, la durata e le statistiche vengono registrati."
+            role="status"
+            aria-label="Sessione talk attiva"
+          >
+            <span className={styles.sessionDotActive} />
+            <span className={styles.sessionText}>TALK</span>
+          </div>
+        ) : (
+          (isPresentation || isGame) && (
+            <button
+              type="button"
+              className={styles.sessionBadgeInactive}
+              onClick={() => navigate("/")}
+              title="Nessuna sessione attiva: stai solo visualizzando le slide in anteprima. Fai clic per avviare il talk."
+              aria-label="Nessuna sessione attiva: anteprima slide. Fai clic per avviare il talk."
+            >
+              <span className={styles.sessionDotInactive} />
+              <span className={styles.sessionText}>ANTEPRIMA</span>
+            </button>
+          )
         )}
 
         {isSessionActive && (

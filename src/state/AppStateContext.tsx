@@ -79,6 +79,7 @@ export interface AppStateContextValue {
   setSlideIndex: (index: number) => void;
   setMode: (mode: AppMode) => void;
   closeStopCallsOverlay: () => void;
+  endGame: () => void;
   dispatchGame: (action: GameAction) => void;
   resetAll: () => void;
   resetSlideAndGame: () => void;
@@ -1460,6 +1461,64 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
     });
   }, [config.introEndSlide, updateActiveSession, finalizeActiveDiscussion, logSessionEvent]);
 
+  const endGame = useCallback(() => {
+    setStopCallsOverlayOpen(false);
+    const now = Date.now();
+
+    // Finalize active provocation discussion if ongoing
+    finalizeActiveDiscussion(now);
+
+    if (gameStartTimeRef.current) {
+      const elapsedGame = Math.max(0, (now - gameStartTimeRef.current) / 1000);
+      updateActiveSession((curr) => ({
+        ...curr,
+        gameDurationSeconds: Math.round((curr.gameDurationSeconds || 0) + elapsedGame),
+      }));
+      gameStartTimeRef.current = null;
+    }
+
+    // Pass to slide + 1 after the introEndSlide (1-based introEndSlide corresponds to index introEndSlide)
+    const introEnd = typeof config.introEndSlide === "number" ? config.introEndSlide : 10;
+    const targetSlideIndex = Math.min(introEnd, SLIDES.length - 1);
+
+    slideStartTimeRef.current = now;
+    currentSlideIndexRef.current = targetSlideIndex;
+    currentModeRef.current = "presentation";
+
+    logSessionEvent(
+      "MODE_CHANGE",
+      `Fine gioco manuale (passo a slide ${targetSlideIndex + 1}${SLIDES[targetSlideIndex]?.title ? `: "${SLIDES[targetSlideIndex].title}"` : ""})`,
+      {
+        mode: "presentation",
+        slideIndex: targetSlideIndex,
+        slideNumber: targetSlideIndex + 1,
+        slideTitle: SLIDES[targetSlideIndex]?.title,
+      },
+      now
+    );
+
+    updateActiveSession((curr) => {
+      const slides = curr.slides.map((s, idx) => {
+        if (idx === targetSlideIndex) {
+          return { ...s, visits: s.visits + 1 };
+        }
+        return s;
+      });
+      return { ...curr, slides };
+    });
+
+    setSessionState((prev) => {
+      const updated: AppSessionState = {
+        ...prev,
+        mode: "presentation",
+        currentSlideIndex: targetSlideIndex,
+        stopCallsShown: true,
+      };
+      appStorage.saveSession(updated);
+      return updated;
+    });
+  }, [config.introEndSlide, updateActiveSession, finalizeActiveDiscussion, logSessionEvent]);
+
   const dispatchGame = useCallback(
     (action: GameAction) => {
       const prev = gameRef.current;
@@ -1880,6 +1939,7 @@ export const AppStateProvider: FC<{ children: ReactNode }> = ({ children }) => {
         setSlideIndex,
         setMode,
         closeStopCallsOverlay,
+        endGame,
         dispatchGame,
         resetAll,
         resetSlideAndGame,

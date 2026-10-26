@@ -73,7 +73,7 @@ export const ConfigView: FC = () => {
   const { openSpeakerWindow, isWindowOpen: isSpeakerOpen } = useSpeakerWindow(
     session,
     game,
-    { disableNavHandling: true }
+    { disableNavHandling: true, isSessionActive }
   );
   const { isInstallable, isInstalled, installApp } = usePwaInstall();
   const {

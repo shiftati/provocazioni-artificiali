@@ -59,6 +59,52 @@
   box-shadow: 0 0 8px #3fb950;
 }
 
+.sessionBadgeActive {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(46, 160, 67, 0.15);
+  color: #3fb950;
+  border: 1px solid rgba(46, 160, 67, 0.4);
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sessionDotActive {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #3fb950;
+  box-shadow: 0 0 8px #3fb950;
+}
+
+.sessionBadgeInactive {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: #8b949e;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sessionDotInactive {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1.5px solid #8b949e;
+  box-sizing: border-box;
+}
+
 .controlsGroup {
   display: flex;
   align-items: center;

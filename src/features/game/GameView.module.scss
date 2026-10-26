@@ -39,8 +39,23 @@
   align-items: center;
 }
 
+.idleLeftControls {
+  position: absolute;
+  bottom: 48px;
+  left: 48px;
+  z-index: var(--z-chrome);
+  display: flex;
+  align-items: center;
+}
+
 .idleButton {
   min-width: 260px;
+}
+
+.endGameButton {
+  min-width: 240px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
 }
 
 /* CHALLENGE Step */

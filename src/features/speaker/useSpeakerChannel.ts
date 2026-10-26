@@ -13,6 +13,7 @@ export interface SpeakerMessagePayload {
   provocationId: string | null;
   provocationTitle: string | null;
   provocationSubtitle?: string | null;
+  isSessionActive?: boolean;
   timestamp: number;
 }
 
