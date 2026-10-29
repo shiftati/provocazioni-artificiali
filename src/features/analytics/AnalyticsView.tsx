@@ -90,7 +90,9 @@ export const AnalyticsView: FC = () => {
   } | null>(null);
 
   // Tab for tables / charts / timeline view
-  const [viewTab, setViewTab] = useState<"charts" | "tables" | "timeline">("charts");
+  const [viewTab, setViewTab] = useState<"charts" | "tables" | "timeline">(
+    "charts",
+  );
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -109,13 +111,16 @@ export const AnalyticsView: FC = () => {
   const [audioRefreshKey, setAudioRefreshKey] = useState(0);
 
   // Audio recording states
-  const [audioRecording, setAudioRecording] = useState<StoredAudioRecording | null>(null);
+  const [audioRecording, setAudioRecording] =
+    useState<StoredAudioRecording | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [confirmDeleteAudio, setConfirmDeleteAudio] = useState(false);
 
   // Transcription modal state
-  const [transcription, setTranscription] = useState<StoredTranscription | null>(null);
-  const [isTranscriptionModalOpen, setIsTranscriptionModalOpen] = useState(false);
+  const [transcription, setTranscription] =
+    useState<StoredTranscription | null>(null);
+  const [isTranscriptionModalOpen, setIsTranscriptionModalOpen] =
+    useState(false);
 
   useEffect(() => {
     let isCurrent = true;
@@ -140,7 +145,10 @@ export const AnalyticsView: FC = () => {
     let objectUrl: string | null = null;
 
     if (currentViewSession?.id) {
-      getAudioRecording(currentViewSession.id, currentViewSession.totalDurationSeconds).then((rec) => {
+      getAudioRecording(
+        currentViewSession.id,
+        currentViewSession.totalDurationSeconds,
+      ).then((rec) => {
         if (!isCurrent) return;
         setAudioRecording(rec);
         if (rec) {
@@ -189,7 +197,7 @@ export const AnalyticsView: FC = () => {
   const handleImportAudio = async (
     targetSessionId: string,
     file: File,
-    durationSeconds?: number
+    durationSeconds?: number,
   ) => {
     const target = sessions.find((s) => s.id === targetSessionId);
     if (!target) return;
@@ -199,8 +207,8 @@ export const AnalyticsView: FC = () => {
       durationSeconds && durationSeconds > 0
         ? durationSeconds
         : target.totalDurationSeconds > 0
-        ? target.totalDurationSeconds
-        : undefined;
+          ? target.totalDurationSeconds
+          : undefined;
 
     await saveAudioRecording({
       sessionId: targetSessionId,
@@ -298,7 +306,9 @@ export const AnalyticsView: FC = () => {
       setIsExporting(true);
       const result = await exportAllSessionsWithAudio(sessions);
       if (result.type === "zip") {
-        showToast(`Esportate ${sessions.length} sessioni e ${result.audioCount} tracce audio (.zip)!`);
+        showToast(
+          `Esportate ${sessions.length} sessioni e ${result.audioCount} tracce audio (.zip)!`,
+        );
       } else {
         showToast(`Esportate ${sessions.length} sessioni con successo!`);
       }
@@ -344,7 +354,9 @@ export const AnalyticsView: FC = () => {
     }
     setAudioRefreshKey((k) => k + 1);
     if (audioCount > 0) {
-      showToast(`Importate ${importedList.length} sessioni e ${audioCount} tracce audio!`);
+      showToast(
+        `Importate ${importedList.length} sessioni e ${audioCount} tracce audio!`,
+      );
     } else {
       showToast(`Importate ${importedList.length} sessioni con successo!`);
     }
@@ -383,9 +395,9 @@ export const AnalyticsView: FC = () => {
           <div className={styles.emptyIcon}>📊</div>
           <h3>Nessuna sessione registrata ancora</h3>
           <p style={{ marginBottom: "var(--space-6)" }}>
-            Ogni volta che avvii un talk con il pulsante &quot;Inizia Talk&quot;, viene
-            registrata automaticamente una nuova sessione con tutti i tempi
-            delle slide e delle provocazioni.
+            Ogni volta che avvii un talk con il pulsante &quot;Inizia
+            Talk&quot;, viene registrata automaticamente una nuova sessione con
+            tutti i tempi delle slide e delle provocazioni.
           </p>
           <div
             style={{
@@ -429,13 +441,17 @@ export const AnalyticsView: FC = () => {
               >
                 {sessions.map((s) => {
                   const hasAudio = Boolean(
-                    s.hasAudio || (s.id === currentSessionId && isRecordingAudio)
+                    s.hasAudio ||
+                    (s.id === currentSessionId && isRecordingAudio),
                   );
                   const hasVideo = Boolean(
-                    s.hasVideo || s.videoFileName || (s.id === currentSessionId && isRecordingVideo)
+                    s.hasVideo ||
+                    s.videoFileName ||
+                    (s.id === currentSessionId && isRecordingVideo),
                   );
                   const hasTranscription = Boolean(
-                    s.hasTranscription || (s.id === currentSessionId && isTranscribing)
+                    s.hasTranscription ||
+                    (s.id === currentSessionId && isTranscribing),
                   );
 
                   return (
@@ -532,6 +548,16 @@ export const AnalyticsView: FC = () => {
                   >
                     Elimina
                   </Button>
+                  {sessions.length > 1 && (
+                    <Button
+                      variant="ghost"
+                      size="md"
+                      onClick={() => setConfirmClearAllOpen(true)}
+                      className={styles.clearAllBtn}
+                    >
+                      Elimina tutte le sessioni
+                    </Button>
+                  )}
                 </>
               )}
 
@@ -563,7 +589,9 @@ export const AnalyticsView: FC = () => {
                 disabled={isExporting}
                 title="Esporta tutte le sessioni e gli audio associati (.zip)"
               >
-                {isExporting ? "Esportazione..." : `Esporta tutte (${sessions.length})`}
+                {isExporting
+                  ? "Esportazione..."
+                  : `Esporta tutte (${sessions.length})`}
               </Button>
             </div>
           </section>
@@ -586,16 +614,23 @@ export const AnalyticsView: FC = () => {
               onDelete={() => setConfirmDeleteAudio(true)}
               onLaunchReplay={(startAtSec) => {
                 const targetMs = Math.round(
-                  currentViewSession.startedAt + (startAtSec ?? 0) * 1000
+                  currentViewSession.startedAt + (startAtSec ?? 0) * 1000,
                 );
-                navigate(`/replay/${currentViewSession.id}?startAt=${targetMs}`);
+                navigate(
+                  `/replay/${currentViewSession.id}?startAt=${targetMs}`,
+                );
               }}
             />
           ) : currentViewSession ? (
             <div className={styles.noAudioBanner}>
               <div className={styles.noAudioLeft}>
-                <MicIcon size={20} style={{ color: "var(--color-text-muted)" }} />
-                <span>Nessuna traccia audio registrata per questa sessione.</span>
+                <MicIcon
+                  size={20}
+                  style={{ color: "var(--color-text-muted)" }}
+                />
+                <span>
+                  Nessuna traccia audio registrata per questa sessione.
+                </span>
               </div>
               <Button
                 variant="secondary"
@@ -637,17 +672,6 @@ export const AnalyticsView: FC = () => {
                 ⏱️ Storico Eventi ({currentViewSession?.events?.length ?? 0})
               </Button>
             </div>
-
-            {sessions.length > 1 && (
-              <Button
-                variant="ghost"
-                size="md"
-                onClick={() => setConfirmClearAllOpen(true)}
-                className={styles.clearAllBtn}
-              >
-                Elimina tutte le sessioni
-              </Button>
-            )}
           </div>
 
           {currentViewSession && viewTab === "charts" && (
@@ -870,10 +894,7 @@ export const AnalyticsView: FC = () => {
           )}
 
           {currentViewSession && viewTab === "timeline" && (
-            <SessionTimeline
-              session={currentViewSession}
-              onToast={showToast}
-            />
+            <SessionTimeline session={currentViewSession} onToast={showToast} />
           )}
         </>
       )}
@@ -908,8 +929,9 @@ export const AnalyticsView: FC = () => {
             marginBottom: "var(--space-6)",
           }}
         >
-          Sei sicuro di voler eliminare la traccia audio registrata di questa sessione dalla memoria del browser?
-          L&apos;operazione è definitiva e il file non potrà essere recuperato.
+          Sei sicuro di voler eliminare la traccia audio registrata di questa
+          sessione dalla memoria del browser? L&apos;operazione è definitiva e
+          il file non potrà essere recuperato.
         </p>
         <div
           style={{
@@ -1063,7 +1085,7 @@ export const AnalyticsView: FC = () => {
           }}
           onLaunchReplay={(sec) => {
             const targetMs = Math.round(
-              currentViewSession.startedAt + sec * 1000
+              currentViewSession.startedAt + sec * 1000,
             );
             navigate(`/replay/${currentViewSession.id}?startAt=${targetMs}`);
           }}

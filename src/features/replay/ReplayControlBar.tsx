@@ -82,7 +82,10 @@ export const ReplayControlBar: FC<ReplayControlBarProps> = ({
     if (!totalDurationSeconds || events.length === 0) return [];
     return events.map((evt) => {
       const relSec = Math.max(0, (evt.timestamp - sessionStartTime) / 1000);
-      const pct = Math.min(100, Math.max(0, (relSec / totalDurationSeconds) * 100));
+      const pct = Math.min(
+        100,
+        Math.max(0, (relSec / totalDurationSeconds) * 100),
+      );
 
       let typeClass = styles.markerSlide;
       if (
@@ -197,10 +200,18 @@ export const ReplayControlBar: FC<ReplayControlBarProps> = ({
               type="button"
               className={styles.iconBtn}
               onClick={onToggleMute}
-              title={isMuted ? "Riattiva audio talk (M)" : "Silenzia audio talk (M)"}
-              aria-label={isMuted ? "Riattiva audio talk" : "Silenzia audio talk"}
+              title={
+                isMuted ? "Riattiva audio talk (M)" : "Silenzia audio talk (M)"
+              }
+              aria-label={
+                isMuted ? "Riattiva audio talk" : "Silenzia audio talk"
+              }
             >
-              {isMuted ? <VolumeMuteIcon size={16} /> : <VolumeHighIcon size={16} />}
+              {isMuted ? (
+                <VolumeMuteIcon size={16} />
+              ) : (
+                <VolumeHighIcon size={16} />
+              )}
             </button>
           )}
 
@@ -269,7 +280,7 @@ export const ReplayControlBar: FC<ReplayControlBarProps> = ({
         </div>
 
         {/* Center: Current active event pill */}
-        <div className={styles.centerInfo}>
+        {/* <div className={styles.centerInfo}>
           {activeEvent && (
             <div
               className={styles.currentEventPill}
@@ -293,11 +304,15 @@ export const ReplayControlBar: FC<ReplayControlBarProps> = ({
               <span className={styles.eventText}>{activeEvent.description}</span>
             </div>
           )}
-        </div>
+        </div> */}
 
         {/* Right: Speed controls & Exit */}
         <div className={styles.rightControls}>
-          <div className={styles.speedGroup} role="group" aria-label="Velocità riproduzione">
+          <div
+            className={styles.speedGroup}
+            role="group"
+            aria-label="Velocità riproduzione"
+          >
             {SPEED_OPTIONS.map((speed) => (
               <button
                 key={speed}

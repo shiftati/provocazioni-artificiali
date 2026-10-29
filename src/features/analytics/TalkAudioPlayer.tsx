@@ -1,10 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  type FC,
-  type ChangeEvent,
-} from "react";
+import { useState, useEffect, useRef, type FC, type ChangeEvent } from "react";
 import type { StoredAudioRecording } from "../../utils/audioStorage";
 import type { TalkSessionRecord } from "../../types";
 import { formatDurationSeconds } from "../../utils/time";
@@ -44,7 +38,9 @@ export const TalkAudioPlayer: FC<TalkAudioPlayerProps> = ({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [durationFromElement, setDurationFromElement] = useState<number | null>(null);
+  const [durationFromElement, setDurationFromElement] = useState<number | null>(
+    null,
+  );
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(1);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
@@ -54,11 +50,13 @@ export const TalkAudioPlayer: FC<TalkAudioPlayerProps> = ({
   const totalDuration =
     audioRecording.durationSeconds && audioRecording.durationSeconds > 0
       ? audioRecording.durationSeconds
-      : durationFromElement && Number.isFinite(durationFromElement) && durationFromElement > 0
-      ? durationFromElement
-      : session.totalDurationSeconds > 0
-      ? session.totalDurationSeconds
-      : 1;
+      : durationFromElement &&
+          Number.isFinite(durationFromElement) &&
+          durationFromElement > 0
+        ? durationFromElement
+        : session.totalDurationSeconds > 0
+          ? session.totalDurationSeconds
+          : 1;
 
   // Handle audio element metadata
   const handleLoadedMetadata = () => {
@@ -204,21 +202,12 @@ export const TalkAudioPlayer: FC<TalkAudioPlayerProps> = ({
             {audioRecording?.blob
               ? `${(audioRecording.blob.size / (1024 * 1024)).toFixed(2)} MB`
               : ""}
-            {totalDuration > 0 ? ` • ${formatDurationSeconds(totalDuration)}` : ""}
+            {totalDuration > 0
+              ? ` • ${formatDurationSeconds(totalDuration)}`
+              : ""}
           </span>
         </div>
         <div className={styles.audioActions}>
-          {onLaunchReplay && (
-            <Button
-              variant="primary"
-              size="md"
-              onClick={() => onLaunchReplay(currentTime)}
-              leftIcon={<PlayIcon size={16} />}
-              title="Avvia Replay del talk sincronizzato con questo punto audio"
-            >
-              Replay Talk con Audio
-            </Button>
-          )}
           <Button
             variant="secondary"
             size="md"
@@ -346,7 +335,11 @@ export const TalkAudioPlayer: FC<TalkAudioPlayerProps> = ({
           </div>
 
           {/* Speed Group */}
-          <div className={styles.speedGroup} role="group" aria-label="Velocità riproduzione audio">
+          <div
+            className={styles.speedGroup}
+            role="group"
+            aria-label="Velocità riproduzione audio"
+          >
             {SPEED_OPTIONS.map((speed) => (
               <button
                 key={speed}
