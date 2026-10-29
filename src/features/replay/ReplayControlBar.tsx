@@ -50,7 +50,6 @@ export const ReplayControlBar: FC<ReplayControlBarProps> = ({
   totalDurationSeconds,
   isPlaying,
   playbackSpeed,
-  activeEvent,
   events,
   sessionStartTime,
   hasAudio = false,

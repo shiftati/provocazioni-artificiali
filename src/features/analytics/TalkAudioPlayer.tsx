@@ -33,7 +33,6 @@ export const TalkAudioPlayer: FC<TalkAudioPlayerProps> = ({
   session,
   onDownload,
   onDelete,
-  onLaunchReplay,
 }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
