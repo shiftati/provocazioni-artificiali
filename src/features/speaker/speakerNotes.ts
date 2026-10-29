@@ -144,7 +144,7 @@ Quando vi viene in mente qualcosa alzate la mano e io o Daniel verremo a darvi l
     notes: `[[STE]]
 *La cybersicurezza sarà una lotta tra AI*
 
-Ha ancora senso il ruolo dell'esperto di cybersicurezza quando saranno le AI a combattere tra loro?
+Il ruolo dell'esperto di cybersicurezza non ha più senso quando alla fine sono le AI che combattono tra loro.
 
 [[DANIEL]]
 [Far notare Daniel e Ste che bevono il tè]
@@ -158,7 +158,7 @@ Ha ancora senso il ruolo dell'esperto di cybersicurezza quando saranno le AI a c
     notes: `[[STE]]
 *La documentazione non ha più senso*
 
-Che senso ha scrivere la documentazione in un mondo in cui è l'AI stessa a scrivere codice?
+Scrivere la documentazione per gli umani in un mondo in cui è l'AI stessa a scrivere codice diventa inutile.
 
 [[DANIEL]]
 Vista l'ora e viste le facce, direi di fare un esempio pratico XD
@@ -190,17 +190,17 @@ Cioè, *l'ECCELLENZA per noi è unire più competenze*. Non è solo l'idea di pr
     notes: `[[DANIEL]]
 _*...e cosa c'è di più UMANO di quello che abbiamo fatto oggi?*_
 
-- Prima di tutto ci tengo a *RINGRAZIARE* di cuore chi ha partecipato (ci vuole coraggio nel mettersi in gioco!)... Il bello è che questo talk è irripetibile, perché ognuno di noi è UNICO con una propria PERSONALE esperienza, costruita giorno per giorno in 5, 10, 20 anni... la conoscenza dell'AI è solo una "media" di tutte le nostre esperienze (e neanche tutte perché si basa sul codice che ha "studiato") ma non su quello che ognuno di noi ha vissuto realmente.
+- Prima di tutto ci tengo a *RINGRAZIARE* di cuore chi ha partecipato (ci vuole coraggio nel mettersi in gioco!)... Il bello di questo talk è che è irripetibile, perché se ci pensate ognuno di noi è UNICO con una propria PERSONALE esperienza, costruita giorno per giorno in 5, 10, 20 anni... la conoscenza dei modelli AI è solo una *_"media"_* di tutte le nostre esperienze (e neanche tutte perché si basa sul codice che ha "studiato") ma non su quello che ognuno di noi ha vissuto realmente sulla propria pelle.
 
-- Oggi abbiamo fatto una cosa molto utile: ci siamo *CONFRONTATI*. Una caratteristica che abbiamo noi umani è pensare fuori dagli schemi e quello che ci siamo dati oggi, sono delle prospettive diverse da cui possiamo prendere spunto.
+- Oggi abbiamo fatto una cosa molto utile: ci siamo *CONFRONTATI*. Una caratteristica che abbiamo noi umani è pensare fuori dagli schemi e quello che abbiamo condiviso oggi, sono delle prospettive diverse da cui possiamo prendere spunto.
 
-- Il confronto "accende" la *CREATIVITÀ* che porta a idee nuove, [...TODO...] e presi singolarmente siamo limitati al nostro pensiero (e a quello dell'AI che usiamo come consulente)! Siamo animali sociali e abbiamo bisogno gli uni degli altri per dare il meglio di noi. E la cosa bella è che oggi l'AI (che scrive codice per noi) ci permette di avere _più tempo da dedicare_ a quello che ci rende umani.
+- Il confronto "accende" la *CREATIVITÀ* che porta a idee nuove. Presi singolarmente siamo limitati al nostro pensiero (e a quello dell'AI che usiamo come consulente)! Ma siamo (geneticamente) degli animali sociali e abbiamo bisogno gli uni degli altri per dare il meglio di noi. E la cosa bella è che oggi l'AI (che scrive codice per noi) ci permette di avere _più tempo da dedicare_ a quello che ci rende umani.
 
-- L'AI, almeno in questi ultimi anni, è per definizione "ricerca e sviluppo", nessuno può studiarla da un manuale (come si faceva con Java o React) per imparare ad usarla... Qui ci si sporca le mani ogni giorno, si sbaglia, si sbatte la tesa e si trovano soluzioni. Queste scoperte non si trovano (solo) nel codice, ma dentro l'esperienza personale di ognuno di noi ed è nostro dovere condividerla.
+- L'AI, almeno in questi ultimi anni, è per definizione "ricerca e sviluppo", nessuno può studiarla da un manuale per imparare ad usarla (come si faceva con Java o React)... Qui ci si sporca le mani ogni giorno, si sbaglia, si sbatte la testa e si trovano soluzioni (e poi si ricomincia). Queste scoperte non si trovano (solo) nel codice, ma dentro l'esperienza personale di ognuno di noi ed è nostro dovere condividerla.
 
 Non voglio fare paternali o altro, volevo sfruttare l'opportunità che ho avuto oggi di stare qui sul palco davanti a tante persone per condividere un pensiero che avevo da tempo.
 
-Per chi non mi conosce, sono uno di quelli che adora fare selfie con le persone: se andate sul mio profilo Instagram troverete un muro di selfie con persone che ho trovato interessanti. E oggi vorrei immortalare questo bellissimo momento con voi con un mega selfie di gruppo!
+Detto ciò, per chi non mi conosce, sono uno di quelli che adora fare selfie: se andate sul mio profilo Instagram troverete un muro di selfie con persone che ho trovato interessanti. E oggi vorrei immortalare questo bellissimo momento con voi con un mega selfie di gruppo!
 
 [SELFIE di gruppo]
 `,
@@ -220,7 +220,7 @@ Ci teniamo a salutarvi con questa ultima frase dal film che ha ispirato questo t
 [MUSICA che parte con l'ultima parte della frase]
 `,
     hints:
-      "Quando parte la musica di Ritorno al Futuro, lasciare spazio all'audio orchestrale. Lasciare la card col QR visibile per le domande finali.",
+      "Ricordarsi di lasciare la card col QR visibile per le domande finali.",
   },
   nero: {
     slideId: "nero",
