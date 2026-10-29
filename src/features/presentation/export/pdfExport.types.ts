@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
-import type { SlideProps, SlideDefinition } from "../../../types";
+import type { SlideProps, SlideDefinition, ProvocationDefinition } from "../../../types";
+import { PROVOCATIONS } from "../../game/provocations.registry";
 
 export interface SlideExportFrame {
   frameIndex: number;
@@ -10,6 +11,7 @@ export interface SlideExportFrame {
   step?: number;
   totalSteps?: number;
   stepDescription?: string;
+  isProvocation?: boolean;
 }
 
 export function getStepDescription(slideId: string, step?: number): string | undefined {
@@ -55,14 +57,23 @@ export function getStepDescription(slideId: string, step?: number): string | und
   return `Passo ${step + 1}`;
 }
 
-export function buildExportFrames(slides: readonly SlideDefinition[]): SlideExportFrame[] {
+export function buildExportFrames(
+  slides: readonly SlideDefinition[],
+  provocations: readonly ProvocationDefinition[] = PROVOCATIONS,
+  introEndSlide?: number
+): SlideExportFrame[] {
   const frames: SlideExportFrame[] = [];
   let frameIndex = 0;
 
   // Escludi lo schermo nero finale ("nero") come richiesto
   const exportableSlides = slides.filter((slide) => slide.id !== "nero");
 
+  // Identifica il punto in cui si apre il gioco:
+  // Di default dopo la slide "klippy-matrix" oppure introEndSlide se configurato
+  const targetEndId = "klippy-matrix";
+
   exportableSlides.forEach((slide, slideIndex) => {
+    // 1. Aggiungi la slide corrente (con o senza step di animazione)
     if (slide.animationSteps && slide.animationSteps.length > 0) {
       slide.animationSteps.forEach((step) => {
         frames.push({
@@ -83,6 +94,24 @@ export function buildExportFrames(slides: readonly SlideDefinition[]): SlideExpo
         slideId: slide.id,
         slideTitle: slide.title,
         component: slide.component,
+      });
+    }
+
+    // 2. Quando siamo dopo la slide di Klippy Matrix (o introEndSlide), inserisci tutte le provocazioni
+    const isGameOpenPoint =
+      slide.id === targetEndId ||
+      (typeof introEndSlide === "number" && slideIndex === introEndSlide - 1);
+
+    if (isGameOpenPoint) {
+      provocations.forEach((provocation, pIdx) => {
+        frames.push({
+          frameIndex: frameIndex++,
+          slideIndex: slideIndex + 1 + pIdx,
+          slideId: `provocation-${provocation.id}`,
+          slideTitle: `Provocazione: ${provocation.title}`,
+          component: provocation.component as ComponentType<SlideProps>,
+          isProvocation: true,
+        });
       });
     }
   });

@@ -18,6 +18,7 @@ import {
   RefreshIcon,
 } from "../../../components/icons";
 import { SLIDES } from "../slides.registry";
+import { PROVOCATIONS } from "../../game/provocations.registry";
 import { useAppState } from "../../../state/AppStateContext";
 import {
   buildExportFrames,
@@ -130,12 +131,15 @@ export const SlidePdfExportModal: FC<SlidePdfExportModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { theme } = useAppState();
+  const { theme, config } = useAppState();
 
-  const frames = useMemo(() => buildExportFrames(SLIDES), []);
+  const frames = useMemo(
+    () => buildExportFrames(SLIDES, PROVOCATIONS, config.introEndSlide),
+    [config.introEndSlide]
+  );
   const totalFrames = frames.length;
-  const exportableSlidesCount = useMemo(
-    () => SLIDES.filter((s) => s.id !== "nero").length,
+  const totalDistinctItems = useMemo(
+    () => SLIDES.filter((s) => s.id !== "nero").length + PROVOCATIONS.length,
     []
   );
 
@@ -360,10 +364,10 @@ export const SlidePdfExportModal: FC<SlidePdfExportModalProps> = ({
             <>
               <div className={styles.descriptionBox}>
                 <span className={styles.badgePill}>
-                  {exportableSlidesCount} Slide • {totalFrames} Schermate totali
+                  {totalDistinctItems} Slide & Provocazioni • {totalFrames} Schermate totali
                 </span>
                 <p style={{ margin: 0 }}>
-                  Verranno esportate tutte le slide della presentazione in formato PDF a pieno schermo 16:9 (lo schermo nero finale viene escluso).
+                  Verranno esportate tutte le slide della presentazione e tutte le 9 provocazioni del gioco (dopo la slide di Klippy Matrix) in formato PDF a pieno schermo 16:9 (lo schermo nero finale viene escluso).
                 </p>
                 <p style={{ margin: "8px 0 0 0" }}>
                   Per ogni slide con animazioni (es. <em>Daniel e Ste</em>, <em>Fight Club</em>, <em>Finale</em>),
@@ -379,7 +383,7 @@ export const SlidePdfExportModal: FC<SlidePdfExportModalProps> = ({
                     fontSize: "0.85rem",
                   }}
                 >
-                  ✓ Esclusi automaticamente il gioco, la barra superiore, le frecce di navigazione e il player audio.
+                  ✓ Esclusi automaticamente il player dell'audio, la top bar e i tasti per cambiare slide.
                 </p>
               </div>
 
@@ -404,7 +408,16 @@ export const SlidePdfExportModal: FC<SlidePdfExportModalProps> = ({
               <div className={styles.progressSection}>
                 <div className={styles.progressLabelRow}>
                   <span className={styles.currentSlideName}>
-                    Slide {currentFrameIndex + 1} di {totalFrames}: {currentFrame?.slideTitle}
+                    {currentFrame?.isProvocation ? (
+                      <>
+                        Schermata {currentFrameIndex + 1} di {totalFrames}: {currentFrame?.slideTitle}
+                        <span className={styles.provocationTag}>Gioco</span>
+                      </>
+                    ) : (
+                      <>
+                        Slide {currentFrameIndex + 1} di {totalFrames}: {currentFrame?.slideTitle}
+                      </>
+                    )}
                   </span>
                   <span className={styles.percentageLabel}>{percent}%</span>
                 </div>

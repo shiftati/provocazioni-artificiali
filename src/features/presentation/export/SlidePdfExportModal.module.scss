@@ -158,6 +158,20 @@
   }
 }
 
+.provocationTag {
+  display: inline-block;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--color-brand-yellow, #ffd100);
+  background-color: rgba(255, 209, 0, 0.15);
+  border: 1px solid rgba(255, 209, 0, 0.4);
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  margin-left: 6px;
+}
+
 /* Mini Preview Box */
 .previewContainer {
   display: flex;
