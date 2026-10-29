@@ -60,6 +60,7 @@ export type SlideTransitionType = "fade-scale" | "fade" | "slide" | "cut" | "epi
 export interface SlideProps {
   step?: number;
   isReplay?: boolean;
+  isExport?: boolean;
 }
 
 export interface SlideDefinition {
@@ -69,6 +70,7 @@ export interface SlideDefinition {
   transition?: SlideTransitionType;
   transitionDurationMs?: number;
   assets?: readonly string[];
+  animationSteps?: number[];
 }
 
 export interface ProvocationDefinition {

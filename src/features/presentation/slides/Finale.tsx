@@ -10,7 +10,11 @@ const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
 
-export const Finale: FC<SlideProps> = ({ step: stepProp, isReplay = false }) => {
+export const Finale: FC<SlideProps> = ({
+  step: stepProp,
+  isReplay = false,
+  isExport = false,
+}) => {
   const {
     registerSlideStepHandler,
     previousSlideIndex,
@@ -24,7 +28,10 @@ export const Finale: FC<SlideProps> = ({ step: stepProp, isReplay = false }) => 
   // Se si naviga all'indietro da una slide successiva (se presente),
   // inizializziamo con entrambi i fumetti e la card visibili (step 2)
   const isEnteredBackwards = useRef(
-    !isReplay && typeof previousSlideIndex === "number" && previousSlideIndex > 12,
+    !isReplay &&
+      !isExport &&
+      typeof previousSlideIndex === "number" &&
+      previousSlideIndex > 12,
   ).current;
 
   // Step 0: nessun fumetto
@@ -175,7 +182,7 @@ export const Finale: FC<SlideProps> = ({ step: stepProp, isReplay = false }) => 
   // - 2° click Avanti: mostra il 2° fumetto + musica BTTF + card dopo 5s
   // - Freccia Indietro: riavvolge i passi
   useEffect(() => {
-    if (isReplay) return;
+    if (isReplay || isExport) return;
 
     registerSlideStepHandler({
       onNext: () => {
@@ -318,7 +325,9 @@ export const Finale: FC<SlideProps> = ({ step: stepProp, isReplay = false }) => 
   const isBubble1Visible = currentStep >= 1;
   let bubble1AnimationClass = "";
   if (isBubble1Visible) {
-    if (isReplay) {
+    if (isExport) {
+      bubble1AnimationClass = styles.bubbleStatic || "";
+    } else if (isReplay) {
       bubble1AnimationClass = styles.bubbleEntrance || "";
     } else if (hasForwardBubble1Entrance && !isBubble1EntranceComplete) {
       bubble1AnimationClass = styles.bubbleEntrance || "";
@@ -331,7 +340,9 @@ export const Finale: FC<SlideProps> = ({ step: stepProp, isReplay = false }) => 
   const isBubble2Visible = currentStep >= 2;
   let bubble2AnimationClass = "";
   if (isBubble2Visible) {
-    if (isReplay) {
+    if (isExport) {
+      bubble2AnimationClass = styles.bubbleStatic || "";
+    } else if (isReplay) {
       bubble2AnimationClass = styles.bubbleEntrance || "";
     } else if (hasForwardBubble2Entrance && !isBubble2EntranceComplete) {
       bubble2AnimationClass = styles.bubbleEntrance || "";
@@ -340,12 +351,14 @@ export const Finale: FC<SlideProps> = ({ step: stepProp, isReplay = false }) => 
     }
   }
 
-  const effectiveCardVisible = isReplay ? currentStep >= 2 : isCardVisible;
+  const effectiveCardVisible = isExport || isReplay ? currentStep >= 2 : isCardVisible;
 
   // Classi dinamiche card "Grazie!"
   let cardAnimationClass = "";
   if (effectiveCardVisible) {
-    if (isReplay) {
+    if (isExport) {
+      cardAnimationClass = styles.cardStatic || "";
+    } else if (isReplay) {
       cardAnimationClass = styles.cardEntrance || "";
     } else if (hasForwardCardEntrance && !isCardEntranceComplete) {
       cardAnimationClass = styles.cardEntrance || "";
@@ -434,7 +447,7 @@ export const Finale: FC<SlideProps> = ({ step: stepProp, isReplay = false }) => 
         )}
 
         {/* Controlli audio in basso a destra (quando la musica parte) */}
-        {currentStep >= 2 && !isReplay && (
+        {currentStep >= 2 && !isReplay && !isExport && (
           <aside
             className={styles.audioControls}
             aria-label="Controlli audio di sottofondo"

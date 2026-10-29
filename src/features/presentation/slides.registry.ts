@@ -59,6 +59,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     component: DanielESte,
     transition: "fade-scale",
     transitionDurationMs: 600,
+    animationSteps: [0, 1, 2],
     assets: [
       "images/slides/codemotion-blue-bg.webp",
       "images/slides/intro-ste.webp",
@@ -94,6 +95,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     component: FightClub,
     transition: "fade-scale",
     transitionDurationMs: 600,
+    animationSteps: [0, 1, 2, 3],
     assets: ["images/slides/fight-club.webp"],
   },
   {
@@ -134,6 +136,7 @@ export const SLIDES: readonly SlideDefinition[] = [
     component: Finale,
     transition: "fade-scale",
     transitionDurationMs: 600,
+    animationSteps: [0, 1, 2],
     assets: [
       "images/slides/ritorno-al-futuro-treno.webp",
       "images/qr-shiftati.svg",

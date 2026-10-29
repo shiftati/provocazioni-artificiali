@@ -1,0 +1,263 @@
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5, 20px);
+  width: 100%;
+  max-width: 580px;
+  color: var(--color-text, #ffffff);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4, 16px);
+  border-bottom: 2px solid var(--color-border, #1a2c44);
+  padding-bottom: var(--space-4, 16px);
+}
+
+.titleGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 12px);
+}
+
+.iconWrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background-color: var(--color-accent, #ff5500);
+  color: #000000;
+  border: 2px solid #000000;
+  box-shadow: 3px 3px 0 #000000;
+  border-radius: var(--radius-sm, 6px);
+  flex-shrink: 0;
+}
+
+.modalTitle {
+  font-family: var(--font-display, "IBM Plex Sans", sans-serif);
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--color-text, #ffffff);
+  margin: 0;
+}
+
+.modalSubtitle {
+  font-size: 0.88rem;
+  color: var(--color-text-muted, #9bb0c7);
+  margin-top: 2px;
+}
+
+.descriptionBox {
+  background-color: var(--color-surface, #0b1726);
+  border: 1.5px solid var(--color-border, #1a2c44);
+  border-radius: var(--radius-md, 8px);
+  padding: var(--space-4, 16px);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--color-text-muted, #9bb0c7);
+}
+
+.badgePill {
+  display: inline-block;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-mint, #5ef2b8);
+  background-color: rgba(94, 242, 184, 0.12);
+  border: 1px solid rgba(94, 242, 184, 0.35);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+/* Progress Section */
+.progressSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+}
+
+.progressLabelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.currentSlideName {
+  font-weight: 700;
+  color: var(--color-text, #ffffff);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 380px;
+}
+
+.percentageLabel {
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  color: var(--color-mint, #5ef2b8);
+}
+
+.progressBarTrack {
+  width: 100%;
+  height: 12px;
+  background-color: var(--color-surface-raised, #102136);
+  border: 1.5px solid #000000;
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.progressBarFill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent, #ff5500) 0%,
+    var(--color-brand-yellow, #ffd100) 50%,
+    var(--color-mint, #5ef2b8) 100%
+  );
+  border-radius: 999px;
+  transition: width 0.15s ease-out;
+}
+
+.stepHint {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+  color: var(--color-text-subtle, #5f758f);
+}
+
+.badgeWait {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-brand-yellow, #ffd100);
+  background-color: rgba(255, 209, 0, 0.12);
+  border: 1px solid rgba(255, 209, 0, 0.35);
+  padding: 3px 8px;
+  border-radius: 4px;
+  animation: pulseWait 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseWait {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Mini Preview Box */
+.previewContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2, 8px);
+}
+
+.previewFrame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: #000000;
+  border: 2px solid #000000;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.6);
+  border-radius: var(--radius-sm, 6px);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.previewScaler {
+  width: 1920px;
+  height: 1080px;
+  transform-origin: top left;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Success Card */
+.successCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3, 12px);
+  padding: var(--space-5, 20px);
+  background-color: rgba(94, 242, 184, 0.08);
+  border: 2px solid var(--color-mint, #5ef2b8);
+  border-radius: var(--radius-md, 8px);
+}
+
+.successIcon {
+  color: var(--color-mint, #5ef2b8);
+}
+
+.successTitle {
+  font-family: var(--font-display, "IBM Plex Sans", sans-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-mint, #5ef2b8);
+  margin: 0;
+}
+
+.successText {
+  font-size: 0.95rem;
+  color: var(--color-text-muted, #9bb0c7);
+  margin: 0;
+}
+
+/* Error Card */
+.errorCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+  padding: var(--space-4, 16px);
+  background-color: rgba(255, 51, 51, 0.1);
+  border: 2px solid var(--color-danger, #ff3333);
+  border-radius: var(--radius-md, 8px);
+  color: var(--color-danger, #ff3333);
+}
+
+/* Actions */
+.actionsRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3, 12px);
+  margin-top: var(--space-2, 8px);
+}
+
+/* Offscreen capture stage */
+.offscreenCaptureContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 1080px;
+  z-index: 9980;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 1;
+}
+
+.offscreenStage {
+  width: 1920px;
+  height: 1080px;
+  position: relative;
+  background-color: var(--color-stage-bg, var(--color-bg));
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}

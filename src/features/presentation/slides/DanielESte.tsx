@@ -11,6 +11,7 @@ const BASE_URL = import.meta.env.BASE_URL.endsWith("/")
 export const DanielESte: FC<SlideProps> = ({
   step: stepProp,
   isReplay = false,
+  isExport = false,
 }) => {
   const { registerSlideStepHandler, previousSlideIndex } = useAppState();
 
@@ -29,6 +30,7 @@ export const DanielESte: FC<SlideProps> = ({
   // inizializziamo con tutti i personaggi visibili (step 2)
   const isEnteredBackwards = useRef(
     !isReplay &&
+      !isExport &&
       typeof previousSlideIndex === "number" &&
       previousSlideIndex > 4,
   ).current;
@@ -43,12 +45,12 @@ export const DanielESte: FC<SlideProps> = ({
   const stepRef = useRef(localStep);
   stepRef.current = localStep;
 
-  // Se siamo in replay, usiamo il passo fornito come prop
+  // Se siamo in replay o export, usiamo il passo fornito come prop
   const currentStep = stepProp !== undefined ? stepProp : localStep;
 
   // Traccia se Klippy è comparso tramite avanzamento per attivare il bounce pop
   const [hasForwardKlippyEntrance, setHasForwardKlippyEntrance] =
-    useState<boolean>(!isEnteredBackwards);
+    useState<boolean>(!isEnteredBackwards && !isExport);
 
   const prevStepRef = useRef<number>(currentStep);
   useEffect(() => {
@@ -59,7 +61,7 @@ export const DanielESte: FC<SlideProps> = ({
   }, [currentStep]);
 
   useEffect(() => {
-    if (isReplay) return;
+    if (isReplay || isExport) return;
 
     registerSlideStepHandler({
       onNext: () => {
@@ -95,20 +97,22 @@ export const DanielESte: FC<SlideProps> = ({
     return () => {
       registerSlideStepHandler(null);
     };
-  }, [registerSlideStepHandler, isReplay]);
+  }, [registerSlideStepHandler, isReplay, isExport]);
 
   const isDanielVisible = currentStep >= 1;
   const isKlippyVisible = currentStep >= 2;
 
   // Determina la classe di animazione per Klippy: bounce se entrato in avanti, idle se entrato tornando indietro
   const klippyAnimationClass = isKlippyVisible
-    ? hasForwardKlippyEntrance || isReplay
-      ? styles.klippyVisible
-      : styles.klippyVisibleIdleOnly
+    ? isExport
+      ? styles.klippyVisibleIdleOnly
+      : hasForwardKlippyEntrance || isReplay
+        ? styles.klippyVisible
+        : styles.klippyVisibleIdleOnly
     : "";
 
-  const isDanielStatic = !isReplay && isEnteredBackwards && currentStep === 2;
-  const isKlippyStatic = !isReplay && isEnteredBackwards && currentStep === 2;
+  const isDanielStatic = isExport || (!isReplay && isEnteredBackwards && currentStep === 2);
+  const isKlippyStatic = isExport || (!isReplay && isEnteredBackwards && currentStep === 2);
 
   return (
     <div
@@ -122,7 +126,7 @@ export const DanielESte: FC<SlideProps> = ({
         src={steImg}
         alt="Stefano Bruno"
         className={`${styles.speakerLeft} ${
-          isEnteredBackwards
+          isEnteredBackwards || isExport
             ? styles.speakerLeftStatic
             : styles.speakerLeftEntrance
         }`}
@@ -131,7 +135,7 @@ export const DanielESte: FC<SlideProps> = ({
       {/* Freccia indicatore per Stefano */}
       <div
         className={`${styles.indicatorStefano} ${
-          isEnteredBackwards ? styles.indicatorStatic : styles.indicatorEntrance
+          isEnteredBackwards || isExport ? styles.indicatorStatic : styles.indicatorEntrance
         }`}
         aria-hidden="true"
       >

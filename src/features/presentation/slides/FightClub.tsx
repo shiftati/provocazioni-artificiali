@@ -4,13 +4,17 @@ import {useAppState} from "../../../state/AppStateContext";
 import type {SlideProps} from "../../../types";
 import styles from "./FightClub.module.scss";
 
-export const FightClub: FC<SlideProps> = ({step: stepProp, isReplay = false}) => {
+export const FightClub: FC<SlideProps> = ({
+    step: stepProp,
+    isReplay = false,
+    isExport = false,
+}) => {
     const {registerSlideStepHandler, previousSlideIndex} = useAppState();
 
     // Se l'utente arriva a ritroso da una slide successiva (indice > 7),
     // inizializziamo la slide con tutte le 3 card già visibili (step 3)
     const isEnteredBackwards = useRef(
-        !isReplay && typeof previousSlideIndex === "number" && previousSlideIndex > 7,
+        !isReplay && !isExport && typeof previousSlideIndex === "number" && previousSlideIndex > 7,
     ).current;
 
     // Step 0: Nessuna card (solo sfondo Fight Club)
@@ -22,7 +26,7 @@ export const FightClub: FC<SlideProps> = ({step: stepProp, isReplay = false}) =>
     const stepRef = useRef(localStep);
     stepRef.current = localStep;
 
-    // Se siamo in modalità replay di sessione, utilizziamo il passo fornito come prop
+    // Se siamo in modalità replay di sessione o export, utilizziamo il passo fornito come prop
     const currentStep = stepProp !== undefined ? stepProp : localStep;
 
     // Traccia la direzione di navigazione sincronizzata direttamente durante il rendering
@@ -40,7 +44,7 @@ export const FightClub: FC<SlideProps> = ({step: stepProp, isReplay = false}) =>
     }
 
     useEffect(() => {
-        if (isReplay) return;
+        if (isReplay || isExport) return;
 
         registerSlideStepHandler({
             onNext: () => {
@@ -77,7 +81,7 @@ export const FightClub: FC<SlideProps> = ({step: stepProp, isReplay = false}) =>
         return () => {
             registerSlideStepHandler(null);
         };
-    }, [registerSlideStepHandler, isReplay]);
+    }, [registerSlideStepHandler, isReplay, isExport]);
 
     const isCard1Visible = currentStep >= 1;
     const isCard2Visible = currentStep >= 2;
@@ -86,21 +90,27 @@ export const FightClub: FC<SlideProps> = ({step: stepProp, isReplay = false}) =>
     const isForward = direction === "forward" || isReplay;
 
     const card1Class = isCard1Visible
-        ? isForward && currentStep === 1
-            ? styles.card1Entrance
-            : styles.card1Static
+        ? isExport
+            ? styles.card1Static
+            : isForward && currentStep === 1
+                ? styles.card1Entrance
+                : styles.card1Static
         : styles.card1Hidden;
 
     const card2Class = isCard2Visible
-        ? isForward && currentStep === 2
-            ? styles.card2Entrance
-            : styles.card2Static
+        ? isExport
+            ? styles.card2Static
+            : isForward && currentStep === 2
+                ? styles.card2Entrance
+                : styles.card2Static
         : styles.card2Hidden;
 
     const card3Class = isCard3Visible
-        ? isForward && currentStep === 3
-            ? styles.card3Entrance
-            : styles.card3Static
+        ? isExport
+            ? styles.card3Static
+            : isForward && currentStep === 3
+                ? styles.card3Entrance
+                : styles.card3Static
         : styles.card3Hidden;
 
     return (

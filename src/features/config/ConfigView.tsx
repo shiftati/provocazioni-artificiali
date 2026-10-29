@@ -41,6 +41,7 @@ import {
   VideoOffIcon,
   SpeakerNoteIcon,
   TranscriptIcon,
+  PdfIcon,
 } from "../../components/icons";
 import {
   isFileSystemAccessSupported,
@@ -50,6 +51,7 @@ import { transcriptionManager } from "../../services/transcriptionService";
 import { useSpeakerWindow } from "../speaker/useSpeakerWindow";
 import { usePwaInstall } from "../../hooks/usePwaInstall";
 import { useOfflineCache } from "../../hooks/useOfflineCache";
+import { SlidePdfExportModal } from "../presentation/export/SlidePdfExportModal";
 import styles from "./ConfigView.module.scss";
 
 export const ConfigView: FC = () => {
@@ -118,6 +120,8 @@ export const ConfigView: FC = () => {
   const [introEndSlide, setIntroEndSlide] = useState<number>(() => {
     return typeof config.introEndSlide === "number" ? config.introEndSlide : 10;
   });
+
+  const [isPdfExportOpen, setIsPdfExportOpen] = useState<boolean>(false);
 
   // Audio Recording configuration state
   const [audioRecordingEnabled, setAudioRecordingEnabled] = useState<boolean>(
@@ -810,6 +814,15 @@ export const ConfigView: FC = () => {
             >
               Statistiche & Analytics Talk
             </Button>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => setIsPdfExportOpen(true)}
+              leftIcon={<PdfIcon size={18} />}
+              title="Esporta tutte le slide (senza gioco) in PDF, creando una pagina per ogni animazione"
+            >
+              Esporta Slide in PDF
+            </Button>
             {isInstallable && !isInstalled && (
               <Button
                 variant="secondary"
@@ -1085,6 +1098,15 @@ export const ConfigView: FC = () => {
                   Vai alle Slide
                 </Button>
               )}
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={() => setIsPdfExportOpen(true)}
+                leftIcon={<PdfIcon size={18} />}
+                title="Esporta tutte le slide (senza gioco) in PDF con animazioni"
+              >
+                Esporta Slide (PDF)
+              </Button>
             </div>
           </Card>
 
@@ -1922,6 +1944,12 @@ export const ConfigView: FC = () => {
           </Button>
         </div>
       </Modal>
+
+      {/* Slide PDF Export Modal */}
+      <SlidePdfExportModal
+        isOpen={isPdfExportOpen}
+        onClose={() => setIsPdfExportOpen(false)}
+      />
     </div>
   );
 };

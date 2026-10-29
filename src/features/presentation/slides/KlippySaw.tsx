@@ -18,28 +18,30 @@ export const KlippySaw: FC<KlippySawProps> = ({
   children,
   className,
   isReplay = false,
+  isExport = false,
 }) => {
   const { previousSlideIndex, session } = useAppState();
 
-  // Se l'utente arriva a ritroso da una slide successiva (indice > 6) in presentazione, mostra già tutto senza attendere
+  // Se l'utente arriva a ritroso da una slide successiva (indice > 6) in presentazione o in esportazione, mostra già tutto senza attendere
   const isEnteredBackwards = useRef(
     !isReplay &&
+      !isExport &&
       session.mode === "presentation" &&
       typeof previousSlideIndex === "number" &&
       previousSlideIndex > 6,
   ).current;
 
   const [hasEntered, setHasEntered] = useState<boolean>(
-    () => isEnteredBackwards,
+    () => isEnteredBackwards || isExport,
   );
   const [isEntranceComplete, setIsEntranceComplete] = useState<boolean>(
-    () => isEnteredBackwards,
+    () => isEnteredBackwards || isExport,
   );
   const [isBubbleVisible, setIsBubbleVisible] = useState<boolean>(
-    () => isEnteredBackwards,
+    () => isEnteredBackwards || isExport,
   );
   const [isBubbleEntranceComplete, setIsBubbleEntranceComplete] =
-    useState<boolean>(() => isEnteredBackwards);
+    useState<boolean>(() => isEnteredBackwards || isExport);
   const [isFlickerActive, setIsFlickerActive] = useState<boolean>(false);
 
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -95,7 +97,7 @@ export const KlippySaw: FC<KlippySawProps> = ({
   }, [clearAllTimers]);
 
   useEffect(() => {
-    if (isEnteredBackwards) return;
+    if (isEnteredBackwards || isExport) return;
 
     // Suspense iniziale nella stanza buia di Saw: compare dopo 1.2 secondi
     const suspenseTimer = setTimeout(() => {
