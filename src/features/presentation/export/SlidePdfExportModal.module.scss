@@ -51,6 +51,157 @@
   margin-top: 2px;
 }
 
+/* Format Selector */
+.formatSelectorSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+}
+
+.sectionHeading {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted, #9bb0c7);
+}
+
+.formatCardsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3, 12px);
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formatCard {
+  background-color: var(--color-surface, #0b1726);
+  border: 2px solid var(--color-border, #1a2c44);
+  border-radius: var(--radius-md, 8px);
+  padding: var(--space-3, 12px);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  transition: all 0.18s ease;
+  color: var(--color-text, #ffffff);
+
+  &:hover {
+    border-color: var(--color-brand-blue-border, #2d4766);
+    background-color: var(--color-surface-raised, #102136);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent, #ff5500);
+    outline-offset: 2px;
+  }
+}
+
+.formatCardSelected {
+  border-color: var(--color-accent, #ff5500) !important;
+  background-color: rgba(255, 85, 0, 0.08) !important;
+  box-shadow: 0 0 0 1px var(--color-accent, #ff5500);
+}
+
+.formatCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.formatIconTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.formatCardIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  background-color: var(--color-surface-raised, #102136);
+  color: var(--color-accent, #ff5500);
+  flex-shrink: 0;
+}
+
+.formatCardSelected .formatCardIcon {
+  background-color: var(--color-accent, #ff5500);
+  color: #000000;
+}
+
+.formatCardTitle {
+  font-family: var(--font-display, "IBM Plex Sans", sans-serif);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text, #ffffff);
+}
+
+.formatBadgePill {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: rgba(94, 242, 184, 0.12);
+  color: var(--color-mint, #5ef2b8);
+  border: 1px solid rgba(94, 242, 184, 0.3);
+}
+
+.formatCardDesc {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--color-text-muted, #9bb0c7);
+  margin: 0;
+}
+
+/* Options Box */
+.optionsBox {
+  background-color: rgba(11, 23, 38, 0.6);
+  border: 1.5px solid var(--color-border, #1a2c44);
+  border-radius: var(--radius-md, 8px);
+  padding: var(--space-3, 12px) var(--space-4, 16px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkboxInput {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-accent, #ff5500);
+  cursor: pointer;
+}
+
+.checkboxTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text, #ffffff);
+}
+
+.checkboxSubtitle {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--color-text-muted, #9bb0c7);
+  margin-top: 2px;
+}
+
 .descriptionBox {
   background-color: var(--color-surface, #0b1726);
   border: 1.5px solid var(--color-border, #1a2c44);
