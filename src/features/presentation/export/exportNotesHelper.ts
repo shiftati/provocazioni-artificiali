@@ -34,11 +34,22 @@ export function cleanNotesForPdf(rawText?: string): string {
   text = text.replace(/\[\[(Entrambi|Tutti|Both)\]\]/gi, "\nEntrambi: ");
   text = text.replace(/\[\[(.*?)\]\]/g, "\n$1: ");
 
-  // 3. Rimuovi marcatori di grassetto e corsivo (*bold*, _italic_)
+  // 3. Normalizza caratteri unicode (frecce, virgolette speciali, apostrofi, ellissi)
+  // che farebbero ricorrere jsPDF a encoding multi-byte non supportato dai font standard,
+  // causando il bug delle lettere distanziate da spazi e l'overflow del testo.
+  text = text
+    .replace(/→/g, "->")
+    .replace(/←/g, "<-")
+    .replace(/[“”«»]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .replace(/…/g, "...")
+    .replace(/[–—]/g, "-");
+
+  // 4. Rimuovi marcatori di grassetto e corsivo (*bold*, _italic_)
   text = text.replace(/\*+/g, "");
   text = text.replace(/_+/g, "");
 
-  // 4. Pulizia spazi bianchi e righe vuote in eccesso
+  // 5. Pulizia spazi bianchi e righe vuote in eccesso
   text = text.replace(/[ \t]+\n/g, "\n");
   text = text.replace(/\n{3,}/g, "\n\n");
 
@@ -260,12 +271,4 @@ export function renderA4HandoutPage(
   pdf.setFontSize(7.5);
   pdf.setTextColor(148, 163, 184);
   pdf.text("Shiftati di Testa • Daniel & Ste", margin, pageHeight - 5);
-
-  // Aggiungi anche l'annotazione PDF (Sticky Note) per consultazione rapida
-  addTextAnnotation(
-    pdf,
-    `Note Speaker: ${noteData.title}`,
-    buildPdfAnnotationContent(frame, noteData),
-    { x: margin, y: 13, w: 10, h: 10 },
-  );
 }
